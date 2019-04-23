@@ -1,7 +1,9 @@
 package com.bounteous.aem.compgenerator;
 
 public class Constants {
-    public static String PACKAGE_NAME = "com.hs2solutions.aem.base.core.models";
+    public static String PACKAGE_MODELS = "com.hs2solutions.aem.base.core.models";
+    public static String PACKAGE_IMPL = "com.hs2solutions.aem.base.core.models.impl";
+
 
     public static String RESOURCE_TYPE_TEXTFIELD = "granite/ui/components/coral/foundation/form/textfield";
     public static String RESOURCE_TYPE_NUMBER = "granite/ui/components/coral/foundation/form/numberfield";
@@ -17,9 +19,12 @@ public class Constants {
     public static String SYMBOL_SLASH = "/";
 
     public static String PROPERTY_JCR_TITLE = "jcr:title";
-    public static String JCR_ROOT_NODE = "jcr:root";
     public static String PROPERTY_SLING_RESOURCETYPE = "sling:resourceType";
-    //public static String PROPERTY_JCR_TITLE = "jcr:title";
+    public static String PROPERTY_FIELDLABEL = "fieldLabel";
+    public static String PROPERTY_NAME = "name";
+    public static String PROPERTY_CQ_MSM_LOCKABLE = "cq-msm-lockable";
+
+    public static String JCR_ROOT_NODE = "jcr:root";
 
     public static String JCR_PRIMARY_TYPE = "jcr:primaryType";
     public static String NT_UNSTRUCTURED = "nt:unstructured";

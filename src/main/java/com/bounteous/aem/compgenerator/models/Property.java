@@ -1,6 +1,10 @@
 package com.bounteous.aem.compgenerator.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.CaseUtils;
+
+import java.util.Map;
 
 public class Property {
 
@@ -16,7 +20,20 @@ public class Property {
     @JsonProperty("annotate")
     private String annotate;
 
+    @JsonProperty("attributes")
+    private Map<String, String> attributes;
+
     public String getField() {
+        if (StringUtils.isNotBlank(field)) {
+            return CaseUtils.toCamelCase(field.replaceAll("[^a-z0-9+]", " "), false);
+        }
+        return field;
+    }
+
+    public String getFieldGetterName() {
+        if (StringUtils.isNotBlank(field)) {
+            return CaseUtils.toCamelCase(field.replaceAll("[^a-z0-9+]", " "), true);
+        }
         return field;
     }
 
@@ -47,4 +64,13 @@ public class Property {
     public void setAnnotate(String annotate) {
         this.annotate = annotate;
     }
+
+    public Map<String, String> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = attributes;
+    }
+
 }

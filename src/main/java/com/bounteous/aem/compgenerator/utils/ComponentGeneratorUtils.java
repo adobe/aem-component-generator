@@ -16,7 +16,9 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -101,21 +103,29 @@ public class ComponentGeneratorUtils {
     }
 
     private static Element createPropertyNode(Document document, Property property) {
-        Element propertyNode = null;
         try {
-            propertyNode = document.createElement(property.getField());
+            Element propertyNode = document.createElement(property.getField());
             propertyNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
-            propertyNode.setAttribute("fieldLabel", property.getLabel());
-            propertyNode.setAttribute("name", "./" + property.getField());
+            propertyNode.setAttribute(Constants.PROPERTY_FIELDLABEL, property.getLabel());
+            propertyNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
+            propertyNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
             if (property.getType().equalsIgnoreCase("text")) {
                 propertyNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_TEXTFIELD);
             } else if (property.getType().equalsIgnoreCase("number")) {
                 propertyNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_NUMBER);
             }
+
+            if(property.getAttributes() !=null && property.getAttributes().size() > 0){
+                property.getAttributes()
+                        .entrySet()
+                        .stream()
+                        .forEach(entry ->  propertyNode.setAttribute(entry.getKey(),entry.getValue()));
+            }
+            return propertyNode;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return propertyNode;
+        return null;
     }
 
     private static Element createDialogRoot(Document document, GenerationConfig generationConfig) {
@@ -124,7 +134,7 @@ public class ComponentGeneratorUtils {
         rootElement.setAttribute("xmlns:cq", "http://www.day.com/jcr/cq/1.0");
         rootElement.setAttribute("xmlns:jcr", "http://www.jcp.org/jcr/1.0");
         rootElement.setAttribute("xmlns:nt", "http://www.jcp.org/jcr/nt/1.0");
-        rootElement.setAttribute(Constants.JCR_PRIMARY_TYPE, "cq:Widget");
+        rootElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getName());
         rootElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_DIALOG);
         return rootElement;
@@ -212,7 +222,10 @@ public class ComponentGeneratorUtils {
 
     public static void createHtl(GenerationConfig generationConfig) {
         try {
-            new File(generationConfig.getCompDir() + Constants.SYMBOL_SLASH + generationConfig.getName() + ".html").createNewFile();
+            String html = "<sly data-sly-use.model=\""+Constants.PACKAGE_MODELS+"."+generationConfig.getJavaFormatedName()+"\"></sly>";
+            BufferedWriter writer = new BufferedWriter(new FileWriter(generationConfig.getCompDir() + Constants.SYMBOL_SLASH + generationConfig.getName() + ".html"));
+            writer.write(html);
+            writer.close();
         } catch (Exception e) {
             throw new GeneratorException("Exception while creating HTML : " + generationConfig.getCompDir());
         }

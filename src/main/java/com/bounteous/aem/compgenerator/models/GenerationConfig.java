@@ -1,5 +1,8 @@
 package com.bounteous.aem.compgenerator.models;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.CaseUtils;
+
 public class GenerationConfig {
 
     private String name;
@@ -15,11 +18,21 @@ public class GenerationConfig {
     private String compDir;
 
     public String getName() {
+        if(StringUtils.isNotBlank(name)){
+            return name.replaceAll("[^a-z0-9+]", "-");
+        }
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getJavaFormatedName() {
+        if(StringUtils.isNotBlank(name)){
+            return CaseUtils.toCamelCase(name.replaceAll("-", " "), true);
+        }
+        return name;
     }
 
     public String getTitle() {
