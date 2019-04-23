@@ -14,6 +14,7 @@ public class Constants {
     public static String RESOURCE_TYPE_SECTION = "granite/ui/components/foundation/section";
 
     public static String FILENAME_DIALOG = "_cq_dialog";
+    public static String FILENAME_DIALOG_GLOBAL = "dialogGlobal";
     public static String FILENAME_CONTENT_XML = ".content.xml";
 
     public static String SYMBOL_SLASH = "/";
@@ -28,8 +29,8 @@ public class Constants {
 
     public static String JCR_PRIMARY_TYPE = "jcr:primaryType";
     public static String NT_UNSTRUCTURED = "nt:unstructured";
-    public static String TYPE_COMPONNET = "cq:component";
-    public static String TYPE_SLING_FOLDER = "sling:folder";
+    public static String TYPE_COMPONNET = "cq:Component";
+    public static String TYPE_SLING_FOLDER = "sling:Folder";
 
 
     public static String PROJECT_COMPONENT = "ui.apps/src/main/content/jcr_root/apps/hs2-aem-base/components";

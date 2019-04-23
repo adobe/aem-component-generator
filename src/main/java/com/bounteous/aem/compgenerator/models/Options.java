@@ -21,6 +21,9 @@ public class Options {
     @JsonProperty("properties")
     private List<Property> properties;
 
+    @JsonProperty("properties-global")
+    private List<Property> gobalProperties;
+
     public boolean isHasJs() {
         return hasJs;
     }
@@ -59,5 +62,13 @@ public class Options {
 
     public void setProperties(List<Property> properties) {
         this.properties = properties;
+    }
+
+    public List<Property> getGobalProperties() {
+        return gobalProperties;
+    }
+
+    public void setGobalProperties(List<Property> gobalProperties) {
+        this.gobalProperties = gobalProperties;
     }
 }

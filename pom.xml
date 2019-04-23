@@ -3,28 +3,11 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>bounteous</groupId>
     <artifactId>component-generator</artifactId>
-    <packaging>jar</packaging>
     <version>1.0</version>
     <build>
         <plugins>
-            <plugin>
-                 <!--Build an executable JAR-->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.bounteous.aem.compgenerator.AemCompGenerator</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -44,6 +27,8 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <finalName>component-generator-1.0</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
                             <mainClass>com.bounteous.aem.compgenerator.AemCompGenerator</mainClass>
@@ -56,7 +41,6 @@
             </plugin>
         </plugins>
     </build>
-
     <dependencies>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

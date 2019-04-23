@@ -48,7 +48,13 @@ public class ComponentGeneratorUtils {
         //createFolder(compDir);
         createFolderWithContentXML(generationConfig, compDir, Constants.TYPE_COMPONNET);
 
-        createDialogXml(generationConfig);
+        createDialogXml(generationConfig, "dialog");
+
+        if(generationConfig.getOptions().getGobalProperties() != null &&
+                generationConfig.getOptions().getGobalProperties().size() > 0 ){
+            createDialogXml(generationConfig, Constants.FILENAME_DIALOG_GLOBAL);
+        }
+
 
         createClientLibs(generationConfig);
 
@@ -61,7 +67,7 @@ public class ComponentGeneratorUtils {
         String clientLibPathDirs = generationConfig.getCompDir() + "/clientlibs";
         try {
             if (generationConfig.getOptions().isHasJs() || generationConfig.getOptions().isHasCss()) {
-                createFolderWithContentXML(generationConfig, clientLibPathDirs, "sling:folder");
+                createFolderWithContentXML(generationConfig, clientLibPathDirs, Constants.TYPE_SLING_FOLDER);
                 if (generationConfig.getOptions().isHasCss()) {
                     createFolder(clientLibPathDirs + "/site/css");
                     new File(clientLibPathDirs + "/site/css/" + generationConfig.getName() + ".less").createNewFile();
@@ -77,17 +83,27 @@ public class ComponentGeneratorUtils {
         }
     }
 
-    public static void createDialogXml(GenerationConfig generationConfig) {
-        String dialogPath = generationConfig.getCompDir() + Constants.SYMBOL_SLASH + Constants.FILENAME_DIALOG;
+    public static void createDialogXml(GenerationConfig generationConfig , String dialogType) {
+        String dialogPath;
+
+        if(dialogType.equalsIgnoreCase(Constants.FILENAME_DIALOG_GLOBAL)){
+            dialogPath = generationConfig.getCompDir() + Constants.SYMBOL_SLASH + Constants.FILENAME_DIALOG_GLOBAL;
+        } else {
+            dialogPath = generationConfig.getCompDir() + Constants.SYMBOL_SLASH + Constants.FILENAME_DIALOG;
+        }
         try {
             ComponentGeneratorUtils.createFolder(dialogPath);
 
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-            Element rootElement = createDialogRoot(doc, generationConfig);
+            Element rootElement = createDialogRoot(doc, generationConfig, dialogType);
 
             List<Property> properties = generationConfig.getOptions().getProperties();
+            if(dialogType.equalsIgnoreCase(Constants.FILENAME_DIALOG_GLOBAL)){
+                properties = generationConfig.getOptions().getGobalProperties();
+            }
+
             if (properties != null && properties.size() > 0) {
-                Node currentNode = updateDefaultNodeStructure(doc, rootElement);
+                Node currentNode = updateDefaultNodeStructure(doc, rootElement, dialogType);
 
                 properties.stream()
                         .filter(Objects::nonNull)
@@ -128,19 +144,20 @@ public class ComponentGeneratorUtils {
         return null;
     }
 
-    private static Element createDialogRoot(Document document, GenerationConfig generationConfig) {
-        Element rootElement = document.createElement("jcr:root");
-        rootElement.setAttribute("xmlns:sling", "http://sling.apache.org/jcr/sling/1.0");
-        rootElement.setAttribute("xmlns:cq", "http://www.day.com/jcr/cq/1.0");
-        rootElement.setAttribute("xmlns:jcr", "http://www.jcp.org/jcr/1.0");
-        rootElement.setAttribute("xmlns:nt", "http://www.jcp.org/jcr/nt/1.0");
+    private static Element createDialogRoot(Document document, GenerationConfig generationConfig, String dialogType) {
+        Element rootElement = createRootElement(document);
         rootElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
-        rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getName());
         rootElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_DIALOG);
+        if(dialogType.equalsIgnoreCase(Constants.FILENAME_DIALOG_GLOBAL)){
+            rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getName() + " (Global Properties)" );
+        } else {
+            rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getName());
+        }
+
         return rootElement;
     }
 
-    private static Node updateDefaultNodeStructure(Document document, Element root) {
+    private static Node updateDefaultNodeStructure(Document document, Element root, String dialogType) {
         Element containerElement = document.createElement("content");
         containerElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         containerElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_CONTAINER);
@@ -163,6 +180,13 @@ public class ComponentGeneratorUtils {
         columnElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         columnElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_CONTAINER);
 
+        if (dialogType.equalsIgnoreCase(Constants.FILENAME_DIALOG_GLOBAL)){
+            return root.appendChild(containerElement)
+                    .appendChild(layoutElement1)
+                    .appendChild(createUnStructuredNode(document, "items"))
+                    .appendChild(columnElement)
+                    .appendChild(createUnStructuredNode(document, "items"));
+        }
         return root.appendChild(containerElement)
                 .appendChild(layoutElement)
                 .appendChild(createUnStructuredNode(document, "items"))
@@ -217,6 +241,7 @@ public class ComponentGeneratorUtils {
         rootElement.setAttribute("xmlns:cq", "http://www.day.com/jcr/cq/1.0");
         rootElement.setAttribute("xmlns:jcr", "http://www.jcp.org/jcr/1.0");
         rootElement.setAttribute("xmlns:nt", "http://www.jcp.org/jcr/nt/1.0");
+
         return rootElement;
     }
 
