@@ -3,6 +3,7 @@ package com.bounteous.aem.compgenerator.javacodemodel;
 import com.bounteous.aem.compgenerator.Constants;
 import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.models.Property;
+import com.sun.codemodel.CodeWriter;
 import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
@@ -10,7 +11,12 @@ import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JPackage;
+import com.sun.codemodel.writer.FileCodeWriter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.bounteous.aem.compgenerator.utils.ComponentGeneratorUtils.getResourceContentAsString;
 import static com.sun.codemodel.JMod.NONE;
 import static com.sun.codemodel.JMod.PRIVATE;
 
@@ -31,12 +38,13 @@ public class JavaCodeModel {
         this.generationConfig = generationConfig;
     }
 
-    public void _createSlingModel() {
-        _createSlingInterface();
-        _createSlingImpl();
+    public void _buildSlingModel() {
+        _buildInterface();
+        _buildImplClass();
+        System.out.println("--------------* Sling Model successfully generated *--------------");
     }
 
-    public void _createSlingInterface() {
+    public void _buildInterface() {
         try {
             JPackage jPackage = codeModel._package(Constants.PACKAGE_MODELS);
             jc = jPackage._interface(generationConfig.getJavaFormatedName());
@@ -46,7 +54,16 @@ public class JavaCodeModel {
                 _addGettersWithoutFields(generationConfig.getOptions().getProperties());
             }
 
-            codeModel.build(new File(Constants.BUNDLE_LOCATION));
+            if (generationConfig.getOptions().getGobalProperties() != null) {
+                _addGettersWithoutFields(generationConfig.getOptions().getGobalProperties());
+            }
+
+            //Adding Class header comments to the class.
+            CodeWriter codeWriter = new FileCodeWriter(new File(Constants.BUNDLE_LOCATION));
+            PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter, getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_JAVA));
+
+            codeModel.build(prologCodeWriter);
+            System.out.println("Created : " + jc.fullName());
 
         } catch (JClassAlreadyExistsException e) {
             e.printStackTrace();
@@ -55,7 +72,7 @@ public class JavaCodeModel {
         }
     }
 
-    public void _createSlingImpl() {
+    public void _buildImplClass() {
         try {
             JPackage jPackage = codeModel._package(Constants.PACKAGE_IMPL);
             JDefinedClass jcInterface = jc;
@@ -65,11 +82,21 @@ public class JavaCodeModel {
 
             if (generationConfig.getOptions().getProperties() != null) {
                 _addFieldVars(generationConfig.getOptions().getProperties());
-                _addGetters();
             }
 
-            codeModel.build(new File(Constants.BUNDLE_LOCATION));
-            System.out.println("SlingModel successful " + Constants.BUNDLE_LOCATION);
+            if (generationConfig.getOptions().getGobalProperties() != null) {
+                _addFieldVars(generationConfig.getOptions().getGobalProperties());
+            }
+
+            _addGetters();
+
+            //Adding Class header comments to the class.
+            CodeWriter codeWriter = new FileCodeWriter(new File(Constants.BUNDLE_LOCATION));
+            PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter, getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_JAVA));
+
+            codeModel.build(prologCodeWriter);
+            System.out.println("Created : " + jc.fullName());
+
         } catch (JClassAlreadyExistsException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -79,14 +106,12 @@ public class JavaCodeModel {
 
     private JDefinedClass _addSlingAnnotations(JDefinedClass jDefinedClass, JDefinedClass jcInterface) {
         if (jDefinedClass != null) {
-            jDefinedClass.annotate(codeModel.ref("org.apache.sling.models.annotations.Model"))
-                    .param("adapters", codeModel.ref(jcInterface.fullName()))
+            jDefinedClass.annotate(codeModel.ref(Model.class))
+                    .param("adapters", jcInterface.getPackage()._getClass(generationConfig.getJavaFormatedName()))
                     .param("resourceType", "hs2-aem-base/components/" + generationConfig.getType() + "/" + generationConfig.getName())
                     .paramArray("adaptables")
                     .param(codeModel.ref("org.apache.sling.api.resource.Resource"))
                     .param(codeModel.ref("org.apache.sling.api.SlingHttpServletRequest"));
-
-
         }
         return jDefinedClass;
     }
@@ -106,9 +131,9 @@ public class JavaCodeModel {
     private void _addPrivateField(String fieldName, String fieldType) {
         if (jc.isClass()) {
             jc.field(PRIVATE, codeModel.ref(fieldType), fieldName)
-                    .annotate(codeModel.ref("org.apache.sling.models.annotations.injectorspecific.ValueMapValue"))
+                    .annotate(codeModel.ref(ValueMapValue.class))
                     .param("injectionStrategy",
-                            codeModel.ref("org.apache.sling.models.annotations.injectorspecific.InjectionStrategy").staticRef("DEFAULT"));
+                            codeModel.ref(InjectionStrategy.class).staticRef("OPTIONAL"));
         } else if (jc.isInterface()) {
             jc.field(NONE, codeModel.ref(fieldType), fieldName);
         }
@@ -127,8 +152,9 @@ public class JavaCodeModel {
 
     private void _addGetter(JFieldVar jFieldVar) {
         if (jc.isClass()) {
-            JMethod getVar = jc.method(JMod.PUBLIC, jFieldVar.type(), getMethodFormattedString(jFieldVar.name()));
-            getVar.body()._return(jFieldVar);
+            JMethod getMethod = jc.method(JMod.PUBLIC, jFieldVar.type(), getMethodFormattedString(jFieldVar.name()));
+            getMethod.annotate(codeModel.ref(Override.class));
+            getMethod.body()._return(jFieldVar);
         } else {
             jc.method(NONE, jFieldVar.type(), getMethodFormattedString(jFieldVar.name()));
         }
@@ -139,7 +165,7 @@ public class JavaCodeModel {
             if (type.equalsIgnoreCase("string") || type.equalsIgnoreCase("text")) {
                 return "java.lang.String";
             } else if (type.equalsIgnoreCase("number")) {
-                return "java.lang.Integer";
+                return "java.lang.Long";
             }
         }
         return type;
@@ -148,14 +174,15 @@ public class JavaCodeModel {
     private void _addGettersWithoutFields(List<Property> properties) {
         if (properties != null && properties.size() > 0) {
             properties.forEach(property -> jc.method(NONE, codeModel.ref(getFieldType(property.getType())),
-                    "get" + property.getFieldGetterName()));
+                    Constants.STRING_GET + property.getFieldGetterName()));
         }
     }
 
     private String getMethodFormattedString(String fieldVariable) {
         if (StringUtils.isNotBlank(fieldVariable) && StringUtils.length(fieldVariable) > 0) {
-            return "get" + Character.toTitleCase(fieldVariable.charAt(0)) + fieldVariable.substring(1);
+            return Constants.STRING_GET + Character.toTitleCase(fieldVariable.charAt(0)) + fieldVariable.substring(1);
         }
         return fieldVariable;
     }
+
 }

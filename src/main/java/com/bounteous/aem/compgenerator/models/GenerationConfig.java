@@ -17,6 +17,9 @@ public class GenerationConfig {
 
     private String compDir;
 
+    private String javaFormatedName;
+
+
     public String getName() {
         if(StringUtils.isNotBlank(name)){
             return name.replaceAll("[^a-z0-9+]", "-");
@@ -30,9 +33,9 @@ public class GenerationConfig {
 
     public String getJavaFormatedName() {
         if(StringUtils.isNotBlank(name)){
-            return CaseUtils.toCamelCase(name.replaceAll("-", " "), true);
+            javaFormatedName =  CaseUtils.toCamelCase(name.replaceAll("-", " "), true);
         }
-        return name;
+        return javaFormatedName;
     }
 
     public String getTitle() {
@@ -74,4 +77,5 @@ public class GenerationConfig {
     public void setCompDir(String compDir) {
         this.compDir = compDir;
     }
+
 }

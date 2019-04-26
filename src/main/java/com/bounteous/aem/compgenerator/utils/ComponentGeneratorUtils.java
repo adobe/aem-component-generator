@@ -6,9 +6,12 @@ import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.models.Property;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -16,15 +19,23 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ComponentGeneratorUtils {
 
@@ -41,26 +52,32 @@ public class ComponentGeneratorUtils {
         return null;
     }
 
-    public static void createComponentFileStructure(GenerationConfig generationConfig) throws Exception {
+    public static void _buildComponent(GenerationConfig generationConfig) throws Exception {
+        if (generationConfig == null) {
+            throw new GeneratorException("Config file cannot be empty / null !!");
+        }
+        if (StringUtils.isBlank(generationConfig.getName()) || StringUtils.isBlank(generationConfig.getType())) {
+            throw new GeneratorException("Mandatory fields missing in the data-config.json !");
+        }
+
         String compDir = Constants.PROJECT_COMPONENT + "/" + generationConfig.getType() + "/" + generationConfig.getName();
         generationConfig.setCompDir(compDir);
 
-        //createFolder(compDir);
         createFolderWithContentXML(generationConfig, compDir, Constants.TYPE_COMPONNET);
 
         createDialogXml(generationConfig, "dialog");
 
-        if(generationConfig.getOptions().getGobalProperties() != null &&
-                generationConfig.getOptions().getGobalProperties().size() > 0 ){
+        if (generationConfig.getOptions().getGobalProperties() != null &&
+                generationConfig.getOptions().getGobalProperties().size() > 0) {
             createDialogXml(generationConfig, Constants.FILENAME_DIALOG_GLOBAL);
         }
-
 
         createClientLibs(generationConfig);
 
         createHtl(generationConfig);
 
-        System.out.println("Component successfully at "+compDir);
+        System.out.println("--------------* Component '" + generationConfig.getName() + "' successfully generated *--------------");
+
     }
 
     public static void createClientLibs(GenerationConfig generationConfig) {
@@ -83,22 +100,24 @@ public class ComponentGeneratorUtils {
         }
     }
 
-    public static void createDialogXml(GenerationConfig generationConfig , String dialogType) {
+    public static void createDialogXml(GenerationConfig generationConfig, String dialogType) {
         String dialogPath;
 
-        if(dialogType.equalsIgnoreCase(Constants.FILENAME_DIALOG_GLOBAL)){
+        if (dialogType.equalsIgnoreCase(Constants.FILENAME_DIALOG_GLOBAL)) {
             dialogPath = generationConfig.getCompDir() + Constants.SYMBOL_SLASH + Constants.FILENAME_DIALOG_GLOBAL;
         } else {
             dialogPath = generationConfig.getCompDir() + Constants.SYMBOL_SLASH + Constants.FILENAME_DIALOG;
         }
+
         try {
             ComponentGeneratorUtils.createFolder(dialogPath);
 
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+
             Element rootElement = createDialogRoot(doc, generationConfig, dialogType);
 
             List<Property> properties = generationConfig.getOptions().getProperties();
-            if(dialogType.equalsIgnoreCase(Constants.FILENAME_DIALOG_GLOBAL)){
+            if (dialogType.equalsIgnoreCase(Constants.FILENAME_DIALOG_GLOBAL)) {
                 properties = generationConfig.getOptions().getGobalProperties();
             }
 
@@ -113,6 +132,7 @@ public class ComponentGeneratorUtils {
             }
             doc.appendChild(rootElement);
             transformDomToFile(doc, dialogPath + Constants.SYMBOL_SLASH + Constants.FILENAME_CONTENT_XML);
+            System.out.println("Created : " + dialogPath + Constants.SYMBOL_SLASH + Constants.FILENAME_CONTENT_XML);
         } catch (Exception e) {
             throw new GeneratorException("Exception while creating Dialog xml : " + dialogPath);
         }
@@ -121,21 +141,24 @@ public class ComponentGeneratorUtils {
     private static Element createPropertyNode(Document document, Property property) {
         try {
             Element propertyNode = document.createElement(property.getField());
+
             propertyNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
-            propertyNode.setAttribute(Constants.PROPERTY_FIELDLABEL, property.getLabel());
-            propertyNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
-            propertyNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
+
             if (property.getType().equalsIgnoreCase("text")) {
                 propertyNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_TEXTFIELD);
             } else if (property.getType().equalsIgnoreCase("number")) {
                 propertyNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_NUMBER);
             }
 
-            if(property.getAttributes() !=null && property.getAttributes().size() > 0){
+            propertyNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
+            propertyNode.setAttribute(Constants.PROPERTY_FIELDLABEL, property.getLabel());
+            propertyNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
+
+            if (property.getAttributes() != null && property.getAttributes().size() > 0) {
                 property.getAttributes()
                         .entrySet()
                         .stream()
-                        .forEach(entry ->  propertyNode.setAttribute(entry.getKey(),entry.getValue()));
+                        .forEach(entry -> propertyNode.setAttribute(entry.getKey(), entry.getValue()));
             }
             return propertyNode;
         } catch (Exception e) {
@@ -148,10 +171,10 @@ public class ComponentGeneratorUtils {
         Element rootElement = createRootElement(document);
         rootElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         rootElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_DIALOG);
-        if(dialogType.equalsIgnoreCase(Constants.FILENAME_DIALOG_GLOBAL)){
-            rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getName() + " (Global Properties)" );
+        if (dialogType.equalsIgnoreCase(Constants.FILENAME_DIALOG_GLOBAL)) {
+            rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getTitle() + " (Global Properties)");
         } else {
-            rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getName());
+            rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getTitle());
         }
 
         return rootElement;
@@ -180,7 +203,7 @@ public class ComponentGeneratorUtils {
         columnElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         columnElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_CONTAINER);
 
-        if (dialogType.equalsIgnoreCase(Constants.FILENAME_DIALOG_GLOBAL)){
+        if (dialogType.equalsIgnoreCase(Constants.FILENAME_DIALOG_GLOBAL)) {
             return root.appendChild(containerElement)
                     .appendChild(layoutElement1)
                     .appendChild(createUnStructuredNode(document, "items"))
@@ -227,6 +250,7 @@ public class ComponentGeneratorUtils {
             }
             doc.appendChild(rootElement);
             transformDomToFile(doc, folderPath + Constants.SYMBOL_SLASH + Constants.FILENAME_CONTENT_XML);
+            System.out.println("Created : " + folderPath + Constants.SYMBOL_SLASH + Constants.FILENAME_CONTENT_XML);
         } catch (Exception e) {
             throw new GeneratorException("Exception while creating Folder/xml : " + path);
         }
@@ -236,6 +260,8 @@ public class ComponentGeneratorUtils {
         if (document == null) {
             return null;
         }
+
+        document.appendChild(document.createComment(getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_XML)));
         Element rootElement = document.createElement(Constants.JCR_ROOT_NODE);
         rootElement.setAttribute("xmlns:sling", "http://sling.apache.org/jcr/sling/1.0");
         rootElement.setAttribute("xmlns:cq", "http://www.day.com/jcr/cq/1.0");
@@ -247,10 +273,14 @@ public class ComponentGeneratorUtils {
 
     public static void createHtl(GenerationConfig generationConfig) {
         try {
-            String html = "<sly data-sly-use.model=\""+Constants.PACKAGE_MODELS+"."+generationConfig.getJavaFormatedName()+"\"></sly>";
+            StrSubstitutor strSubstitutor = new StrSubstitutor(getTemplateValueMap(generationConfig));
+            String slyHtml = getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_XML);
+
             BufferedWriter writer = new BufferedWriter(new FileWriter(generationConfig.getCompDir() + Constants.SYMBOL_SLASH + generationConfig.getName() + ".html"));
-            writer.write(html);
+            writer.write(strSubstitutor.replace(slyHtml));
             writer.close();
+
+            System.out.println("Created : " + generationConfig.getCompDir() + Constants.SYMBOL_SLASH + generationConfig.getName() + ".html");
         } catch (Exception e) {
             throw new GeneratorException("Exception while creating HTML : " + generationConfig.getCompDir());
         }
@@ -275,6 +305,31 @@ public class ComponentGeneratorUtils {
         } catch (Exception e) {
             throw new GeneratorException("Exception while DOM conversion to file : " + filePath);
         }
+    }
+
+    private static Map<String, String> getTemplateValueMap(GenerationConfig generationConfig) {
+        if (generationConfig != null) {
+            Map<String, String> map = new HashMap<>();
+            map.put("name", generationConfig.getName());
+            map.put("sightly", generationConfig.getJavaFormatedName());
+            map.put("slingModel", Constants.PACKAGE_MODELS + "." + generationConfig.getJavaFormatedName());
+            return map;
+        }
+        return null;
+    }
+
+    public static String getResourceContentAsString(String filePath) {
+        try (InputStream inputStream = ComponentGeneratorUtils.class.getClassLoader().getResourceAsStream(filePath)) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            return reader.lines().collect(Collectors.joining(System.lineSeparator()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static boolean isFileBlank(File file) {
+        return file.exists() && file.length() == 0 ? true : false;
     }
 
 }

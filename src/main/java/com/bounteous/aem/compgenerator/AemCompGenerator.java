@@ -15,22 +15,30 @@ public class AemCompGenerator {
             if (args != null && args.length > 0) {
                 configPath = args[0];
             }
+
             File configFile = new File(configPath);
-            if (!configFile.exists()) {
-                throw new GeneratorException("Error : No config file found.");
+
+            if (ComponentGeneratorUtils.isFileBlank(configFile)) {
+                throw new GeneratorException("Config file missing / empty.");
             }
+
             //Json file to ComponentData Object
             GenerationConfig generationConfig = ComponentGeneratorUtils.getComponentData(configFile);
 
-            if (generationConfig != null) {
-                ComponentGeneratorUtils.createComponentFileStructure(generationConfig);
-                if (generationConfig.getOptions().isHasSlingModel()) {
-                    JavaCodeModel javaCodeModel = new JavaCodeModel(generationConfig);
-                    javaCodeModel._createSlingModel();
-                }
+            if (generationConfig == null) {
+                throw new GeneratorException("Config file is empty / null !!");
+            }
+
+            ComponentGeneratorUtils._buildComponent(generationConfig);
+
+            if (generationConfig.getOptions().isHasSlingModel()) {
+                JavaCodeModel javaCodeModel = new JavaCodeModel(generationConfig);
+                javaCodeModel._buildSlingModel();
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            System.out.println("---------------------------");
+            e.printStackTrace();
         }
     }
 }

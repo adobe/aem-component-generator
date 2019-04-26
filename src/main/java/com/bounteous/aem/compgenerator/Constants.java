@@ -36,4 +36,10 @@ public class Constants {
     public static String PROJECT_COMPONENT = "ui.apps/src/main/content/jcr_root/apps/hs2-aem-base/components";
     public static String BUNDLE_LOCATION = "core/src/main/java";
 
+    public static String TEMPLATE_COPYRIGHT_JAVA = "template-copyright.txt";
+    public static String TEMPLATE_COPYRIGHT_XML = "template-copyright-xml.txt";
+
+
+    public static String STRING_GET = "get";
+
 }
