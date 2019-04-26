@@ -1,3 +1,21 @@
+/*
+ * ***********************************************************************
+ * BOUNTEOUS CONFIDENTIAL
+ * ___________________
+ *
+ * Copyright 2019 Bounteous
+ * All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains the property
+ * of Bounteous and its suppliers, if any. The intellectual and
+ * technical concepts contained herein are proprietary to Bounteous
+ * and its suppliers and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Bounteous.
+ * ***********************************************************************
+ */
+
 package com.bounteous.aem.compgenerator.javacodemodel;
 
 import com.bounteous.aem.compgenerator.Constants;
@@ -28,23 +46,49 @@ import static com.bounteous.aem.compgenerator.utils.ComponentGeneratorUtils.getR
 import static com.sun.codemodel.JMod.NONE;
 import static com.sun.codemodel.JMod.PRIVATE;
 
+
+/**
+ * Root of the code.
+ *
+ * <p>
+ * Here's your JavaCodeModel application.
+ *
+ * <pre>
+ * JavaCodeModel jcm = new JavaCodeModel();
+ *
+ * // generate source code and write them from jcm.
+ * jcm._buildSlingModel(generationConfig);
+ * ...
+ *
+ *<p>
+ * JavaCodeModel creates source code of your sling-model interface and implementation
+ * using user data config configuration object.
+ */
 public class JavaCodeModel {
+
     private JCodeModel codeModel;
     private JDefinedClass jc;
     GenerationConfig generationConfig;
 
-    public JavaCodeModel(GenerationConfig generationConfig) {
+    public JavaCodeModel() {}
+
+    /**
+     * builds your slingModel interface and implementation class with all required
+     * sling annotation, fields and getters based on the <code>generationConfig</code>.
+     */
+    public void _buildSlingModel(GenerationConfig generationConfig) {
         this.codeModel = new JCodeModel();
         this.generationConfig = generationConfig;
-    }
-
-    public void _buildSlingModel() {
         _buildInterface();
         _buildImplClass();
         System.out.println("--------------* Sling Model successfully generated *--------------");
     }
 
-    public void _buildInterface() {
+    /**
+     * builds your slingModel interface with all required annotation,
+     * fields and getters based on the <code>generationConfig</code>.
+     */
+    private void _buildInterface() {
         try {
             JPackage jPackage = codeModel._package(Constants.PACKAGE_MODELS);
             jc = jPackage._interface(generationConfig.getJavaFormatedName());
@@ -72,7 +116,11 @@ public class JavaCodeModel {
         }
     }
 
-    public void _buildImplClass() {
+    /**
+     * builds your slingModel implementation with all required sling annotation,
+     * fields and getters based on the <code>generationConfig</code>.
+     */
+    private void _buildImplClass() {
         try {
             JPackage jPackage = codeModel._package(Constants.PACKAGE_IMPL);
             JDefinedClass jcInterface = jc;
@@ -104,6 +152,12 @@ public class JavaCodeModel {
         }
     }
 
+    /**
+     * adds all default sling annotations to class.
+     * @param jDefinedClass
+     * @param jcInterface
+     * @return
+     */
     private JDefinedClass _addSlingAnnotations(JDefinedClass jDefinedClass, JDefinedClass jcInterface) {
         if (jDefinedClass != null) {
             jDefinedClass.annotate(codeModel.ref(Model.class))
@@ -116,19 +170,32 @@ public class JavaCodeModel {
         return jDefinedClass;
     }
 
+    /**
+     * adds fields to java model.
+     * @param properties
+     */
     private void _addFieldVars(List<Property> properties) {
         properties.stream()
                 .filter(Objects::nonNull)
                 .forEach(property -> _addFieldVar(property));
     }
 
+    /**
+     * add field variable to to jc.
+     * @param property
+     */
     private void _addFieldVar(Property property) {
         if (property != null && StringUtils.isNotBlank(property.getField())) {
-            _addPrivateField(property.getField(), getFieldType(property.getType()));
+            _addPropertyAsPrivateField(property.getField(), getFieldType(property.getType()));
         }
     }
 
-    private void _addPrivateField(String fieldName, String fieldType) {
+    /**
+     * method that add the fieldname as private to jc.
+     * @param fieldName
+     * @param fieldType
+     */
+    private void _addPropertyAsPrivateField(String fieldName, String fieldType) {
         if (jc.isClass()) {
             jc.field(PRIVATE, codeModel.ref(fieldType), fieldName)
                     .annotate(codeModel.ref(ValueMapValue.class))
@@ -139,6 +206,9 @@ public class JavaCodeModel {
         }
     }
 
+    /**
+     * adds getters to all the fields available in the java class.
+     */
     private void _addGetters() {
         Map<String, JFieldVar> fieldVars = jc.fields();
         if (fieldVars.size() > 0) {
@@ -150,6 +220,10 @@ public class JavaCodeModel {
         }
     }
 
+    /**
+     * add getter method for jFieldVar passed in.
+     * @param jFieldVar
+     */
     private void _addGetter(JFieldVar jFieldVar) {
         if (jc.isClass()) {
             JMethod getMethod = jc.method(JMod.PUBLIC, jFieldVar.type(), getMethodFormattedString(jFieldVar.name()));
@@ -160,6 +234,11 @@ public class JavaCodeModel {
         }
     }
 
+    /**
+     * get the java fieldType based on the type input in the generationConfig
+     * @param type
+     * @return
+     */
     private String getFieldType(String type) {
         if (StringUtils.isNotBlank(type)) {
             if (type.equalsIgnoreCase("string") || type.equalsIgnoreCase("text")) {
@@ -171,6 +250,10 @@ public class JavaCodeModel {
         return type;
     }
 
+    /**
+     * method just adds getters based on the properties of generationConfig
+     * @param properties
+     */
     private void _addGettersWithoutFields(List<Property> properties) {
         if (properties != null && properties.size() > 0) {
             properties.forEach(property -> jc.method(NONE, codeModel.ref(getFieldType(property.getType())),
@@ -178,6 +261,11 @@ public class JavaCodeModel {
         }
     }
 
+    /**
+     * builds method name out of field variable.
+     * @param fieldVariable
+     * @return
+     */
     private String getMethodFormattedString(String fieldVariable) {
         if (StringUtils.isNotBlank(fieldVariable) && StringUtils.length(fieldVariable) > 0) {
             return Constants.STRING_GET + Character.toTitleCase(fieldVariable.charAt(0)) + fieldVariable.substring(1);

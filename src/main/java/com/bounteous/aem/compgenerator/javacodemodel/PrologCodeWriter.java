@@ -1,3 +1,20 @@
+/*
+ * ***********************************************************************
+ * BOUNTEOUS CONFIDENTIAL
+ * ___________________
+ *
+ * Copyright 2019 Bounteous
+ * All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains the property
+ * of Bounteous and its suppliers, if any. The intellectual and
+ * technical concepts contained herein are proprietary to Bounteous
+ * and its suppliers and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Bounteous.
+ * ***********************************************************************
+ */
 package com.bounteous.aem.compgenerator.javacodemodel;
 
 import java.io.IOException;
@@ -44,7 +61,7 @@ public class PrologCodeWriter extends FilterCodeWriter {
                 s = s.substring(idx+1);
             }
         }
-        out.flush();    // we can't close the stream for that would close the undelying stream.
+        out.flush();
 
         return w;
     }

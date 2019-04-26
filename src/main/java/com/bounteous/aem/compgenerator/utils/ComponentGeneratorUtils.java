@@ -1,3 +1,21 @@
+/*
+ * ***********************************************************************
+ * BOUNTEOUS CONFIDENTIAL
+ * ___________________
+ *
+ * Copyright 2019 Bounteous
+ * All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains the property
+ * of Bounteous and its suppliers, if any. The intellectual and
+ * technical concepts contained herein are proprietary to Bounteous
+ * and its suppliers and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Bounteous.
+ * ***********************************************************************
+ */
+
 package com.bounteous.aem.compgenerator.utils;
 
 import com.bounteous.aem.compgenerator.Constants;
@@ -22,8 +40,6 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,8 +53,20 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * <p>
+ * ComponentGeneratorUtils class helps in building elements of component
+ * like folders, xml file, html with content based data-config file.
+ */
+
 public class ComponentGeneratorUtils {
 
+    /**
+     * Method to map JSON content from given file into given GenerationConfig type.
+     *
+     * @param jsonDataFile data-config file.
+     * @return GenerationConfig java class with the mapped content in json file.
+     */
     public static GenerationConfig getComponentData(File jsonDataFile) {
         if (jsonDataFile.exists()) {
             try {
@@ -52,6 +80,13 @@ public class ComponentGeneratorUtils {
         return null;
     }
 
+    /**
+     * builds your base folder structure of a component includes component folder
+     * itself, _cq_dialog with field properties, dialogGlobal with properties-global,
+     * HTML, clientlibs folder.
+     *
+     * @param generationConfig data-config java object.
+     */
     public static void _buildComponent(GenerationConfig generationConfig) throws Exception {
         if (generationConfig == null) {
             throw new GeneratorException("Config file cannot be empty / null !!");
@@ -63,23 +98,32 @@ public class ComponentGeneratorUtils {
         String compDir = Constants.PROJECT_COMPONENT + "/" + generationConfig.getType() + "/" + generationConfig.getName();
         generationConfig.setCompDir(compDir);
 
+        //creates base component folder.
         createFolderWithContentXML(generationConfig, compDir, Constants.TYPE_COMPONNET);
 
+        //create _cq_dialog xml with user input properties in json.
         createDialogXml(generationConfig, "dialog");
 
+        //create dialogGlobal xml file with user input global properties in json.
         if (generationConfig.getOptions().getGobalProperties() != null &&
                 generationConfig.getOptions().getGobalProperties().size() > 0) {
             createDialogXml(generationConfig, Constants.FILENAME_DIALOG_GLOBAL);
         }
 
+        //builds clientLib and placeholder files for js and css.
         createClientLibs(generationConfig);
 
+        //builds sightly html file using htl template from resource.
         createHtl(generationConfig);
 
         System.out.println("--------------* Component '" + generationConfig.getName() + "' successfully generated *--------------");
 
     }
 
+    /**
+     * builds default clientlib structure with js and css file under folder.
+     * @param generationConfig
+     */
     public static void createClientLibs(GenerationConfig generationConfig) {
         String clientLibPathDirs = generationConfig.getCompDir() + "/clientlibs";
         try {
@@ -87,11 +131,13 @@ public class ComponentGeneratorUtils {
                 createFolderWithContentXML(generationConfig, clientLibPathDirs, Constants.TYPE_SLING_FOLDER);
                 if (generationConfig.getOptions().isHasCss()) {
                     createFolder(clientLibPathDirs + "/site/css");
-                    new File(clientLibPathDirs + "/site/css/" + generationConfig.getName() + ".less").createNewFile();
+                    new File(clientLibPathDirs + "/site/css/" + generationConfig.getName() + ".less")
+                            .createNewFile();
                 }
                 if (generationConfig.getOptions().isHasJs()) {
                     createFolder(clientLibPathDirs + "/site/js");
-                    new File(clientLibPathDirs + "/site/js/" + generationConfig.getName() + ".js").createNewFile();
+                    new File(clientLibPathDirs + "/site/js/" + generationConfig.getName() + ".js")
+                            .createNewFile();
 
                 }
             }
@@ -100,6 +146,11 @@ public class ComponentGeneratorUtils {
         }
     }
 
+    /**
+     * creates dilaog xml by adding the properties in data-conifg json file.
+     * @param generationConfig
+     * @param dialogType
+     */
     public static void createDialogXml(GenerationConfig generationConfig, String dialogType) {
         String dialogPath;
 
@@ -138,6 +189,12 @@ public class ComponentGeneratorUtils {
         }
     }
 
+    /**
+     * adds a dialog property xml node with all input attr under the document.
+     * @param document
+     * @param property
+     * @return
+     */
     private static Element createPropertyNode(Document document, Property property) {
         try {
             Element propertyNode = document.createElement(property.getField());
@@ -172,7 +229,8 @@ public class ComponentGeneratorUtils {
         rootElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         rootElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_DIALOG);
         if (dialogType.equalsIgnoreCase(Constants.FILENAME_DIALOG_GLOBAL)) {
-            rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getTitle() + " (Global Properties)");
+            rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE,
+                    generationConfig.getTitle() + " (Global Properties)");
         } else {
             rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getTitle());
         }
@@ -180,6 +238,13 @@ public class ComponentGeneratorUtils {
         return rootElement;
     }
 
+    /**
+     * builds default node structure of dialog xml in the document passed in based on dialogType.
+     * @param document
+     * @param root
+     * @param dialogType
+     * @return
+     */
     private static Node updateDefaultNodeStructure(Document document, Element root, String dialogType) {
         Element containerElement = document.createElement("content");
         containerElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
@@ -234,7 +299,15 @@ public class ComponentGeneratorUtils {
         return element;
     }
 
-    public static void createFolderWithContentXML(GenerationConfig generationConfig, String path, String folderType) throws Exception {
+    /**
+     * creates a folder on given path and adds content.xml file based on the folderType.
+     * @param generationConfig
+     * @param path
+     * @param folderType
+     * @throws Exception
+     */
+    public static void createFolderWithContentXML(GenerationConfig generationConfig, String path, String folderType)
+            throws Exception {
         Path folderPath = createFolder(path);
         try {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
@@ -256,6 +329,11 @@ public class ComponentGeneratorUtils {
         }
     }
 
+    /**
+     * creates root node with of dialog xml with required name spaces as attr.
+     * @param document
+     * @return
+     */
     public static Element createRootElement(Document document) {
         if (document == null) {
             return null;
@@ -271,21 +349,33 @@ public class ComponentGeneratorUtils {
         return rootElement;
     }
 
+    /**
+     * create default HTML file based the provided template.
+     * @param generationConfig
+     */
     public static void createHtl(GenerationConfig generationConfig) {
         try {
             StrSubstitutor strSubstitutor = new StrSubstitutor(getTemplateValueMap(generationConfig));
             String slyHtml = getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_XML);
 
-            BufferedWriter writer = new BufferedWriter(new FileWriter(generationConfig.getCompDir() + Constants.SYMBOL_SLASH + generationConfig.getName() + ".html"));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(generationConfig.getCompDir() +
+                    Constants.SYMBOL_SLASH + generationConfig.getName() + ".html"));
             writer.write(strSubstitutor.replace(slyHtml));
             writer.close();
 
-            System.out.println("Created : " + generationConfig.getCompDir() + Constants.SYMBOL_SLASH + generationConfig.getName() + ".html");
+            System.out.println("Created : " + generationConfig.getCompDir() +
+                    Constants.SYMBOL_SLASH + generationConfig.getName() + ".html");
         } catch (Exception e) {
             throw new GeneratorException("Exception while creating HTML : " + generationConfig.getCompDir());
         }
     }
 
+    /**
+     * method will transform Document structure by prettify xml elements to file.
+     *
+     * @param document
+     * @param filePath
+     */
     private static void transformDomToFile(Document document, String filePath) {
         try {
             TransformerFactory tf = TransformerFactory.newInstance();
@@ -307,6 +397,12 @@ public class ComponentGeneratorUtils {
         }
     }
 
+    /**
+     * creates a map of values required for any template. Let's say htl template and others if any.
+     *
+     * @param generationConfig
+     * @return map
+     */
     private static Map<String, String> getTemplateValueMap(GenerationConfig generationConfig) {
         if (generationConfig != null) {
             Map<String, String> map = new HashMap<>();
@@ -318,6 +414,11 @@ public class ComponentGeneratorUtils {
         return null;
     }
 
+    /**
+     * method to read the content of any resource file in the project as string.
+     * @param filePath
+     * @return
+     */
     public static String getResourceContentAsString(String filePath) {
         try (InputStream inputStream = ComponentGeneratorUtils.class.getClassLoader().getResourceAsStream(filePath)) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -328,6 +429,12 @@ public class ComponentGeneratorUtils {
         return null;
     }
 
+    /**
+     * method checks if the file exists and not empty.
+     *
+     * @param file
+     * @return boolean
+     */
     public static boolean isFileBlank(File file) {
         return file.exists() && file.length() == 0 ? true : false;
     }
