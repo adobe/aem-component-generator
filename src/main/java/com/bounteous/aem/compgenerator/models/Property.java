@@ -42,14 +42,14 @@ public class Property {
 
     public String getField() {
         if (StringUtils.isNotBlank(field)) {
-            return CaseUtils.toCamelCase(field.replaceAll("[^a-z0-9+]", " "), false);
+            return CaseUtils.toCamelCase(field.toLowerCase().replaceAll("[^a-z0-9+]", " "), false);
         }
         return field;
     }
 
     public String getFieldGetterName() {
         if (StringUtils.isNotBlank(field)) {
-            return CaseUtils.toCamelCase(field.replaceAll("[^a-z0-9+]", " "), true);
+            return CaseUtils.toCamelCase(field.toLowerCase().replaceAll("[^a-z0-9+]", " "), true);
         }
         return field;
     }

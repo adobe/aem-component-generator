@@ -74,11 +74,8 @@ Step 2 :    Configure `data-config.json` with all required fields.
 Step 3 :    Go to the folder containing component-generator.jar and execute below command by opening your terminal.
 
 ```sh
-$ java -jar component-generator-1.0.jar arg1 arg2
+$ java -jar component-generator-1.0.jar arg1
 ```
 
 arg1 -  arg1 will take data-config.json file location path and can be ignore if you data-config.json
         file available in  same folder.
-
-arg2 -  arg2 will take the location of your `hs2-aem-base` project main folder. This arg is required only if you
-        trying to execute component-generator jar file other than `hs2-aem-base` project folder.

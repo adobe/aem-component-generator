@@ -32,9 +32,9 @@ import com.sun.codemodel.JPackage;
 import com.sun.codemodel.writer.FileCodeWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
-
+import com.adobe.acs.commons.models.injectors.annotation.SharedValueMapValue;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.bounteous.aem.compgenerator.utils.ComponentGeneratorUtils.getResourceContentAsString;
+import static com.bounteous.aem.compgenerator.utils.CommonUtils.getResourceContentAsString;
 import static com.sun.codemodel.JMod.NONE;
 import static com.sun.codemodel.JMod.PRIVATE;
 
@@ -60,7 +60,7 @@ import static com.sun.codemodel.JMod.PRIVATE;
  * jcm._buildSlingModel(generationConfig);
  * ...
  *
- *<p>
+ * <p>
  * JavaCodeModel creates source code of your sling-model interface and implementation
  * using user data config configuration object.
  */
@@ -70,7 +70,8 @@ public class JavaCodeModel {
     private JDefinedClass jc;
     GenerationConfig generationConfig;
 
-    public JavaCodeModel() {}
+    public JavaCodeModel() {
+    }
 
     /**
      * builds your slingModel interface and implementation class with all required
@@ -98,13 +99,18 @@ public class JavaCodeModel {
                 _addGettersWithoutFields(generationConfig.getOptions().getProperties());
             }
 
-            if (generationConfig.getOptions().getGobalProperties() != null) {
-                _addGettersWithoutFields(generationConfig.getOptions().getGobalProperties());
+            if (generationConfig.getOptions().getGlobalProperties() != null) {
+                _addGettersWithoutFields(generationConfig.getOptions().getGlobalProperties());
+            }
+
+            if (generationConfig.getOptions().getGlobalProperties() != null) {
+                _addGettersWithoutFields(generationConfig.getOptions().getSharedProperties());
             }
 
             //Adding Class header comments to the class.
             CodeWriter codeWriter = new FileCodeWriter(new File(Constants.BUNDLE_LOCATION));
-            PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter, getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_JAVA));
+            PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter,
+                    getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_JAVA));
 
             codeModel.build(prologCodeWriter);
             System.out.println("Created : " + jc.fullName());
@@ -129,18 +135,23 @@ public class JavaCodeModel {
             jc = _addSlingAnnotations(jc, jcInterface);
 
             if (generationConfig.getOptions().getProperties() != null) {
-                _addFieldVars(generationConfig.getOptions().getProperties());
+                _addFieldVars(generationConfig.getOptions().getProperties(), Constants.PROPERTY_TYPE_PRIVATE);
             }
 
-            if (generationConfig.getOptions().getGobalProperties() != null) {
-                _addFieldVars(generationConfig.getOptions().getGobalProperties());
+            if (generationConfig.getOptions().getGlobalProperties() != null) {
+                _addFieldVars(generationConfig.getOptions().getGlobalProperties(), Constants.PROPERTY_TYPE_GLOBAL);
+            }
+
+            if (generationConfig.getOptions().getSharedProperties() != null) {
+                _addFieldVars(generationConfig.getOptions().getSharedProperties(), Constants.PROPERTY_TYPE_SHARED);
             }
 
             _addGetters();
 
             //Adding Class header comments to the class.
             CodeWriter codeWriter = new FileCodeWriter(new File(Constants.BUNDLE_LOCATION));
-            PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter, getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_JAVA));
+            PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter,
+                    getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_JAVA));
 
             codeModel.build(prologCodeWriter);
             System.out.println("Created : " + jc.fullName());
@@ -154,6 +165,7 @@ public class JavaCodeModel {
 
     /**
      * adds all default sling annotations to class.
+     *
      * @param jDefinedClass
      * @param jcInterface
      * @return
@@ -172,35 +184,44 @@ public class JavaCodeModel {
 
     /**
      * adds fields to java model.
+     *
      * @param properties
      */
-    private void _addFieldVars(List<Property> properties) {
+    private void _addFieldVars(List<Property> properties, final String propertyType) {
         properties.stream()
                 .filter(Objects::nonNull)
-                .forEach(property -> _addFieldVar(property));
+                .forEach(property -> _addFieldVar(property, propertyType));
     }
 
     /**
      * add field variable to to jc.
+     *
      * @param property
      */
-    private void _addFieldVar(Property property) {
+    private void _addFieldVar(Property property, final String propertyType) {
         if (property != null && StringUtils.isNotBlank(property.getField())) {
-            _addPropertyAsPrivateField(property.getField(), getFieldType(property.getType()));
+            _addPropertyAsPrivateField(property.getField(), getFieldType(property.getType()), propertyType);
         }
     }
 
     /**
      * method that add the fieldname as private to jc.
+     *
      * @param fieldName
      * @param fieldType
      */
-    private void _addPropertyAsPrivateField(String fieldName, String fieldType) {
+    private void _addPropertyAsPrivateField(String fieldName, String fieldType, final String propertyType) {
         if (jc.isClass()) {
-            jc.field(PRIVATE, codeModel.ref(fieldType), fieldName)
-                    .annotate(codeModel.ref(ValueMapValue.class))
-                    .param("injectionStrategy",
-                            codeModel.ref(InjectionStrategy.class).staticRef("OPTIONAL"));
+            JFieldVar jFieldVar = jc.field(PRIVATE, codeModel.ref(fieldType), fieldName);
+            if (StringUtils.equalsIgnoreCase(propertyType, Constants.PROPERTY_TYPE_PRIVATE)) {
+                jFieldVar.annotate(codeModel.ref(ValueMapValue.class))
+                        .param("injectionStrategy",
+                                codeModel.ref(InjectionStrategy.class).staticRef("OPTIONAL"));
+            } else {
+                jFieldVar.annotate(codeModel.ref(SharedValueMapValue.class))
+                        .param("injectionStrategy",
+                                codeModel.ref(InjectionStrategy.class).staticRef("OPTIONAL"));
+            }
         } else if (jc.isInterface()) {
             jc.field(NONE, codeModel.ref(fieldType), fieldName);
         }
@@ -222,6 +243,7 @@ public class JavaCodeModel {
 
     /**
      * add getter method for jFieldVar passed in.
+     *
      * @param jFieldVar
      */
     private void _addGetter(JFieldVar jFieldVar) {
@@ -236,8 +258,9 @@ public class JavaCodeModel {
 
     /**
      * get the java fieldType based on the type input in the generationConfig
+     *
      * @param type
-     * @return
+     * @return String returns relevant java type of string passed in.
      */
     private String getFieldType(String type) {
         if (StringUtils.isNotBlank(type)) {
@@ -252,6 +275,7 @@ public class JavaCodeModel {
 
     /**
      * method just adds getters based on the properties of generationConfig
+     *
      * @param properties
      */
     private void _addGettersWithoutFields(List<Property> properties) {
@@ -263,8 +287,9 @@ public class JavaCodeModel {
 
     /**
      * builds method name out of field variable.
+     *
      * @param fieldVariable
-     * @return
+     * @return String returns formatted getter method name.
      */
     private String getMethodFormattedString(String fieldVariable) {
         if (StringUtils.isNotBlank(fieldVariable) && StringUtils.length(fieldVariable) > 0) {

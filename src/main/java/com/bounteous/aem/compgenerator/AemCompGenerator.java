@@ -20,10 +20,19 @@ package com.bounteous.aem.compgenerator;
 import com.bounteous.aem.compgenerator.exceptions.GeneratorException;
 import com.bounteous.aem.compgenerator.javacodemodel.JavaCodeModel;
 import com.bounteous.aem.compgenerator.models.GenerationConfig;
+import com.bounteous.aem.compgenerator.utils.CommonUtils;
 import com.bounteous.aem.compgenerator.utils.ComponentGeneratorUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 
+/**
+ * Root of the AEM Component generator.
+ *
+ * AemCompGenerator reads the json data file input and creates folder, file
+ * structure of an AEM component and sling model interface with member values
+ * and getters.
+ */
 public class AemCompGenerator {
 
     public static void main(String[] args) {
@@ -35,26 +44,33 @@ public class AemCompGenerator {
 
             File configFile = new File(configPath);
 
-            if (ComponentGeneratorUtils.isFileBlank(configFile)) {
+            if (CommonUtils.isFileBlank(configFile)) {
                 throw new GeneratorException("Config file missing / empty.");
             }
 
-            //Json file to ComponentData Object
-            GenerationConfig generationConfig = ComponentGeneratorUtils.getComponentData(configFile);
+            GenerationConfig config = CommonUtils.getComponentData(configFile);
 
-            if (generationConfig == null) {
+            if (config == null) {
                 throw new GeneratorException("Config file is empty / null !!");
             }
 
-            ComponentGeneratorUtils._buildComponent(generationConfig);
+            if (StringUtils.isBlank(config.getName()) || StringUtils.isBlank(config.getType())) {
+                throw new GeneratorException("Mandatory fields missing in the data-config.json !");
+            }
 
-            if (generationConfig.getOptions().isHasSlingModel()) {
+            String compDir = Constants.PROJECT_COMPONENT + "/" + config.getType() + "/" + config.getName();
+            config.setCompDir(compDir);
+
+            //builds component folder and file structure.
+            ComponentGeneratorUtils generatorUtils = new ComponentGeneratorUtils(config);
+            generatorUtils._buildComponent();
+
+            //builds sling model based on config.
+            if (config.getOptions() != null && config.getOptions().isHasSlingModel()) {
                 JavaCodeModel javaCodeModel = new JavaCodeModel();
-                javaCodeModel._buildSlingModel(generationConfig);
+                javaCodeModel._buildSlingModel(config);
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println("---------------------------");
             e.printStackTrace();
         }
     }

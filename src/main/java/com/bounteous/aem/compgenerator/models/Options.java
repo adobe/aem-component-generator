@@ -39,7 +39,10 @@ public class Options {
     private List<Property> properties;
 
     @JsonProperty("properties-global")
-    private List<Property> gobalProperties;
+    private List<Property> globalProperties;
+
+    @JsonProperty("properties-shared")
+    private List<Property> sharedProperties;
 
     public boolean isHasJs() {
         return hasJs;
@@ -81,11 +84,19 @@ public class Options {
         this.properties = properties;
     }
 
-    public List<Property> getGobalProperties() {
-        return gobalProperties;
+    public List<Property> getGlobalProperties() {
+        return globalProperties;
     }
 
-    public void setGobalProperties(List<Property> gobalProperties) {
-        this.gobalProperties = gobalProperties;
+    public void setGlobalProperties(List<Property> globalProperties) {
+        this.globalProperties = globalProperties;
+    }
+
+    public List<Property> getSharedProperties() {
+        return sharedProperties;
+    }
+
+    public void setSharedProperties(List<Property> sharedProperties) {
+        this.sharedProperties = sharedProperties;
     }
 }
