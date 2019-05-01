@@ -131,7 +131,7 @@ public class JavaCodeModel {
             JPackage jPackage = codeModel._package(Constants.PACKAGE_IMPL);
             JDefinedClass jcInterface = jc;
             jc = jPackage._class(generationConfig.getJavaFormatedName() + "Impl")
-                    ._implements(codeModel.ref(jcInterface.fullName()));
+                    ._implements(jcInterface);
             jc = _addSlingAnnotations(jc, jcInterface);
 
             if (generationConfig.getOptions().getGlobalProperties() != null) {
