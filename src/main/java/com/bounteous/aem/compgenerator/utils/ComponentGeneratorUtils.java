@@ -221,15 +221,6 @@ public class ComponentGeneratorUtils {
         containerElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         containerElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_CONTAINER);
 
-        Element layoutElement = document.createElement("layout");
-        layoutElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
-        layoutElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_TABS);
-        layoutElement.setAttribute("type", "nav");
-
-        Element contentElement = document.createElement("content");
-        contentElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
-        contentElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_SECTION);
-
         Element layoutElement1 = document.createElement("layout");
         layoutElement1.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         layoutElement1.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_FIXEDCOLUMNS);
@@ -241,21 +232,8 @@ public class ComponentGeneratorUtils {
 
         Node containerNode = root.appendChild(containerElement);
 
-        if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_GLOBAL)) {
-            containerNode.appendChild(layoutElement1);
-            return containerNode
-                    .appendChild(createUnStructuredNode(document, "items"))
-                    .appendChild(columnElement)
-                    .appendChild(createUnStructuredNode(document, "items"));
-        }
-
-        containerNode.appendChild(layoutElement);
-        Node sectionNode = containerNode
-                .appendChild(createUnStructuredNode(document, "items"))
-                .appendChild(contentElement);
-        sectionNode.appendChild(layoutElement1);
-
-        return sectionNode
+        containerNode.appendChild(layoutElement1);
+        return containerNode
                 .appendChild(createUnStructuredNode(document, "items"))
                 .appendChild(columnElement)
                 .appendChild(createUnStructuredNode(document, "items"));
