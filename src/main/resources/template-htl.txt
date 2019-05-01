@@ -1,0 +1,25 @@
+<!--/*
+*  ***********************************************************************
+*  BOUNTEOUS CONFIDENTIAL
+*  ___________________
+*
+*  Copyright 2019 Bounteous
+*  All Rights Reserved.
+*
+*  NOTICE:  All information contained herein is, and remains the property
+*  of Bounteous and its suppliers, if any. The intellectual and
+*  technical concepts contained herein are proprietary to Bounteous
+*  and its suppliers and are protected by trade secret or copyright law.
+*  Dissemination of this information or reproduction of this material
+*  is strictly forbidden unless prior written permission is obtained
+*  from Bounteous.
+*  ***********************************************************************
+*/-->
+
+<sly data-sly-use.${sightly}Model="${slingModel}"
+     data-sly-test.configured="${false}">
+    <!-- Component HTML goes here -->
+</sly>
+
+<sly data-sly-use.templates="core/wcm/components/commons/v1/templates.html"
+     data-sly-call="${templates.placeholder @ isEmpty = !configured}" />

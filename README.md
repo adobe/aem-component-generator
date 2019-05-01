@@ -1,29 +1,96 @@
 # aem-component-generator
 
-Aem component generator is a Java project helps developers to create base structure of aem component from
-from data-config.json (JSON with user required config. For example required dialog properties, field names and other config)
+AEM component generator is a Java project that enables developers to automatically create the base structure of an
+AEM component using a JSON configuration file specifying component and dialog properties and other configuration
+options.
 
 ## Installation
 
-Component generator can be either downloaded as a .jar file or check out as bit bucket project and
-build project with below command which will get you a executable jar file under target folder.
+AEM component generator can be either downloaded as a .jar file or cloned from the bitbucket project and built locally
+with following command which will create an executable jar file under the `target` folder.
 
 ```sh
 $ mvn clean install
 ```
 
-## How do you use
+## How To Use
 
-Step 1 :    Copy your "*component-generator-1.0-jar-with-dependencies.jar*" file to the your hs2-aem-base project folder. where you have core, ui-apps.
+Step 1: Copy your `component-generator-N.N.jar` file to the your `hs2-aem-base` project under the `scripts/compgen`
+folder.
 
-Step 2 :    Configure data-config.json with all required fields.
+Step 2: Create a `data-config.json` file with all required fields under the same folder.
 
-Step 3 :    You may now execute below commands from your terminal from the component-generator jar copied folder.
+```json
+{
+  "name": "google-maps",
+  "title": "Google Maps",
+  "group": "Bounteous Base",
+  "type": "content",
+  "options": {
+    "js": true,
+    "css": true,
+    "html": true,
+    "slingmodel": true,
+    "properties": [
+      {
+        "field": "latitude",
+        "type": "text",
+        "label": "Latitude",
+        "attributes": {}
+      },
+      {
+        "field": "longitude",
+        "type": "text",
+        "label": "Longitude",
+        "attributes": {}
+      },
+      {
+        "field": "zoom",
+        "type": "number",
+        "label": "Zoom Level",
+        "attributes": {
+          "max": "{Double}20",
+          "min": "{Double}0",
+          "step": "1",
+          "value": "{Long}20"
+        }
+      }
+    ],
+    "properties-shared": [],
+    "properties-global": [
+      {
+        "field": "googleMapsApiKey",
+        "type": "text",
+        "label": "Google Maps API Key"
+      }
+    ]
+  }
+}
+```
+- `name`: folder name for the component
+- `title`: human readable component name, also used as the title for dialogs
+- `group`: component group
+- `type`: component folder type - content, form, structure
+- `options.js`: whether to create an empty JS lib for the component (shared with CSS lib)
+- `options.css`: whether to create an empty CSS lib for the component (shared with JS lib)
+- `options.html`: whether to create a default HTML file for the component
+- `options.slingmodel`: whether to create a sling model for the component
+    - Class name is derived from converting "name" prop above to camel case (e.g. "google-maps" -> `GoogleMaps`/`GoogleMapsImpl`)
+    - Fields are derived from dialog properties (see below)
+- `options.properties`: properties to create in standard dialog for this component.  If empty, no standard dialog will be created
+- `options.properties-shared`: properties to create in shared dialog for this component.  If empty, no shared dialog will be created
+- `options.properties-global`: properties to create in global dialog for this component.  If empty, no global dialog will be created
+
+Step 3: In your terminal, navigate to the `hs2-aem-base` folder and execute the following command.
 
 ```sh
-$ java -jar component-generator-filename.jar arg1 arg2
+$ java -jar <jarfile> <arg1>
 ```
 
-arg1 -  arg1 will take data-config.json file location path and can be ignore if you data-config.json file available in  same folder.
+- `jarfile`: full path to `component-generator-N.N.jar` file (replacing `N.N` with the applicable numbers)
+- `arg1`: full path to `data-config.json` file
 
-arg2 -  arg2 will take the location of your hs2-base-aem project main folder. This arg is required only if you trying to execute component-generator jar file other than bs2-base-aem project folder.
+Example:
+```sh
+$ java -jar scripts/compgen/component-generator-1.0.jar scripts/compgen/data-config.json
+```
