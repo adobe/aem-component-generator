@@ -65,7 +65,7 @@ public class ComponentGeneratorUtils {
 
     /**
      * builds your base folder structure of a component includes component folder
-     * itself, _cq_dialog with field properties, dialogGlobal with properties-global,
+     * itself, _cq_dialog with field properties, dialogglobal with properties-global,
      * HTML, clientlibs folder.
      */
     public void _buildComponent() throws Exception {
@@ -79,13 +79,13 @@ public class ComponentGeneratorUtils {
         //create _cq_dialog xml with user input properties in json.
         createDialogXml(Constants.DIALOG_TYPE_DIALOG);
 
-        //create dialogGlobal xml file with user input global properties in json.
+        //create dialogglobal xml file with user input global properties in json.
         if (generationConfig.getOptions().getGlobalProperties() != null &&
                 generationConfig.getOptions().getGlobalProperties().size() > 0) {
             createDialogXml(Constants.DIALOG_TYPE_GLOBAL);
         }
 
-        //create dialogGlobal xml file with user input global properties in json.
+        //create dialogshared xml file with user input global properties in json.
         if (generationConfig.getOptions().getSharedProperties() != null &&
                 generationConfig.getOptions().getSharedProperties().size() > 0) {
             createDialogXml(Constants.DIALOG_TYPE_SHARED);
