@@ -232,7 +232,6 @@ public class JavaCodeModel {
      */
     private void _addGetters() {
         Map<String, JFieldVar> fieldVars = jc.fields();
-        System.out.println(fieldVars);
         if (fieldVars.size() > 0) {
             for (Map.Entry<String, JFieldVar> entry : fieldVars.entrySet()) {
                 if (entry.getValue() != null) {
