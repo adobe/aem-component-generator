@@ -95,16 +95,16 @@ public class JavaCodeModel {
             jc = jPackage._interface(generationConfig.getJavaFormatedName());
             jc.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
 
-            if (generationConfig.getOptions().getProperties() != null) {
-                _addGettersWithoutFields(generationConfig.getOptions().getProperties());
-            }
-
             if (generationConfig.getOptions().getGlobalProperties() != null) {
                 _addGettersWithoutFields(generationConfig.getOptions().getGlobalProperties());
             }
 
-            if (generationConfig.getOptions().getGlobalProperties() != null) {
+            if (generationConfig.getOptions().getSharedProperties() != null) {
                 _addGettersWithoutFields(generationConfig.getOptions().getSharedProperties());
+            }
+
+            if (generationConfig.getOptions().getProperties() != null) {
+                _addGettersWithoutFields(generationConfig.getOptions().getProperties());
             }
 
             //Adding Class header comments to the class.
@@ -134,16 +134,16 @@ public class JavaCodeModel {
                     ._implements(codeModel.ref(jcInterface.fullName()));
             jc = _addSlingAnnotations(jc, jcInterface);
 
-            if (generationConfig.getOptions().getProperties() != null) {
-                _addFieldVars(generationConfig.getOptions().getProperties(), Constants.PROPERTY_TYPE_PRIVATE);
-            }
-
             if (generationConfig.getOptions().getGlobalProperties() != null) {
                 _addFieldVars(generationConfig.getOptions().getGlobalProperties(), Constants.PROPERTY_TYPE_GLOBAL);
             }
 
             if (generationConfig.getOptions().getSharedProperties() != null) {
                 _addFieldVars(generationConfig.getOptions().getSharedProperties(), Constants.PROPERTY_TYPE_SHARED);
+            }
+
+            if (generationConfig.getOptions().getProperties() != null) {
+                _addFieldVars(generationConfig.getOptions().getProperties(), Constants.PROPERTY_TYPE_PRIVATE);
             }
 
             _addGetters();
@@ -232,6 +232,7 @@ public class JavaCodeModel {
      */
     private void _addGetters() {
         Map<String, JFieldVar> fieldVars = jc.fields();
+        System.out.println(fieldVars);
         if (fieldVars.size() > 0) {
             for (Map.Entry<String, JFieldVar> entry : fieldVars.entrySet()) {
                 if (entry.getValue() != null) {
