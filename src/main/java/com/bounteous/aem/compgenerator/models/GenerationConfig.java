@@ -50,7 +50,7 @@ public class GenerationConfig {
 
     public String getJavaFormatedName() {
         if(StringUtils.isNotBlank(name)){
-            javaFormatedName =  CaseUtils.toCamelCase(name.replaceAll("-", " "), true);
+            javaFormatedName = CaseUtils.toCamelCase(name.replaceAll("-", " "), true);
         }
         return javaFormatedName;
     }

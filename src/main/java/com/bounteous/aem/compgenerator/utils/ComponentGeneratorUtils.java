@@ -378,7 +378,7 @@ public class ComponentGeneratorUtils {
             Map<String, String> map = new HashMap<>();
             map.put("name", generationConfig.getName());
             map.put("title", generationConfig.getTitle());
-            map.put("sightly", generationConfig.getJavaFormatedName());
+            map.put("sightly", StringUtils.uncapitalize(generationConfig.getJavaFormatedName()));
             map.put("slingModel", Constants.PACKAGE_MODELS + "." + generationConfig.getJavaFormatedName());
             return map;
         }
