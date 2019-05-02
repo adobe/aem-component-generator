@@ -54,11 +54,14 @@ public class AemCompGenerator {
                 throw new GeneratorException("Config file is empty / null !!");
             }
 
-            if (StringUtils.isBlank(config.getName()) || StringUtils.isBlank(config.getType())) {
+            if (StringUtils.isBlank(config.getName()) || StringUtils.isBlank(config.getType())
+                    || config.getProjectSettings() == null || StringUtils.isBlank(config.getProjectSettings().getComponentPath())) {
                 throw new GeneratorException("Mandatory fields missing in the data-config.json !");
             }
 
-            String compDir = Constants.PROJECT_COMPONENT + "/" + config.getType() + "/" + config.getName();
+            String compDir = config.getProjectSettings().getAppsPath() + Constants.SYMBOL_SLASH
+                    + config.getProjectSettings().getComponentPath() + Constants.SYMBOL_SLASH
+                    + config.getType() + Constants.SYMBOL_SLASH + config.getName();
             config.setCompDir(compDir);
 
             //builds component folder and file structure.

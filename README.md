@@ -22,6 +22,13 @@ Step 2: Create a `data-config.json` file with all required fields under the same
 
 ```json
 {
+  "project-settings" : {
+    "bundle-path": "core/src/main/java",
+    "apps-path": "ui.apps/src/main/content/jcr_root/apps",
+    "component-path": "hs2-aem-base/components",
+    "model-interface-pkg": "com.hs2solutions.aem.base.core.models",
+    "model-impl-pkg": "com.hs2solutions.aem.base.core.models.impl"
+  },
   "name": "google-maps",
   "title": "Google Maps",
   "group": "Bounteous Base",
@@ -67,6 +74,12 @@ Step 2: Create a `data-config.json` file with all required fields under the same
   }
 }
 ```
+- `project-settings`: contains configuration options related to the project code will be generated for.
+- `project-settings.bundle-path`: path to the code bundle's root of Java packages.
+- `project-settings.apps-path`: path to the apps root
+- `project-settings.component-path`: path to the project's components directory
+- `project-settings.model-interface-pkg`: Java package for the interface model objects.
+- `project-settings.model-impl-pkg`: Java package for the implementation model objects.
 - `name`: folder name for the component
 - `title`: human readable component name, also used as the title for dialogs
 - `group`: component group
