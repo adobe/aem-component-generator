@@ -130,7 +130,7 @@ public class ComponentGeneratorUtils {
      * @param dialogType dialogType to dialog xml structure.
      */
     private void createDialogXml(final String dialogType) {
-        String dialogPath = generationConfig.getCompDir() + Constants.SYMBOL_SLASH + dialogType;
+        String dialogPath = generationConfig.getCompDir() + "/" + dialogType;
         try {
             ComponentGeneratorUtils.createFolder(dialogPath);
 
@@ -155,8 +155,8 @@ public class ComponentGeneratorUtils {
                         .forEach(a -> currentNode.appendChild(a));
             }
             doc.appendChild(rootElement);
-            transformDomToFile(doc, dialogPath + Constants.SYMBOL_SLASH + Constants.FILENAME_CONTENT_XML);
-            System.out.println("Created : " + dialogPath + Constants.SYMBOL_SLASH + Constants.FILENAME_CONTENT_XML);
+            transformDomToFile(doc, dialogPath + "/" + Constants.FILENAME_CONTENT_XML);
+            System.out.println("Created : " + dialogPath + "/" + Constants.FILENAME_CONTENT_XML);
         } catch (Exception e) {
             throw new GeneratorException("Exception while creating Dialog xml : " + dialogPath);
         }
@@ -276,8 +276,8 @@ public class ComponentGeneratorUtils {
                 rootElement.setAttribute(Constants.JCR_PRIMARY_TYPE, folderType);
             }
             doc.appendChild(rootElement);
-            transformDomToFile(doc, folderPath + Constants.SYMBOL_SLASH + Constants.FILENAME_CONTENT_XML);
-            System.out.println("Created : " + folderPath + Constants.SYMBOL_SLASH + Constants.FILENAME_CONTENT_XML);
+            transformDomToFile(doc, folderPath + "/" + Constants.FILENAME_CONTENT_XML);
+            System.out.println("Created : " + folderPath + "/" + Constants.FILENAME_CONTENT_XML);
         } catch (Exception e) {
             throw new GeneratorException("Exception while creating Folder/xml : " + path);
         }
@@ -310,10 +310,10 @@ public class ComponentGeneratorUtils {
     private void createHtl() {
         try {
             createFileWithCopyRight(generationConfig.getCompDir() +
-                    Constants.SYMBOL_SLASH + generationConfig.getName() + ".html");
+                    "/" + generationConfig.getName() + ".html");
 
             System.out.println("Created : " + generationConfig.getCompDir() +
-                    Constants.SYMBOL_SLASH + generationConfig.getName() + ".html");
+                    "/" + generationConfig.getName() + ".html");
         } catch (Exception e) {
             throw new GeneratorException("Exception while creating HTML : " + generationConfig.getCompDir());
         }

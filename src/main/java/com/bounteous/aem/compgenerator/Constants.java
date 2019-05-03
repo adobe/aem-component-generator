@@ -37,8 +37,6 @@ public class Constants {
     public static String PROPERTY_TYPE_GLOBAL = "global";
     public static String PROPERTY_TYPE_SHARED = "shared";
 
-    public static String SYMBOL_SLASH = "/";
-
     public static String PROPERTY_JCR_TITLE = "jcr:title";
     public static String PROPERTY_SLING_RESOURCETYPE = "sling:resourceType";
     public static String PROPERTY_FIELDLABEL = "fieldLabel";

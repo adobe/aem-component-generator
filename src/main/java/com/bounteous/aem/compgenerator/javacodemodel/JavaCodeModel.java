@@ -176,8 +176,8 @@ public class JavaCodeModel {
         if (jDefinedClass != null) {
             jDefinedClass.annotate(codeModel.ref(Model.class))
                     .param("adapters", jcInterface.getPackage()._getClass(generationConfig.getJavaFormatedName()))
-                    .param("resourceType", generationConfig.getProjectSettings().getComponentPath() + Constants.SYMBOL_SLASH
-                            + generationConfig.getType() + Constants.SYMBOL_SLASH + generationConfig.getName())
+                    .param("resourceType", generationConfig.getProjectSettings().getComponentPath() + "/"
+                            + generationConfig.getType() + "/" + generationConfig.getName())
                     .paramArray("adaptables")
                     .param(codeModel.ref("org.apache.sling.api.resource.Resource"))
                     .param(codeModel.ref("org.apache.sling.api.SlingHttpServletRequest"));
