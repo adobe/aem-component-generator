@@ -17,23 +17,32 @@
  */
 package com.bounteous.aem.compgenerator.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
 
 public class GenerationConfig {
 
+    @JsonProperty("name")
     private String name;
 
+    @JsonProperty("title")
     private String title;
 
+    @JsonProperty("group")
     private String group;
 
+    @JsonProperty("type")
     private String type;
 
+    @JsonProperty("project-settings")
+    private ProjectSettings projectSettings;
+
+    @JsonProperty("options")
     private Options options;
 
+    // Non-JSON property runtime variables
     private String compDir;
-
     private String javaFormatedName;
 
 
@@ -77,6 +86,14 @@ public class GenerationConfig {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public ProjectSettings getProjectSettings() {
+        return projectSettings;
+    }
+
+    public void setProjectSettings(ProjectSettings projectSettings) {
+        this.projectSettings = projectSettings;
     }
 
     public Options getOptions() {

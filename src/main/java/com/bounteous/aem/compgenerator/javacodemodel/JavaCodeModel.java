@@ -18,6 +18,7 @@
 
 package com.bounteous.aem.compgenerator.javacodemodel;
 
+import com.adobe.acs.commons.models.injectors.annotation.SharedValueMapValue;
 import com.bounteous.aem.compgenerator.Constants;
 import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.models.Property;
@@ -32,9 +33,8 @@ import com.sun.codemodel.JPackage;
 import com.sun.codemodel.writer.FileCodeWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
-import com.adobe.acs.commons.models.injectors.annotation.SharedValueMapValue;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 
 import java.io.File;
 import java.io.IOException;
@@ -91,7 +91,7 @@ public class JavaCodeModel {
      */
     private void _buildInterface() {
         try {
-            JPackage jPackage = codeModel._package(Constants.PACKAGE_MODELS);
+            JPackage jPackage = codeModel._package(generationConfig.getProjectSettings().getModelInterfacePackage());
             jc = jPackage._interface(generationConfig.getJavaFormatedName());
             jc.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
 
@@ -107,13 +107,7 @@ public class JavaCodeModel {
                 _addGettersWithoutFields(generationConfig.getOptions().getProperties());
             }
 
-            //Adding Class header comments to the class.
-            CodeWriter codeWriter = new FileCodeWriter(new File(Constants.BUNDLE_LOCATION));
-            PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter,
-                    getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_JAVA));
-
-            codeModel.build(prologCodeWriter);
-            System.out.println("Created : " + jc.fullName());
+            _generateCodeFile();
 
         } catch (JClassAlreadyExistsException e) {
             e.printStackTrace();
@@ -128,7 +122,7 @@ public class JavaCodeModel {
      */
     private void _buildImplClass() {
         try {
-            JPackage jPackage = codeModel._package(Constants.PACKAGE_IMPL);
+            JPackage jPackage = codeModel._package(generationConfig.getProjectSettings().getModelImplPackage());
             JDefinedClass jcInterface = jc;
             jc = jPackage._class(generationConfig.getJavaFormatedName() + "Impl")
                     ._implements(jcInterface);
@@ -148,19 +142,27 @@ public class JavaCodeModel {
 
             _addGetters();
 
-            //Adding Class header comments to the class.
-            CodeWriter codeWriter = new FileCodeWriter(new File(Constants.BUNDLE_LOCATION));
-            PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter,
-                    getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_JAVA));
-
-            codeModel.build(prologCodeWriter);
-            System.out.println("Created : " + jc.fullName());
+            _generateCodeFile();
 
         } catch (JClassAlreadyExistsException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Generates the slingModel file based on values from the config and the current codeModel object.
+     * @throws IOException - exception thrown when file is unable to be created.
+     */
+    private void _generateCodeFile() throws IOException {
+        //Adding Class header comments to the class.
+        CodeWriter codeWriter = new FileCodeWriter(new File(generationConfig.getProjectSettings().getBundlePath()));
+        PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter,
+                getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_JAVA));
+
+        codeModel.build(prologCodeWriter);
+        System.out.println("Created : " + jc.fullName());
     }
 
     /**
@@ -174,7 +176,8 @@ public class JavaCodeModel {
         if (jDefinedClass != null) {
             jDefinedClass.annotate(codeModel.ref(Model.class))
                     .param("adapters", jcInterface.getPackage()._getClass(generationConfig.getJavaFormatedName()))
-                    .param("resourceType", "hs2-aem-base/components/" + generationConfig.getType() + "/" + generationConfig.getName())
+                    .param("resourceType", generationConfig.getProjectSettings().getComponentPath() + "/"
+                            + generationConfig.getType() + "/" + generationConfig.getName())
                     .paramArray("adaptables")
                     .param(codeModel.ref("org.apache.sling.api.resource.Resource"))
                     .param(codeModel.ref("org.apache.sling.api.SlingHttpServletRequest"));

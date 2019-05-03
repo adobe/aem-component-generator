@@ -18,9 +18,6 @@
 package com.bounteous.aem.compgenerator;
 
 public class Constants {
-    public static String PACKAGE_MODELS = "com.hs2solutions.aem.base.core.models";
-    public static String PACKAGE_IMPL = "com.hs2solutions.aem.base.core.models.impl";
-
 
     public static String RESOURCE_TYPE_TEXTFIELD = "granite/ui/components/coral/foundation/form/textfield";
     public static String RESOURCE_TYPE_NUMBER = "granite/ui/components/coral/foundation/form/numberfield";
@@ -40,8 +37,6 @@ public class Constants {
     public static String PROPERTY_TYPE_GLOBAL = "global";
     public static String PROPERTY_TYPE_SHARED = "shared";
 
-    public static String SYMBOL_SLASH = "/";
-
     public static String PROPERTY_JCR_TITLE = "jcr:title";
     public static String PROPERTY_SLING_RESOURCETYPE = "sling:resourceType";
     public static String PROPERTY_FIELDLABEL = "fieldLabel";
@@ -49,21 +44,15 @@ public class Constants {
     public static String PROPERTY_CQ_MSM_LOCKABLE = "cq-msm-lockable";
 
     public static String JCR_ROOT_NODE = "jcr:root";
-
     public static String JCR_PRIMARY_TYPE = "jcr:primaryType";
     public static String NT_UNSTRUCTURED = "nt:unstructured";
     public static String TYPE_COMPONENT = "cq:Component";
     public static String TYPE_SLING_FOLDER = "sling:Folder";
 
-
-    public static String PROJECT_COMPONENT = "ui.apps/src/main/content/jcr_root/apps/hs2-aem-base/components";
-    public static String BUNDLE_LOCATION = "core/src/main/java";
-
     public static String TEMPLATE_COPYRIGHT_JAVA = "template-copyright.txt";
     public static String TEMPLATE_COPYRIGHT_XML = "template-copyright-xml.txt";
     public static String TEMPLATE_HTL = "template-htl.txt";
     public static final String TEMPLATE_COPYRIGHT_CSS = "template-copyright-css.txt";
-
 
     public static String STRING_GET = "get";
 
