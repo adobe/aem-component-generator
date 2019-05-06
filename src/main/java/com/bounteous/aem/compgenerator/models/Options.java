@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public class Options {
+public class Options implements BaseModel {
 
     @JsonProperty("js")
     private boolean hasJs;
@@ -98,5 +98,10 @@ public class Options {
 
     public void setSharedProperties(List<Property> sharedProperties) {
         this.sharedProperties = sharedProperties;
+    }
+
+    @Override
+    public boolean isValid() {
+        return true;
     }
 }

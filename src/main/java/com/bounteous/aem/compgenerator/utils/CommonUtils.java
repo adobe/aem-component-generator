@@ -17,16 +17,27 @@
  */
 package com.bounteous.aem.compgenerator.utils;
 
+import com.bounteous.aem.compgenerator.Constants;
 import com.bounteous.aem.compgenerator.exceptions.GeneratorException;
+import com.bounteous.aem.compgenerator.models.BaseModel;
 import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CommonUtils {
@@ -75,5 +86,58 @@ public class CommonUtils {
         }
         return null;
     }
+
+    public static Path createFolder(String folderPath) throws Exception {
+        Path path = Paths.get(folderPath);
+        if (Files.notExists(path)) {
+            return Files.createDirectories(path);
+        }
+        return path;
+    }
+
+    public static boolean isModelValid(BaseModel model) {
+        return model != null && model.isValid();
+    }
+
+    public static void createFileWithCopyRight(String path, Map<String, String> templateValueMap) throws IOException {
+        File file = new File(path);
+        if (file != null) {
+            String template = Constants.TEMPLATE_COPYRIGHT_JAVA;
+            if (path.endsWith("js") || path.endsWith("java")) {
+                template = Constants.TEMPLATE_COPYRIGHT_JAVA;
+            } else if (path.endsWith("less")) {
+                template = Constants.TEMPLATE_COPYRIGHT_CSS;
+            } else if (path.endsWith("xml")) {
+                template = Constants.TEMPLATE_COPYRIGHT_XML;
+            } else if (path.endsWith("html")) {
+                template = Constants.TEMPLATE_HTL;
+            }
+
+            StrSubstitutor strSubstitutor = new StrSubstitutor(templateValueMap);
+            String templateString = CommonUtils.getResourceContentAsString(template);
+
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+            writer.write(strSubstitutor.replace(templateString));
+            writer.close();
+        }
+    }
+
+    /**
+     * creates a map of values required for any template. Let's say htl template and others if any.
+     *
+     * @return map
+     */
+    public static Map<String, String> getTemplateValueMap(GenerationConfig generationConfig) {
+        if (generationConfig != null) {
+            Map<String, String> map = new HashMap<>();
+            map.put("name", generationConfig.getName());
+            map.put("title", generationConfig.getTitle());
+            map.put("sightly", StringUtils.uncapitalize(generationConfig.getJavaFormatedName()));
+            map.put("slingModel", generationConfig.getProjectSettings().getModelInterfacePackage() + "." + generationConfig.getJavaFormatedName());
+            return map;
+        }
+        return null;
+    }
+
 
 }

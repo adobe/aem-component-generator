@@ -18,8 +18,9 @@
 package com.bounteous.aem.compgenerator.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang.StringUtils;
 
-public class ProjectSettings {
+public class ProjectSettings implements BaseModel {
 
     @JsonProperty("model-interface-pkg")
     private String modelInterfacePackage;
@@ -74,5 +75,11 @@ public class ProjectSettings {
 
     public void setAppsPath(String appsPath) {
         this.appsPath = appsPath;
+    }
+
+    @Override
+    public boolean isValid() {
+        return StringUtils.isNotBlank(modelInterfacePackage) && StringUtils.isNotBlank(modelImplPackage)
+                && StringUtils.isNotBlank(componentPath) && StringUtils.isNotBlank(bundlePath) && StringUtils.isNotBlank(appsPath);
     }
 }

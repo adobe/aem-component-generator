@@ -23,7 +23,7 @@ import org.apache.commons.text.CaseUtils;
 
 import java.util.Map;
 
-public class Property {
+public class Property implements BaseModel {
 
     @JsonProperty("field")
     private String field;
@@ -94,4 +94,8 @@ public class Property {
         this.attributes = attributes;
     }
 
+    @Override
+    public boolean isValid() {
+        return true;
+    }
 }
