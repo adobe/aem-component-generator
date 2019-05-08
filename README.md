@@ -29,9 +29,9 @@ Step 2: Create a `data-config.json` file with all required fields under the same
     "model-interface-pkg": "com.hs2solutions.aem.base.core.models",
     "model-impl-pkg": "com.hs2solutions.aem.base.core.models.impl"
   },
-  "name": "google-maps",
-  "title": "Google Maps",
-  "group": "Bounteous Base",
+  "name": "demo-comp",
+  "title": "Demo Component",
+  "group": "HS2 Base",
   "type": "content",
   "options": {
     "js": true,
@@ -40,21 +40,107 @@ Step 2: Create a `data-config.json` file with all required fields under the same
     "slingmodel": true,
     "properties": [
       {
-        "field": "latitude",
-        "type": "text",
-        "label": "Latitude",
+        "field": "textfieldTest",
+        "type": "textfield",
+        "label": "Textfield Test",
         "attributes": {}
       },
       {
-        "field": "longitude",
-        "type": "text",
-        "label": "Longitude",
+        "field": "checkTest",
+        "type": "checkbox",
+        "attributes": {
+          "value": "{Boolean}true",
+          "text": "Checkbox Test"
+        }
+      },
+      {
+        "field": "pathfieldTest",
+        "type": "pathfield",
+        "label": "Pathfield Test",
+        "attributes": {
+          "rootPath": "/content/sites"
+        }
+      },
+      {
+        "field": "textareaTest",
+        "type": "textarea",
+        "label": "Textarea Test",
         "attributes": {}
       },
       {
-        "field": "zoom",
-        "type": "number",
-        "label": "Zoom Level",
+        "field": "dateTest",
+        "type": "datepicker",
+        "label": "Select Date",
+        "attributes": {
+          "displayedFormat": "MM/DD/YYYY"
+        }
+      },
+      {
+        "field": "selectTest",
+        "type": "select",
+        "label": "Select Test",
+        "attributes": {
+          "defaultValue": "opt1",
+          "value": "opt1"
+        },
+        "itemAttributes": [
+          {
+            "field": "option1",
+            "attributes": {
+              "selected": "true",
+              "text": "Option 1",
+              "value": "opt1"
+            }
+          },
+          {
+            "field": "option2",
+            "attributes": {
+              "text": "Option 2",
+              "value": "opt2"
+            }
+          }
+        ]
+      },
+      {
+        "field": "radioTest",
+        "type": "radiogroup",
+        "attributes": {
+          "vertical": "{Boolean}false"
+        },
+        "itemAttributes": [
+          {
+            "field": "radio1",
+            "type": "radio",
+            "attributes": {
+              "checked": "{Boolean}true",
+              "name": "radioTest",
+              "text": "Radio 1",
+              "value": "rad1"
+            }
+          },
+          {
+            "field": "radio2",
+            "type": "radio",
+            "attributes": {
+              "checked": "{Boolean}true",
+              "name": "radioTest",
+              "text": "Radio 2",
+              "value": "rad2"
+            }
+          }
+        ]
+      },
+      {
+        "field": "hiddenTest",
+        "type": "hidden",
+        "attributes": {
+          "value": "hidden value"
+        }
+      },
+      {
+        "field": "numberfieldTest",
+        "type": "numberfield",
+        "label": "Numberfield Test",
         "attributes": {
           "max": "{Double}20",
           "min": "{Double}0",
@@ -66,9 +152,9 @@ Step 2: Create a `data-config.json` file with all required fields under the same
     "properties-shared": [],
     "properties-global": [
       {
-        "field": "googleMapsApiKey",
-        "type": "text",
-        "label": "Google Maps API Key"
+        "field": "globalTextfieldTest",
+        "type": "textfield",
+        "label": "Global Textfield Test"
       }
     ]
   }
@@ -90,9 +176,9 @@ Step 2: Create a `data-config.json` file with all required fields under the same
 - `options.slingmodel`: whether to create a sling model for the component
     - Class name is derived from converting "name" prop above to camel case (e.g. "google-maps" -> `GoogleMaps`/`GoogleMapsImpl`)
     - Fields are derived from dialog properties (see below)
-- `options.properties`: properties to create in standard dialog for this component.  If empty, no standard dialog will be created
-- `options.properties-shared`: properties to create in shared dialog for this component.  If empty, no shared dialog will be created
-- `options.properties-global`: properties to create in global dialog for this component.  If empty, no global dialog will be created
+- `options.properties`: properties to create in standard dialog for this component. If empty, no standard dialog will be created. This sample includes one of every possible sling:resourceType
+- `options.properties-shared`: properties to create in shared dialog for this component. If empty, no shared dialog will be created
+- `options.properties-global`: properties to create in global dialog for this component. If empty, no global dialog will be created
 
 Step 3: In your terminal, navigate to the `hs2-aem-base` folder and execute the following command.
 
