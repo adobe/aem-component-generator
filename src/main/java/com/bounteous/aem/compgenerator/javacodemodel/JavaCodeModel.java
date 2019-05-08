@@ -267,10 +267,19 @@ public class JavaCodeModel {
      */
     private String getFieldType(String type) {
         if (StringUtils.isNotBlank(type)) {
-            if (type.equalsIgnoreCase("string") || type.equalsIgnoreCase("text")) {
+            if (type.equalsIgnoreCase("textfield")
+                    || type.equalsIgnoreCase("pathfield")
+                    || type.equalsIgnoreCase("textarea")
+                    || type.equalsIgnoreCase("hidden")
+                    || type.equalsIgnoreCase("select")
+                    || type.equalsIgnoreCase("radiogroup")) {
                 return "java.lang.String";
-            } else if (type.equalsIgnoreCase("number")) {
+            } else if (type.equalsIgnoreCase("numberfield")) {
                 return "java.lang.Long";
+            } else if (type.equalsIgnoreCase("checkbox")) {
+                return "java.lang.Boolean";
+            } else if (type.equalsIgnoreCase("datepicker")) {
+                return "java.util.Calendar";
             }
         }
         return type;

@@ -21,7 +21,14 @@ public class Constants {
 
     public static String RESOURCE_TYPE_TEXTFIELD = "granite/ui/components/coral/foundation/form/textfield";
     public static String RESOURCE_TYPE_NUMBER = "granite/ui/components/coral/foundation/form/numberfield";
-    public static String RESOURCE_TYPE_CHECKBOX = "granite/ui/components/coral/foundation/form/checkbox";
+    public static String RESOURCE_TYPE_CHECKBOX = "granite/ui/components/coral/foundation/form/checkbox"; //does this one work?
+    public static String RESOURCE_TYPE_PATHFIELD = "granite/ui/components/coral/foundation/form/pathfield";
+    public static String RESOURCE_TYPE_TEXTAREA = "granite/ui/components/coral/foundation/form/textarea";
+    public static String RESOURCE_TYPE_HIDDEN = "granite/ui/components/coral/foundation/form/hidden";
+    public static String RESOURCE_TYPE_DATEPICKER = "granite/ui/components/coral/foundation/form/datepicker";
+    public static String RESOURCE_TYPE_SELECT = "granite/ui/components/coral/foundation/form/select";
+    public static String RESOURCE_TYPE_RADIOGROUP = "granite/ui/components/coral/foundation/form/radiogroup";
+    public static String RESOURCE_TYPE_RADIO = "granite/ui/components/coral/foundation/form/radio";
     public static String RESOURCE_TYPE_DIALOG = "cq/gui/components/authoring/dialog";
     public static String RESOURCE_TYPE_CONTAINER = "granite/ui/components/foundation/container";
     public static String RESOURCE_TYPE_TABS = "granite/ui/components/foundation/layouts/tabs";
@@ -40,6 +47,7 @@ public class Constants {
     public static String PROPERTY_JCR_TITLE = "jcr:title";
     public static String PROPERTY_SLING_RESOURCETYPE = "sling:resourceType";
     public static String PROPERTY_FIELDLABEL = "fieldLabel";
+    public static String PROPERTY_FIELDDESC = "fieldDescription";
     public static String PROPERTY_NAME = "name";
     public static String PROPERTY_CQ_MSM_LOCKABLE = "cq-msm-lockable";
 
