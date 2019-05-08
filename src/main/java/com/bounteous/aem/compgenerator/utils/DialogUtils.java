@@ -1,3 +1,20 @@
+/*
+ * ***********************************************************************
+ * BOUNTEOUS CONFIDENTIAL
+ * ___________________
+ *
+ * Copyright 2019 Bounteous
+ * All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains the property
+ * of Bounteous and its suppliers, if any. The intellectual and
+ * technical concepts contained herein are proprietary to Bounteous
+ * and its suppliers and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from Bounteous.
+ * ***********************************************************************
+ */
 package com.bounteous.aem.compgenerator.utils;
 
 import com.bounteous.aem.compgenerator.Constants;
@@ -53,6 +70,13 @@ public class DialogUtils {
         }
     }
 
+    /**
+     * Generates the root elements of what will be the _cq_dialog/.content.xml
+     * @param document
+     * @param generationConfig
+     * @param dialogType
+     * @return
+     */
     private static Element createDialogRoot(Document document, GenerationConfig generationConfig, String dialogType) {
         Element rootElement = XMLUtils.createRootElement(document);
         rootElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
@@ -82,21 +106,56 @@ public class DialogUtils {
 
             propertyNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
             propertyNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, getSlingResourceType(property.getType()));
-            propertyNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
-            propertyNode.setAttribute(Constants.PROPERTY_FIELDLABEL, property.getLabel());
-            propertyNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
 
-            if (property.getAttributes() != null && property.getAttributes().size() > 0) {
-                property.getAttributes()
-                        .entrySet()
-                        .stream()
-                        .forEach(entry -> propertyNode.setAttribute(entry.getKey(), entry.getValue()));
+            // Some of the properties are optional based on the different types available.
+            if (StringUtils.isNotEmpty(property.getLabel())) {
+                propertyNode.setAttribute(Constants.PROPERTY_FIELDLABEL, property.getLabel());
             }
+            if (StringUtils.isNotEmpty(property.getDescription())) {
+                propertyNode.setAttribute(Constants.PROPERTY_FIELDDESC, property.getDescription());
+            }
+            if (StringUtils.isNotEmpty(property.getField()) && !property.getType().equalsIgnoreCase("radiogroup")) {
+                propertyNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
+                propertyNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
+            }
+
+            processAttributes(propertyNode, property);
+
+            if (property.getItemAttributes() != null && property.getItemAttributes().size() > 0) {
+                Node items = propertyNode.appendChild(createUnStructuredNode(document, "items"));
+
+                for (Property item : property.getItemAttributes()) {
+                    Element optionNode = document.createElement(item.getField());
+                    optionNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
+                    String resourceType = getSlingResourceType(item.getType());
+                    if (StringUtils.isNotEmpty(resourceType)) {
+                        optionNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, resourceType);
+                    }
+
+                    processAttributes(optionNode, item);
+                    items.appendChild(optionNode);
+                }
+            }
+
             return propertyNode;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Processes the attributes for a propertyNode
+     * @param propertyNode
+     * @param property
+     */
+    private static void processAttributes(Element propertyNode, Property property) {
+        if (property.getAttributes() != null && property.getAttributes().size() > 0) {
+            property.getAttributes()
+                    .entrySet()
+                    .stream()
+                    .forEach(entry -> propertyNode.setAttribute(entry.getKey(), entry.getValue()));
+        }
     }
 
     /**
@@ -130,24 +189,47 @@ public class DialogUtils {
                 .appendChild(createUnStructuredNode(document, "items"));
     }
 
+    /**
+     * Creates a node with the jcr:primaryType set to nt:unstructured
+     * @param document
+     * @param nodeName
+     * @return
+     */
     private static Node createUnStructuredNode(Document document, String nodeName) {
         Element element = document.createElement(nodeName);
         element.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         return element;
     }
 
+    /**
+     * Determine the proper sling:resourceType
+     * @param type
+     * @return
+     */
     private static String getSlingResourceType(String type){
-        if(StringUtils.isNotBlank(type)){
-            if (StringUtils.equalsIgnoreCase("text", type)) {
+        if (StringUtils.isNotBlank(type)) {
+            if (StringUtils.equalsIgnoreCase("textfield", type)) {
                 return Constants.RESOURCE_TYPE_TEXTFIELD;
-            } else if (StringUtils.equalsIgnoreCase("number", type)) {
+            } else if (StringUtils.equalsIgnoreCase("numberfield", type)) {
                 return Constants.RESOURCE_TYPE_NUMBER;
             } else if (StringUtils.equalsIgnoreCase("checkbox", type)) {
                 return Constants.RESOURCE_TYPE_CHECKBOX;
+            } else if (StringUtils.equalsIgnoreCase("pathfield", type)) {
+                return Constants.RESOURCE_TYPE_PATHFIELD;
+            } else if (StringUtils.equalsIgnoreCase("textarea", type)) {
+                return Constants.RESOURCE_TYPE_TEXTAREA;
+            } else if (StringUtils.equalsIgnoreCase("hidden", type)) {
+                return Constants.RESOURCE_TYPE_HIDDEN;
+            } else if (StringUtils.equalsIgnoreCase("datepicker", type)) {
+                return Constants.RESOURCE_TYPE_DATEPICKER;
+            } else if (StringUtils.equalsIgnoreCase("select", type)) {
+                return Constants.RESOURCE_TYPE_SELECT;
+            } else if (StringUtils.equalsIgnoreCase("radiogroup", type)) {
+                return Constants.RESOURCE_TYPE_RADIOGROUP;
+            } else if (StringUtils.equalsIgnoreCase("radio", type)) {
+                return Constants.RESOURCE_TYPE_RADIO;
             }
         }
         return null;
     }
-
-
 }
