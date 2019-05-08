@@ -135,8 +135,6 @@ public class ComponentUtils {
         }
     }
 
-
-
     /**
      * create default HTML file based the provided template.
      */
@@ -152,11 +150,4 @@ public class ComponentUtils {
             throw new GeneratorException("Exception while creating HTML : " + generationConfig.getCompDir());
         }
     }
-
-
-
-
-
-
 }
-

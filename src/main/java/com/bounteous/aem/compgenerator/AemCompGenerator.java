@@ -34,10 +34,10 @@ import java.io.File;
  */
 public class AemCompGenerator {
 
-    private GenerationConfig config;
+    private static GenerationConfig config;
 
 
-    public void main(String[] args) {
+    public static void main(String[] args) {
         try {
             String configPath = "data-config.json";
             if (args != null && args.length > 0) {
@@ -52,7 +52,6 @@ public class AemCompGenerator {
 
             config = CommonUtils.getComponentData(configFile);
 
-            //TODO: move these checks to CommonUtils
             if (config == null) {
                 throw new GeneratorException("Config file is empty / null !!");
             }

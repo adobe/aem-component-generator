@@ -86,7 +86,12 @@ public class CommonUtils {
         }
         return null;
     }
-
+    /**
+     * Creates a new folder
+     * @param folderPath
+     * @return
+     * @throws Exception
+     */
     public static Path createFolder(String folderPath) throws Exception {
         Path path = Paths.get(folderPath);
         if (Files.notExists(path)) {
@@ -95,10 +100,21 @@ public class CommonUtils {
         return path;
     }
 
+    /**
+     * Determines if the model included is valid and not null.
+     * @param model
+     * @return
+     */
     public static boolean isModelValid(BaseModel model) {
         return model != null && model.isValid();
     }
 
+    /**
+     * Creates a new file with the correct copyright text appearing at the top.
+     * @param path
+     * @param templateValueMap
+     * @throws IOException
+     */
     public static void createFileWithCopyRight(String path, Map<String, String> templateValueMap) throws IOException {
         File file = new File(path);
         if (file != null) {
@@ -138,6 +154,4 @@ public class CommonUtils {
         }
         return null;
     }
-
-
 }
