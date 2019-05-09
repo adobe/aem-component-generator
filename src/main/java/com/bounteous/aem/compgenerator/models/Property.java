@@ -41,8 +41,8 @@ public class Property implements BaseModel {
     @JsonProperty("attributes")
     private Map<String, String> attributes;
 
-    @JsonProperty(value = "itemAttributes")
-    private List<Property> itemAttributes;
+    @JsonProperty(value = "items")
+    private List<Property> items;
 
     public String getField() {
         if (StringUtils.isNotBlank(field)) {
@@ -98,12 +98,12 @@ public class Property implements BaseModel {
         this.description = description;
     }
 
-    public List<Property> getItemAttributes() {
-        return itemAttributes;
+    public List<Property> getItems() {
+        return items;
     }
 
-    public void setItemAttributes(List<Property> itemAttributes) {
-        this.itemAttributes = itemAttributes;
+    public void setItems(List<Property> items) {
+        this.items = items;
     }
 
     @Override

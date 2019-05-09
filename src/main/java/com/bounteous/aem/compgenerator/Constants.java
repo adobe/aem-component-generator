@@ -21,7 +21,7 @@ public class Constants {
 
     public static String RESOURCE_TYPE_TEXTFIELD = "granite/ui/components/coral/foundation/form/textfield";
     public static String RESOURCE_TYPE_NUMBER = "granite/ui/components/coral/foundation/form/numberfield";
-    public static String RESOURCE_TYPE_CHECKBOX = "granite/ui/components/coral/foundation/form/checkbox"; //does this one work?
+    public static String RESOURCE_TYPE_CHECKBOX = "granite/ui/components/coral/foundation/form/checkbox";
     public static String RESOURCE_TYPE_PATHFIELD = "granite/ui/components/coral/foundation/form/pathfield";
     public static String RESOURCE_TYPE_TEXTAREA = "granite/ui/components/coral/foundation/form/textarea";
     public static String RESOURCE_TYPE_HIDDEN = "granite/ui/components/coral/foundation/form/hidden";

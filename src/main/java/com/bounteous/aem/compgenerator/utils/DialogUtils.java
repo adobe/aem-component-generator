@@ -121,10 +121,10 @@ public class DialogUtils {
 
             processAttributes(propertyNode, property);
 
-            if (property.getItemAttributes() != null && property.getItemAttributes().size() > 0) {
+            if (property.getItems() != null && property.getItems().size() > 0) {
                 Node items = propertyNode.appendChild(createUnStructuredNode(document, "items"));
 
-                for (Property item : property.getItemAttributes()) {
+                for (Property item : property.getItems()) {
                     Element optionNode = document.createElement(item.getField());
                     optionNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
                     String resourceType = getSlingResourceType(item.getType());

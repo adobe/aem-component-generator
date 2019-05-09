@@ -41,6 +41,7 @@ Step 2: Create a `data-config.json` file with all required fields under the same
     "properties": [
       {
         "field": "textfieldTest",
+        "description": "Adds a fieldDescription tooltip",
         "type": "textfield",
         "label": "Textfield Test",
         "attributes": {}
@@ -69,6 +70,7 @@ Step 2: Create a `data-config.json` file with all required fields under the same
       },
       {
         "field": "dateTest",
+        "description": "Context tooltip for authors.",
         "type": "datepicker",
         "label": "Select Date",
         "attributes": {
@@ -83,7 +85,7 @@ Step 2: Create a `data-config.json` file with all required fields under the same
           "defaultValue": "opt1",
           "value": "opt1"
         },
-        "itemAttributes": [
+        "items": [
           {
             "field": "option1",
             "attributes": {
@@ -107,7 +109,7 @@ Step 2: Create a `data-config.json` file with all required fields under the same
         "attributes": {
           "vertical": "{Boolean}false"
         },
-        "itemAttributes": [
+        "items": [
           {
             "field": "radio1",
             "type": "radio",
@@ -149,7 +151,13 @@ Step 2: Create a `data-config.json` file with all required fields under the same
         }
       }
     ],
-    "properties-shared": [],
+    "properties-shared": [
+      {
+        "field": "sharedTextfieldTest",
+        "type": "textfield",
+        "label": "Shared Textfield Test"
+      }
+    ],
     "properties-global": [
       {
         "field": "globalTextfieldTest",
