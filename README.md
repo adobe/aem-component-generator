@@ -147,6 +147,11 @@ Step 2: Create a `data-config.json` file with all required fields under the same
           "step": "1",
           "value": "{Long}20"
         }
+      },
+      {
+        "field": "imageTest",
+        "type": "image",
+        "label": "Image Test"
       }
     ],
     "properties-shared": [],
