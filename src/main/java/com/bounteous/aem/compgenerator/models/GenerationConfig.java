@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
 
-public class GenerationConfig {
+public class GenerationConfig implements BaseModel {
 
     @JsonProperty("name")
     private String name;
@@ -112,4 +112,8 @@ public class GenerationConfig {
         this.compDir = compDir;
     }
 
+    @Override
+    public boolean isValid() {
+        return StringUtils.isNotBlank(name) && StringUtils.isNotBlank(type);
+    }
 }

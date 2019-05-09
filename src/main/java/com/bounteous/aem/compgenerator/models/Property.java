@@ -21,9 +21,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
 
+import java.util.List;
 import java.util.Map;
 
-public class Property {
+public class Property implements BaseModel {
 
     @JsonProperty("field")
     private String field;
@@ -34,11 +35,14 @@ public class Property {
     @JsonProperty("label")
     private String label;
 
-    @JsonProperty("annotate")
-    private String annotate;
+    @JsonProperty("description")
+    private String description;
 
     @JsonProperty("attributes")
     private Map<String, String> attributes;
+
+    @JsonProperty(value = "items")
+    private List<Property> items;
 
     public String getField() {
         if (StringUtils.isNotBlank(field)) {
@@ -78,14 +82,6 @@ public class Property {
         this.label = label;
     }
 
-    public String getAnnotate() {
-        return annotate;
-    }
-
-    public void setAnnotate(String annotate) {
-        this.annotate = annotate;
-    }
-
     public Map<String, String> getAttributes() {
         return attributes;
     }
@@ -94,4 +90,24 @@ public class Property {
         this.attributes = attributes;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<Property> getItems() {
+        return items;
+    }
+
+    public void setItems(List<Property> items) {
+        this.items = items;
+    }
+
+    @Override
+    public boolean isValid() {
+        return true;
+    }
 }

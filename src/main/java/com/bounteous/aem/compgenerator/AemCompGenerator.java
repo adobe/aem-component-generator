@@ -21,8 +21,7 @@ import com.bounteous.aem.compgenerator.exceptions.GeneratorException;
 import com.bounteous.aem.compgenerator.javacodemodel.JavaCodeModel;
 import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.utils.CommonUtils;
-import com.bounteous.aem.compgenerator.utils.ComponentGeneratorUtils;
-import org.apache.commons.lang.StringUtils;
+import com.bounteous.aem.compgenerator.utils.ComponentUtils;
 
 import java.io.File;
 
@@ -34,6 +33,9 @@ import java.io.File;
  * and getters.
  */
 public class AemCompGenerator {
+
+    private static GenerationConfig config;
+
 
     public static void main(String[] args) {
         try {
@@ -48,14 +50,13 @@ public class AemCompGenerator {
                 throw new GeneratorException("Config file missing / empty.");
             }
 
-            GenerationConfig config = CommonUtils.getComponentData(configFile);
+            config = CommonUtils.getComponentData(configFile);
 
             if (config == null) {
                 throw new GeneratorException("Config file is empty / null !!");
             }
 
-            if (StringUtils.isBlank(config.getName()) || StringUtils.isBlank(config.getType())
-                    || config.getProjectSettings() == null || StringUtils.isBlank(config.getProjectSettings().getComponentPath())) {
+            if (!config.isValid() || !CommonUtils.isModelValid(config.getProjectSettings())) {
                 throw new GeneratorException("Mandatory fields missing in the data-config.json !");
             }
 
@@ -65,7 +66,7 @@ public class AemCompGenerator {
             config.setCompDir(compDir);
 
             //builds component folder and file structure.
-            ComponentGeneratorUtils generatorUtils = new ComponentGeneratorUtils(config);
+            ComponentUtils generatorUtils = new ComponentUtils(config);
             generatorUtils._buildComponent();
 
             //builds sling model based on config.

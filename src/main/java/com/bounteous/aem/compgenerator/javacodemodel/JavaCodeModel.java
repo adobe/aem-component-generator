@@ -22,6 +22,7 @@ import com.adobe.acs.commons.models.injectors.annotation.SharedValueMapValue;
 import com.bounteous.aem.compgenerator.Constants;
 import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.models.Property;
+import com.hs2solutions.aem.base.core.models.annotations.injectorspecific.ChildRequest;
 import com.sun.codemodel.CodeWriter;
 import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
@@ -203,20 +204,27 @@ public class JavaCodeModel {
      */
     private void _addFieldVar(Property property, final String propertyType) {
         if (property != null && StringUtils.isNotBlank(property.getField())) {
-            _addPropertyAsPrivateField(property.getField(), getFieldType(property.getType()), propertyType);
+            _addPropertyAsPrivateField(property, propertyType);
         }
     }
 
     /**
      * method that add the fieldname as private to jc.
      *
-     * @param fieldName
-     * @param fieldType
+     * @param property
+     * @param propertyType
      */
-    private void _addPropertyAsPrivateField(String fieldName, String fieldType, final String propertyType) {
+    private void _addPropertyAsPrivateField(Property property, final String propertyType) {//(String fieldName, String propertyType, String fieldType, final String propertyType) {
+        String fieldType = getFieldType(property.getType());
         if (jc.isClass()) {
-            JFieldVar jFieldVar = jc.field(PRIVATE, codeModel.ref(fieldType), fieldName);
-            if (StringUtils.equalsIgnoreCase(propertyType, Constants.PROPERTY_TYPE_PRIVATE)) {
+            JFieldVar jFieldVar = jc.field(PRIVATE, codeModel.ref(fieldType), property.getField());
+
+            if (StringUtils.equalsIgnoreCase(property.getType(), "image")) {
+                jFieldVar.annotate(codeModel.ref(ChildRequest.class))
+                        .param("injectionStrategy",
+                                codeModel.ref(InjectionStrategy.class).staticRef("OPTIONAL"));
+
+            } else if (StringUtils.equalsIgnoreCase(propertyType, Constants.PROPERTY_TYPE_PRIVATE)) {
                 jFieldVar.annotate(codeModel.ref(ValueMapValue.class))
                         .param("injectionStrategy",
                                 codeModel.ref(InjectionStrategy.class).staticRef("OPTIONAL"));
@@ -226,7 +234,7 @@ public class JavaCodeModel {
                                 codeModel.ref(InjectionStrategy.class).staticRef("OPTIONAL"));
             }
         } else if (jc.isInterface()) {
-            jc.field(NONE, codeModel.ref(fieldType), fieldName);
+            jc.field(NONE, codeModel.ref(fieldType), property.getField());
         }
     }
 
@@ -267,10 +275,21 @@ public class JavaCodeModel {
      */
     private String getFieldType(String type) {
         if (StringUtils.isNotBlank(type)) {
-            if (type.equalsIgnoreCase("string") || type.equalsIgnoreCase("text")) {
+            if (type.equalsIgnoreCase("textfield")
+                    || type.equalsIgnoreCase("pathfield")
+                    || type.equalsIgnoreCase("textarea")
+                    || type.equalsIgnoreCase("hidden")
+                    || type.equalsIgnoreCase("select")
+                    || type.equalsIgnoreCase("radiogroup")) {
                 return "java.lang.String";
-            } else if (type.equalsIgnoreCase("number")) {
+            } else if (type.equalsIgnoreCase("numberfield")) {
                 return "java.lang.Long";
+            } else if (type.equalsIgnoreCase("checkbox")) {
+                return "java.lang.Boolean";
+            } else if (type.equalsIgnoreCase("datepicker")) {
+                return "java.util.Calendar";
+            } else if (type.equalsIgnoreCase("image")) {
+                return "com.hs2solutions.aem.base.core.models.HS2Image";
             }
         }
         return type;
