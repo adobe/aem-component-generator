@@ -58,7 +58,7 @@ public class DialogUtils {
 
                 properties.stream()
                         .filter(Objects::nonNull)
-                        .map(property -> createPropertyNode(doc, property))
+                        .map(property -> createPropertyNode(doc, currentNode, property))
                         .filter(Objects::nonNull)
                         .forEach(a -> currentNode.appendChild(a));
             }
@@ -100,7 +100,7 @@ public class DialogUtils {
      * @param property project object contains attributes.
      * @return
      */
-    private static Element createPropertyNode(Document document, Property property) {
+    private static Element createPropertyNode(Document document, Node currentNode, Property property) {
         try {
             Element propertyNode = document.createElement(property.getField());
 
@@ -114,7 +114,8 @@ public class DialogUtils {
             if (StringUtils.isNotEmpty(property.getDescription())) {
                 propertyNode.setAttribute(Constants.PROPERTY_FIELDDESC, property.getDescription());
             }
-            if (StringUtils.isNotEmpty(property.getField()) && !property.getType().equalsIgnoreCase("radiogroup")) {
+            if (StringUtils.isNotEmpty(property.getField())
+                    && (!property.getType().equalsIgnoreCase("radiogroup")) || !property.getType().equalsIgnoreCase("image")) {
                 propertyNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
                 propertyNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
             }
@@ -137,6 +138,15 @@ public class DialogUtils {
                 }
             }
 
+            if (property.getType().equalsIgnoreCase("image")) {
+                addImagePropertyValues(propertyNode, property);
+                currentNode.appendChild(propertyNode);
+
+                Element hiddenImageNode = document.createElement(property.getField() + "ResType");
+                addImageHiddenProperyValues(hiddenImageNode, property);
+                return hiddenImageNode;
+            }
+
             return propertyNode;
         } catch (Exception e) {
             e.printStackTrace();
@@ -156,6 +166,38 @@ public class DialogUtils {
                     .stream()
                     .forEach(entry -> propertyNode.setAttribute(entry.getKey(), entry.getValue()));
         }
+    }
+
+    /**
+     * Adds the properties specific to the image node. These could all have been included as attributes in the
+     * configuration json file, but they never/rarely change, so hardcoding them here seems safe to do.
+     * @param imageNode
+     * @param property
+     */
+    private static void addImagePropertyValues(Element imageNode, Property property) {
+        imageNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField() + "/file");
+        imageNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField() + "/file");
+        imageNode.setAttribute("allowUpload", "{Boolean}false");
+        imageNode.setAttribute("autoStart", "{Boolean}false");
+        imageNode.setAttribute("class", "cq-droptarget");
+        imageNode.setAttribute("fileReferenceParameter", "./" + property.getField() + "/fileReference");
+        imageNode.setAttribute("mimeTypes", "[image/gif,image/jpeg,image/png,image/webp,image/tiff,image/svg+xml]");
+        imageNode.setAttribute("multiple", "{Boolean}false");
+        imageNode.setAttribute("title", "Drag to select image");
+        imageNode.setAttribute("uploadUrl", "${suffix.path}");
+        imageNode.setAttribute("useHTML5", "{Boolean}true");
+    }
+
+    /**
+     * Adds the properties specific to the hidden image node that allows the image dropzone to operate properly on dialogs.
+     * @param hiddenImageNode
+     * @param property
+     */
+    private static void addImageHiddenProperyValues(Element hiddenImageNode, Property property) {
+        hiddenImageNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
+        hiddenImageNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_HIDDEN);
+        hiddenImageNode.setAttribute("name", "./" + property.getField() + "/" + Constants.PROPERTY_SLING_RESOURCETYPE);
+        hiddenImageNode.setAttribute("value", Constants.RESOURCE_TYPE_IMAGE_HIDDEN_TYPE);
     }
 
     /**
@@ -228,6 +270,8 @@ public class DialogUtils {
                 return Constants.RESOURCE_TYPE_RADIOGROUP;
             } else if (StringUtils.equalsIgnoreCase("radio", type)) {
                 return Constants.RESOURCE_TYPE_RADIO;
+            } else if (StringUtils.equalsIgnoreCase("image", type)) {
+                return Constants.RESOURCE_TYPE_IMAGE;
             }
         }
         return null;
