@@ -154,6 +154,17 @@ Step 2: Create a `data-config.json` file with all required fields under the same
         "field": "imageTest",
         "type": "image",
         "label": "Image Test"
+      },
+      {
+        "field": "colors",
+        "type": "multifield",
+        "label": "Colors",
+        "items": [
+            {
+                "type": "textfield",
+                "label": "Color"
+            }
+        ]
       }
     ],
     "properties-shared": [
