@@ -165,6 +165,25 @@ Step 2: Create a `data-config.json` file with all required fields under the same
                 "label": "Color"
             }
         ]
+      },
+      {
+        "field": "links",
+        "type": "multifield",
+        "label": "Links",
+        "items": [
+            {
+                "field": "path",
+                "type": "pathfield",
+                "label": "Path",
+                "description": "Path to the page"
+            },
+            {
+                "field": "label",
+                "type": "textfield",
+                "label": "Label",
+                "description": "Label to display on the link"
+            }
+        ]
       }
     ],
     "properties-shared": [
