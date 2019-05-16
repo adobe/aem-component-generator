@@ -137,10 +137,10 @@
         "type": "multifield",
         "label": "Colors",
         "items": [
-            {
-                "type": "textfield",
-                "label": "Color"
-            }
+          {
+            "type": "textfield",
+            "label": "Color"
+          }
         ]
       },
       {
@@ -148,18 +148,18 @@
         "type": "multifield",
         "label": "Links",
         "items": [
-            {
-                "field": "path",
-                "type": "pathfield",
-                "label": "Path",
-                "description": "Path to the page"
-            },
-            {
-                "field": "label",
-                "type": "textfield",
-                "label": "Label",
-                "description": "Label to display on the link"
-            }
+          {
+            "field": "path",
+            "type": "pathfield",
+            "label": "Path",
+            "description": "Path to the page"
+          },
+          {
+            "field": "label",
+            "type": "textfield",
+            "label": "Label",
+            "description": "Label to display on the link"
+          }
         ]
       }
     ],
