@@ -18,7 +18,7 @@ $ mvn clean install
 Step 1: Copy your `component-generator-N.N.jar` file to the your `hs2-aem-base` project under the `scripts/compgen`
 folder.
 
-Step 2: Copy `data-config.json` file and update with relevant data under the same folder.
+Step 2: Copy the `data-config.json` file from this project to the same folder and update with relevant configs for your component.
 
 - `project-settings`: contains configuration options related to the project code will be generated for
 - `project-settings.bundle-path`: path to the code bundle's root of Java packages
