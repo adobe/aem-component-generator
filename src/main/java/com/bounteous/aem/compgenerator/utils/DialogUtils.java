@@ -302,6 +302,8 @@ public class DialogUtils {
                 return Constants.RESOURCE_TYPE_RADIO;
             } else if (StringUtils.equalsIgnoreCase("image", type)) {
                 return Constants.RESOURCE_TYPE_IMAGE;
+            } else if (StringUtils.equalsIgnoreCase("multifield", type)) {
+                return Constants.RESOURCE_TYPE_MULTIFIELD;
             }
         }
         return null;
