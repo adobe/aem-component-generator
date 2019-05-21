@@ -53,3 +53,10 @@ Example:
 ```sh
 $ java -jar scripts/compgen/component-generator-1.0.jar scripts/compgen/data-config.json
 ```
+
+Retrieving Data for Composite Multifields:
+```
+<div data-sly-list="${model.multifield.listChildren}">
+   ${item} <!-- item0, item1, ... -->
+</div>
+```

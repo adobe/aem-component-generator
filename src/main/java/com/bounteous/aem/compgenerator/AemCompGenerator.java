@@ -22,6 +22,8 @@ import com.bounteous.aem.compgenerator.javacodemodel.JavaCodeModel;
 import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.utils.CommonUtils;
 import com.bounteous.aem.compgenerator.utils.ComponentUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 
@@ -33,9 +35,7 @@ import java.io.File;
  * and getters.
  */
 public class AemCompGenerator {
-
-    private static GenerationConfig config;
-
+    private static final Logger LOG = LogManager.getLogger(AemCompGenerator.class);
 
     public static void main(String[] args) {
         try {
@@ -50,7 +50,7 @@ public class AemCompGenerator {
                 throw new GeneratorException("Config file missing / empty.");
             }
 
-            config = CommonUtils.getComponentData(configFile);
+            GenerationConfig config = CommonUtils.getComponentData(configFile);
 
             if (config == null) {
                 throw new GeneratorException("Config file is empty / null !!");
@@ -67,15 +67,15 @@ public class AemCompGenerator {
 
             //builds component folder and file structure.
             ComponentUtils generatorUtils = new ComponentUtils(config);
-            generatorUtils._buildComponent();
+            generatorUtils.buildComponent();
 
             //builds sling model based on config.
             if (config.getOptions() != null && config.getOptions().isHasSlingModel()) {
                 JavaCodeModel javaCodeModel = new JavaCodeModel();
-                javaCodeModel._buildSlingModel(config);
+                javaCodeModel.buildSlingModel(config);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e);
         }
     }
 }
