@@ -29,8 +29,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.Optional;
-import org.apache.sling.models.annotations.injectorspecific.ChildResource;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 
@@ -138,7 +136,7 @@ public class JavaCodeModel {
                 addFieldVars(generationConfig.getOptions().getProperties(), Constants.PROPERTY_TYPE_PRIVATE);
             }
 
-            addGetters(jc, true);
+            addGetters();
 
             generateCodeFile();
 
@@ -185,6 +183,7 @@ public class JavaCodeModel {
      * adds fields to java model.
      *
      * @param properties
+     * @param propertyType
      */
     private void addFieldVars(List<Property> properties, final String propertyType) {
         properties.stream()
@@ -200,11 +199,11 @@ public class JavaCodeModel {
     private void addFieldVar(Property property, final String propertyType) {
         if (property != null && StringUtils.isNotBlank(property.getField())) {
             if (!property.getType().equalsIgnoreCase("multifield")) { // non multifield properties
-                addPropertyAsPrivateField(jc, property, propertyType);
+                addPropertyAsPrivateField(property, propertyType);
             } else if (property.getItems().size() == 1) { // multifield with single property
-                addPropertyAsPrivateField(jc, property, propertyType);
+                addPropertyAsPrivateField(property, propertyType);
             } else if (property.getItems().size() > 1) {
-                addPropertyAndObjectAsPrivateField(jc, property);
+                addPropertyAndObjectAsPrivateField(property);
             }
         }
     }
@@ -215,7 +214,7 @@ public class JavaCodeModel {
      * @param property
      * @param propertyType
      */
-    private JDefinedClass addPropertyAsPrivateField(JDefinedClass jc, Property property, final String propertyType) {
+    private void addPropertyAsPrivateField(Property property, final String propertyType) {
         String fieldType = getFieldType(property);
         if (jc.isClass()) {
             JClass fieldClass = property.getType().equalsIgnoreCase("multifield")
@@ -240,34 +239,31 @@ public class JavaCodeModel {
         } else if (jc.isInterface()) {
             jc.field(NONE, codeModel.ref(fieldType), property.getField());
         }
-        
-        return jc;
     }
 
     /**
      * method that add the fieldname as private and adds a class to jc
      */
-    private JDefinedClass addPropertyAndObjectAsPrivateField(JDefinedClass jc, Property property) {
+    private void addPropertyAndObjectAsPrivateField(Property property) {
         if (jc.isClass()) {
             String fieldType = getFieldType(property);
-            JFieldVar jFieldVar = jc.field(PRIVATE, codeModel.ref(fieldType), property.getField());
-            jFieldVar.annotate(codeModel.ref(ChildResource.class))
+            JClass fieldClass = codeModel.ref(fieldType).narrow(codeModel.ref("org.apache.sling.api.resource.Resource"));
+            JFieldVar jFieldVar = jc.field(PRIVATE, fieldClass, property.getField());
+            jFieldVar.annotate(codeModel.ref(ChildRequest.class))
                     .param(INJECTION_STRATEGY,
-                            codeModel.ref(InjectionStrategy.class).staticRef(OPTIONAL_INJECTION_STRATEGY))
-                    .param("name", property.getField());
+                            codeModel.ref(InjectionStrategy.class).staticRef(OPTIONAL_INJECTION_STRATEGY));
         }
-        return jc;
     }
 
     /**
      * adds getters to all the fields available in the java class.
      */
-    private void addGetters(JDefinedClass jc, boolean addOverride) {
+    private void addGetters() {
         Map<String, JFieldVar> fieldVars = jc.fields();
         if (fieldVars.size() > 0) {
             for (Map.Entry<String, JFieldVar> entry : fieldVars.entrySet()) {
                 if (entry.getValue() != null) {
-                    addGetter(jc, entry.getValue(), addOverride);
+                    addGetter(entry.getValue());
                 }
             }
         }
@@ -278,12 +274,10 @@ public class JavaCodeModel {
      *
      * @param jFieldVar
      */
-    private void addGetter(JDefinedClass jc, JFieldVar jFieldVar, boolean addOverride) {
+    private void addGetter(JFieldVar jFieldVar) {
         if (jc.isClass()) {
             JMethod getMethod = jc.method(JMod.PUBLIC, jFieldVar.type(), getMethodFormattedString(jFieldVar.name()));
-            if (addOverride) {
-                getMethod.annotate(codeModel.ref(Override.class));
-            }
+            getMethod.annotate(codeModel.ref(Override.class));
             getMethod.body()._return(jFieldVar);
         } else {
             jc.method(NONE, jFieldVar.type(), getMethodFormattedString(jFieldVar.name()));
@@ -293,7 +287,7 @@ public class JavaCodeModel {
     /**
      * get the java fieldType based on the type input in the generationConfig
      *
-     * @param type
+     * @param property
      * @return String returns relevant java type of string passed in.
      */
     private String getFieldType(Property property) {
@@ -315,11 +309,7 @@ public class JavaCodeModel {
             } else if (type.equalsIgnoreCase("image")) {
                 return "com.hs2solutions.aem.base.core.models.HS2Image";
             } else if (type.equalsIgnoreCase("multifield")) {
-                if (property.getItems().size() == 1) {
-                    return "java.util.List";
-                } else {
-                    return "org.apache.sling.api.resource.Resource";
-                }
+                return "java.util.List";
             }
         }
         return type;
@@ -352,8 +342,14 @@ public class JavaCodeModel {
 
     private JClass getGetterMethodReturnType(final Property property) {
         String fieldType = getFieldType(property);
-        return (property.getType().equalsIgnoreCase("multifield") && property.getItems().size() == 1)
-                ? codeModel.ref(fieldType).narrow(codeModel.ref(getFieldType(property.getItems().get(0))))
-                : codeModel.ref(fieldType);
+        if (property.getType().equalsIgnoreCase("multifield")) {
+            if (property.getItems().size() == 1) {
+                return codeModel.ref(fieldType).narrow(codeModel.ref(getFieldType(property.getItems().get(0))));
+            } else {
+                return codeModel.ref(fieldType).narrow(codeModel.ref("org.apache.sling.api.resource.Resource"));
+            }
+        } else {
+            return codeModel.ref(fieldType);
+        }
     }
 }

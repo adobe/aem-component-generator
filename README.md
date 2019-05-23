@@ -56,7 +56,7 @@ $ java -jar scripts/compgen/component-generator-1.0.jar scripts/compgen/data-con
 
 Retrieving Data for Composite Multifields:
 ```
-<div data-sly-list="${model.multifield.listChildren}">
+<div data-sly-list="${model.multifield}">
    ${item} <!-- item0, item1, ... -->
 </div>
 ```
