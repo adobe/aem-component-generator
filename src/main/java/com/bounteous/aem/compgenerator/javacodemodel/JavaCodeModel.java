@@ -218,7 +218,10 @@ public class JavaCodeModel {
     private JDefinedClass addPropertyAsPrivateField(JDefinedClass jc, Property property, final String propertyType) {
         String fieldType = getFieldType(property);
         if (jc.isClass()) {
-            JFieldVar jFieldVar = jc.field(PRIVATE, codeModel.ref(fieldType), property.getField());
+            JClass fieldClass = property.getType().equalsIgnoreCase("multifield")
+                    ? codeModel.ref(fieldType).narrow(codeModel.ref(getFieldType(property.getItems().get(0))))
+                    : codeModel.ref(fieldType);
+            JFieldVar jFieldVar = jc.field(PRIVATE, fieldClass, property.getField());
 
             if (StringUtils.equalsIgnoreCase(property.getType(), "image")) {
                 jFieldVar.annotate(codeModel.ref(ChildRequest.class))
@@ -313,7 +316,7 @@ public class JavaCodeModel {
                 return "com.hs2solutions.aem.base.core.models.HS2Image";
             } else if (type.equalsIgnoreCase("multifield")) {
                 if (property.getItems().size() == 1) {
-                    return "String[]";
+                    return "java.util.List";
                 } else {
                     return "org.apache.sling.api.resource.Resource";
                 }
@@ -329,7 +332,7 @@ public class JavaCodeModel {
      */
     private void addGettersWithoutFields(List<Property> properties) {
         if (properties != null && !properties.isEmpty()) {
-            properties.forEach(property -> jc.method(NONE, codeModel.ref(getFieldType(property)),
+            properties.forEach(property -> jc.method(NONE, getGetterMethodReturnType(property),
                             Constants.STRING_GET + property.getFieldGetterName()));
         }
     }
@@ -345,5 +348,12 @@ public class JavaCodeModel {
             return Constants.STRING_GET + Character.toTitleCase(fieldVariable.charAt(0)) + fieldVariable.substring(1);
         }
         return fieldVariable;
+    }
+
+    private JClass getGetterMethodReturnType(final Property property) {
+        String fieldType = getFieldType(property);
+        return (property.getType().equalsIgnoreCase("multifield") && property.getItems().size() == 1)
+                ? codeModel.ref(fieldType).narrow(codeModel.ref(getFieldType(property.getItems().get(0))))
+                : codeModel.ref(fieldType);
     }
 }

@@ -103,66 +103,62 @@ public class DialogUtils {
      * @return
      */
     private static Element createPropertyNode(Document document, Node currentNode, Property property) {
-        try {
-            Element propertyNode = document.createElement(property.getField());
 
-            propertyNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
-            propertyNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, getSlingResourceType(property.getType()));
+        Element propertyNode = document.createElement(property.getField());
 
-            // Some of the properties are optional based on the different types available.
-            if (StringUtils.isNotEmpty(property.getLabel())) {
-                propertyNode.setAttribute(Constants.PROPERTY_FIELDLABEL, property.getLabel());
-            }
-            if (StringUtils.isNotEmpty(property.getDescription())) {
-                propertyNode.setAttribute(Constants.PROPERTY_FIELDDESC, property.getDescription());
-            }
-            if (StringUtils.isNotEmpty(property.getField()) && (!property.getType().equalsIgnoreCase("radiogroup"))
-                    || !property.getType().equalsIgnoreCase("image")) {
-                propertyNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
-                propertyNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
-            }
+        propertyNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
+        propertyNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, getSlingResourceType(property.getType()));
 
-            processAttributes(propertyNode, property);
-            if (property.getItems() != null && property.getItems().size() > 0) {
-                if (!property.getType().equalsIgnoreCase("multifield")) {
-                    Node items = propertyNode.appendChild(createUnStructuredNode(document, "items"));
-                    processItems(document, items, property);
-                } else {
-                    Element field = document.createElement("field");
-                    field.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
-                    field.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
-                    field.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
-
-                    if (property.getItems().size() == 1) {
-                        Property prop = property.getItems().get(0);
-                        field.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, getSlingResourceType(prop.getType()));
-                        processAttributes(field, prop);
-                        propertyNode.appendChild(field);
-                    } else {
-                        propertyNode.setAttribute(Constants.PROPERTY_COMPOSITE, "{Boolean}true");
-                        field.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_CONTAINER);
-                        Node items = field.appendChild(createUnStructuredNode(document, "items"));
-                        processItems(document, items, property);
-                    }
-                    
-                    propertyNode.appendChild(field);
-                }
-            }
-
-            if (property.getType().equalsIgnoreCase("image")) {
-                addImagePropertyValues(propertyNode, property);
-                currentNode.appendChild(propertyNode);
-
-                Element hiddenImageNode = document.createElement(property.getField() + "ResType");
-                addImageHiddenProperyValues(hiddenImageNode, property);
-                return hiddenImageNode;
-            }
-
-            return propertyNode;
-        } catch (Exception e) {
-            e.printStackTrace();
+        // Some of the properties are optional based on the different types available.
+        if (StringUtils.isNotEmpty(property.getLabel())) {
+            propertyNode.setAttribute(Constants.PROPERTY_FIELDLABEL, property.getLabel());
         }
-        return null;
+        if (StringUtils.isNotEmpty(property.getDescription())) {
+            propertyNode.setAttribute(Constants.PROPERTY_FIELDDESC, property.getDescription());
+        }
+        if (StringUtils.isNotEmpty(property.getField()) && (!property.getType().equalsIgnoreCase("radiogroup"))
+                || !property.getType().equalsIgnoreCase("image")) {
+            propertyNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
+            propertyNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
+        }
+
+        processAttributes(propertyNode, property);
+        if (property.getItems() != null && !property.getItems().isEmpty()) {
+            if (!property.getType().equalsIgnoreCase("multifield")) {
+                Node items = propertyNode.appendChild(createUnStructuredNode(document, "items"));
+                processItems(document, items, property);
+            } else {
+                Element field = document.createElement("field");
+                field.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
+                field.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
+                field.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
+
+                if (property.getItems().size() == 1) {
+                    Property prop = property.getItems().get(0);
+                    field.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, getSlingResourceType(prop.getType()));
+                    processAttributes(field, prop);
+                    propertyNode.appendChild(field);
+                } else {
+                    propertyNode.setAttribute(Constants.PROPERTY_COMPOSITE, "{Boolean}true");
+                    field.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_CONTAINER);
+                    Node items = field.appendChild(createUnStructuredNode(document, "items"));
+                    processItems(document, items, property);
+                }
+
+                propertyNode.appendChild(field);
+            }
+        }
+
+        if (property.getType().equalsIgnoreCase("image")) {
+            addImagePropertyValues(propertyNode, property);
+            currentNode.appendChild(propertyNode);
+
+            Element hiddenImageNode = document.createElement(property.getField() + "ResType");
+            addImageHiddenProperyValues(hiddenImageNode, property);
+            return hiddenImageNode;
+        }
+
+        return propertyNode;
     }
 
     /**
