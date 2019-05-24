@@ -110,14 +110,10 @@ public class DialogUtils {
         propertyNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, getSlingResourceType(property.getType()));
 
         // Some of the properties are optional based on the different types available.
-        if (StringUtils.isNotEmpty(property.getLabel())) {
-            propertyNode.setAttribute(Constants.PROPERTY_FIELDLABEL, property.getLabel());
-        }
-        if (StringUtils.isNotEmpty(property.getDescription())) {
-            propertyNode.setAttribute(Constants.PROPERTY_FIELDDESC, property.getDescription());
-        }
+        addBasicProperties(propertyNode, property);
+
         if (StringUtils.isNotEmpty(property.getField()) && (!property.getType().equalsIgnoreCase("radiogroup"))
-                || !property.getType().equalsIgnoreCase("image")) {
+                || !property.getType().equalsIgnoreCase("image") && !property.getType().equalsIgnoreCase("multifield")) {
             propertyNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
             propertyNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
         }
@@ -132,15 +128,36 @@ public class DialogUtils {
                 field.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
                 field.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
                 field.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
+                field.setAttribute(Constants.PROPERTY_ACS_NESTED, "");
+                field.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_FIELDSET);
 
                 if (property.getItems().size() == 1) {
+                    Element layout = document.createElement("layout");
+                    layout.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
+                    layout.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_FIXEDCOLUMNS);
+                    layout.setAttribute("method", "absolute");
+                    field.appendChild(layout);
+
+                    Node items = field.appendChild(createUnStructuredNode(document, "items"));
+                    Element column = document.createElement("column");
+                    column.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
+                    column.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_CONTAINER);
+                    items.appendChild(column);
+
+                    items = column.appendChild(createUnStructuredNode(document, "items"));
+
+                    Element actualField = document.createElement("field");
+                    actualField.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
+                    actualField.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
+                    actualField.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
+
                     Property prop = property.getItems().get(0);
-                    field.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, getSlingResourceType(prop.getType()));
-                    processAttributes(field, prop);
-                    propertyNode.appendChild(field);
+                    actualField.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, getSlingResourceType(prop.getType()));
+                    addBasicProperties(actualField, prop);
+                    processAttributes(actualField, prop);
+                    items.appendChild(actualField);
                 } else {
                     propertyNode.setAttribute(Constants.PROPERTY_COMPOSITE, "{Boolean}true");
-                    field.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_CONTAINER);
                     Node items = field.appendChild(createUnStructuredNode(document, "items"));
                     processItems(document, items, property);
                 }
@@ -178,6 +195,9 @@ public class DialogUtils {
         for (Property item : property.getItems()) {
             Element optionNode = document.createElement(item.getField());
             optionNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
+
+            addBasicProperties(optionNode, item);
+
             String resourceType = getSlingResourceType(item.getType());
             if (StringUtils.isNotEmpty(resourceType)) {
                 optionNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, resourceType);
@@ -189,6 +209,20 @@ public class DialogUtils {
 
             processAttributes(optionNode, item);
             itemsNode.appendChild(optionNode);
+        }
+    }
+
+    /**
+     * Adds the field label and field description attributes to the node
+     * @param propertyNode
+     * @param property
+     */
+    private static void addBasicProperties(Element propertyNode, Property property) {
+        if (StringUtils.isNotEmpty(property.getLabel())) {
+            propertyNode.setAttribute(Constants.PROPERTY_FIELDLABEL, property.getLabel());
+        }
+        if (StringUtils.isNotEmpty(property.getDescription())) {
+            propertyNode.setAttribute(Constants.PROPERTY_FIELDDESC, property.getDescription());
         }
     }
 

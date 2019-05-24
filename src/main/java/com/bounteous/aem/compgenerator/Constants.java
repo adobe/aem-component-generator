@@ -37,6 +37,7 @@ public class Constants {
     public static String RESOURCE_TYPE_TABS = "granite/ui/components/foundation/layouts/tabs";
     public static String RESOURCE_TYPE_FIXEDCOLUMNS = "granite/ui/components/foundation/layouts/fixedcolumns";
     public static String RESOURCE_TYPE_SECTION = "granite/ui/components/foundation/section";
+    public static String RESOURCE_TYPE_FIELDSET = "granite/ui/components/foundation/form/fieldset";
 
     public static String DIALOG_TYPE_DIALOG = "_cq_dialog";
     public static String DIALOG_TYPE_GLOBAL = "dialogglobal";
@@ -54,6 +55,7 @@ public class Constants {
     public static String PROPERTY_NAME = "name";
     public static String PROPERTY_COMPOSITE = "composite";
     public static String PROPERTY_CQ_MSM_LOCKABLE = "cq-msm-lockable";
+    public static String PROPERTY_ACS_NESTED = "acs-commons-nested";
 
     public static String JCR_ROOT_NODE = "jcr:root";
     public static String JCR_PRIMARY_TYPE = "jcr:primaryType";
