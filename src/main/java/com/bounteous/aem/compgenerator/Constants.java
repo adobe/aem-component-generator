@@ -55,7 +55,6 @@ public class Constants {
     public static String PROPERTY_NAME = "name";
     public static String PROPERTY_COMPOSITE = "composite";
     public static String PROPERTY_CQ_MSM_LOCKABLE = "cq-msm-lockable";
-    public static String PROPERTY_ACS_NESTED = "acs-commons-nested";
 
     public static String JCR_ROOT_NODE = "jcr:root";
     public static String JCR_PRIMARY_TYPE = "jcr:primaryType";

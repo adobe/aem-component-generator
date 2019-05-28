@@ -128,7 +128,6 @@ public class DialogUtils {
                 field.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
                 field.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
                 field.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
-                field.setAttribute(Constants.PROPERTY_ACS_NESTED, "");
                 field.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_FIELDSET);
 
                 if (property.getItems().size() == 1) {
