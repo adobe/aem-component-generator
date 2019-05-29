@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -41,6 +43,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CommonUtils {
+    private static final Logger LOG = LogManager.getLogger(CommonUtils.class);
 
     /**
      * Method to map JSON content from given file into given GenerationConfig type.
@@ -82,7 +85,7 @@ public class CommonUtils {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             return reader.lines().collect(Collectors.joining(System.lineSeparator()));
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("Failed to read " + filePath + " from the classpath.", e);
         }
         return null;
     }

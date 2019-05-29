@@ -19,6 +19,8 @@ package com.bounteous.aem.compgenerator.exceptions;
 
 public class GeneratorException extends RuntimeException {
 
+    private static final long serialVersionUID = -548600394249617384L;
+
     public GeneratorException(String errorMessage) {
         super(errorMessage);
     }

@@ -21,6 +21,8 @@ package com.bounteous.aem.compgenerator.utils;
 import com.bounteous.aem.compgenerator.Constants;
 import com.bounteous.aem.compgenerator.exceptions.GeneratorException;
 import com.bounteous.aem.compgenerator.models.GenerationConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -35,6 +37,7 @@ import java.util.Map;
  */
 
 public class ComponentUtils {
+    private static final Logger LOG = LogManager.getLogger(ComponentUtils.class);
 
     private GenerationConfig generationConfig;
     private Map<String, String> templateValueMap;
@@ -49,7 +52,7 @@ public class ComponentUtils {
      * itself, _cq_dialog with field properties, dialogglobal with properties-global,
      * HTML, clientlibs folder.
      */
-    public void _buildComponent() throws Exception {
+    public void buildComponent() throws Exception {
         if (generationConfig == null) {
             throw new GeneratorException("Config file cannot be empty / null !!");
         }
@@ -68,7 +71,7 @@ public class ComponentUtils {
 
         //create dialogshared xml file with user input global properties in json.
         if (generationConfig.getOptions().getSharedProperties() != null &&
-                generationConfig.getOptions().getSharedProperties().size() > 0) {
+                !generationConfig.getOptions().getSharedProperties().isEmpty()) {
             DialogUtils.createDialogXml(generationConfig, Constants.DIALOG_TYPE_SHARED);
         }
 
@@ -78,7 +81,7 @@ public class ComponentUtils {
         //builds sightly html file using htl template from resource.
         createHtl();
 
-        System.out.println("--------------* Component '" + generationConfig.getName() + "' successfully generated *--------------");
+        LOG.info("--------------* Component '" + generationConfig.getName() + "' successfully generated *--------------");
 
     }
 
@@ -100,7 +103,7 @@ public class ComponentUtils {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e);
             throw new GeneratorException("Exception while creating clientLibs : " + clientLibDirPath);
         }
     }
@@ -129,7 +132,7 @@ public class ComponentUtils {
             }
             doc.appendChild(rootElement);
             XMLUtils.transformDomToFile(doc, folderPath + "/" + Constants.FILENAME_CONTENT_XML);
-            System.out.println("Created : " + folderPath + "/" + Constants.FILENAME_CONTENT_XML);
+            LOG.info("Created : " + folderPath + "/" + Constants.FILENAME_CONTENT_XML);
         } catch (Exception e) {
             throw new GeneratorException("Exception while creating Folder/xml : " + path);
         }
@@ -144,7 +147,7 @@ public class ComponentUtils {
                     "/" + generationConfig.getName() + ".html",
                     templateValueMap);
 
-            System.out.println("Created : " + generationConfig.getCompDir() +
+            LOG.info("Created : " + generationConfig.getCompDir() +
                     "/" + generationConfig.getName() + ".html");
         } catch (Exception e) {
             throw new GeneratorException("Exception while creating HTML : " + generationConfig.getCompDir());

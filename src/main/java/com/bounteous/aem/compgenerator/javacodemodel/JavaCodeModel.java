@@ -23,16 +23,11 @@ import com.bounteous.aem.compgenerator.Constants;
 import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.models.Property;
 import com.hs2solutions.aem.base.core.models.annotations.injectorspecific.ChildRequest;
-import com.sun.codemodel.CodeWriter;
-import com.sun.codemodel.JClassAlreadyExistsException;
-import com.sun.codemodel.JCodeModel;
-import com.sun.codemodel.JDefinedClass;
-import com.sun.codemodel.JFieldVar;
-import com.sun.codemodel.JMethod;
-import com.sun.codemodel.JMod;
-import com.sun.codemodel.JPackage;
+import com.sun.codemodel.*;
 import com.sun.codemodel.writer.FileCodeWriter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
@@ -46,6 +41,8 @@ import java.util.Objects;
 import static com.bounteous.aem.compgenerator.utils.CommonUtils.getResourceContentAsString;
 import static com.sun.codemodel.JMod.NONE;
 import static com.sun.codemodel.JMod.PRIVATE;
+import static com.sun.codemodel.JMod.PUBLIC;
+import static com.sun.codemodel.JMod.STATIC;
 
 
 /**
@@ -58,7 +55,7 @@ import static com.sun.codemodel.JMod.PRIVATE;
  * JavaCodeModel jcm = new JavaCodeModel();
  *
  * // generate source code and write them from jcm.
- * jcm._buildSlingModel(generationConfig);
+ * jcm.buildSlingModel(generationConfig);
  * ...
  *
  * <p>
@@ -66,54 +63,52 @@ import static com.sun.codemodel.JMod.PRIVATE;
  * using user data config configuration object.
  */
 public class JavaCodeModel {
+    private static final Logger LOG = LogManager.getLogger(JavaCodeModel.class);
+    private static final String INJECTION_STRATEGY = "injectionStrategy";
+    private static final String OPTIONAL_INJECTION_STRATEGY = "OPTIONAL";
 
     private JCodeModel codeModel;
     private JDefinedClass jc;
-    GenerationConfig generationConfig;
-
-    public JavaCodeModel() {
-    }
+    private GenerationConfig generationConfig;
 
     /**
      * builds your slingModel interface and implementation class with all required
      * sling annotation, fields and getters based on the <code>generationConfig</code>.
      */
-    public void _buildSlingModel(GenerationConfig generationConfig) {
+    public void buildSlingModel(GenerationConfig generationConfig) {
         this.codeModel = new JCodeModel();
         this.generationConfig = generationConfig;
-        _buildInterface();
-        _buildImplClass();
-        System.out.println("--------------* Sling Model successfully generated *--------------");
+        buildInterface();
+        buildImplClass();
+        LOG.info("--------------* Sling Model successfully generated *--------------");
     }
 
     /**
      * builds your slingModel interface with all required annotation,
      * fields and getters based on the <code>generationConfig</code>.
      */
-    private void _buildInterface() {
+    private void buildInterface() {
         try {
             JPackage jPackage = codeModel._package(generationConfig.getProjectSettings().getModelInterfacePackage());
             jc = jPackage._interface(generationConfig.getJavaFormatedName());
             jc.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
 
             if (generationConfig.getOptions().getGlobalProperties() != null) {
-                _addGettersWithoutFields(generationConfig.getOptions().getGlobalProperties());
+                addGettersWithoutFields(generationConfig.getOptions().getGlobalProperties());
             }
 
             if (generationConfig.getOptions().getSharedProperties() != null) {
-                _addGettersWithoutFields(generationConfig.getOptions().getSharedProperties());
+                addGettersWithoutFields(generationConfig.getOptions().getSharedProperties());
             }
 
             if (generationConfig.getOptions().getProperties() != null) {
-                _addGettersWithoutFields(generationConfig.getOptions().getProperties());
+                addGettersWithoutFields(generationConfig.getOptions().getProperties());
             }
 
-            _generateCodeFile();
+            generateCodeFile();
 
-        } catch (JClassAlreadyExistsException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (JClassAlreadyExistsException | IOException e) {
+            LOG.error(e);
         }
     }
 
@@ -121,34 +116,32 @@ public class JavaCodeModel {
      * builds your slingModel implementation with all required sling annotation,
      * fields and getters based on the <code>generationConfig</code>.
      */
-    private void _buildImplClass() {
+    private void buildImplClass() {
         try {
             JPackage jPackage = codeModel._package(generationConfig.getProjectSettings().getModelImplPackage());
             JDefinedClass jcInterface = jc;
             jc = jPackage._class(generationConfig.getJavaFormatedName() + "Impl")
                     ._implements(jcInterface);
-            jc = _addSlingAnnotations(jc, jcInterface);
+            jc = addSlingAnnotations(jc, jcInterface);
 
             if (generationConfig.getOptions().getGlobalProperties() != null) {
-                _addFieldVars(generationConfig.getOptions().getGlobalProperties(), Constants.PROPERTY_TYPE_GLOBAL);
+                addFieldVars(generationConfig.getOptions().getGlobalProperties(), Constants.PROPERTY_TYPE_GLOBAL);
             }
 
             if (generationConfig.getOptions().getSharedProperties() != null) {
-                _addFieldVars(generationConfig.getOptions().getSharedProperties(), Constants.PROPERTY_TYPE_SHARED);
+                addFieldVars(generationConfig.getOptions().getSharedProperties(), Constants.PROPERTY_TYPE_SHARED);
             }
 
             if (generationConfig.getOptions().getProperties() != null) {
-                _addFieldVars(generationConfig.getOptions().getProperties(), Constants.PROPERTY_TYPE_PRIVATE);
+                addFieldVars(generationConfig.getOptions().getProperties(), Constants.PROPERTY_TYPE_PRIVATE);
             }
 
-            _addGetters();
+            addGetters();
 
-            _generateCodeFile();
+            generateCodeFile();
 
-        } catch (JClassAlreadyExistsException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (JClassAlreadyExistsException | IOException e) {
+            LOG.error(e);
         }
     }
 
@@ -156,14 +149,14 @@ public class JavaCodeModel {
      * Generates the slingModel file based on values from the config and the current codeModel object.
      * @throws IOException - exception thrown when file is unable to be created.
      */
-    private void _generateCodeFile() throws IOException {
+    private void generateCodeFile() throws IOException {
         //Adding Class header comments to the class.
         CodeWriter codeWriter = new FileCodeWriter(new File(generationConfig.getProjectSettings().getBundlePath()));
         PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter,
                 getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_JAVA));
 
         codeModel.build(prologCodeWriter);
-        System.out.println("Created : " + jc.fullName());
+        LOG.info("Created : " + jc.fullName());
     }
 
     /**
@@ -173,7 +166,7 @@ public class JavaCodeModel {
      * @param jcInterface
      * @return
      */
-    private JDefinedClass _addSlingAnnotations(JDefinedClass jDefinedClass, JDefinedClass jcInterface) {
+    private JDefinedClass addSlingAnnotations(JDefinedClass jDefinedClass, JDefinedClass jcInterface) {
         if (jDefinedClass != null) {
             jDefinedClass.annotate(codeModel.ref(Model.class))
                     .param("adapters", jcInterface.getPackage()._getClass(generationConfig.getJavaFormatedName()))
@@ -190,11 +183,12 @@ public class JavaCodeModel {
      * adds fields to java model.
      *
      * @param properties
+     * @param propertyType
      */
-    private void _addFieldVars(List<Property> properties, final String propertyType) {
+    private void addFieldVars(List<Property> properties, final String propertyType) {
         properties.stream()
                 .filter(Objects::nonNull)
-                .forEach(property -> _addFieldVar(property, propertyType));
+                .forEach(property -> addFieldVar(property, propertyType));
     }
 
     /**
@@ -202,9 +196,15 @@ public class JavaCodeModel {
      *
      * @param property
      */
-    private void _addFieldVar(Property property, final String propertyType) {
+    private void addFieldVar(Property property, final String propertyType) {
         if (property != null && StringUtils.isNotBlank(property.getField())) {
-            _addPropertyAsPrivateField(property, propertyType);
+            if (!property.getType().equalsIgnoreCase("multifield")) { // non multifield properties
+                addPropertyAsPrivateField(property, propertyType);
+            } else if (property.getItems().size() == 1) { // multifield with single property
+                addPropertyAsPrivateField(property, propertyType);
+            } else if (property.getItems().size() > 1) {
+                addPropertyAndObjectAsPrivateField(property);
+            }
         }
     }
 
@@ -214,24 +214,27 @@ public class JavaCodeModel {
      * @param property
      * @param propertyType
      */
-    private void _addPropertyAsPrivateField(Property property, final String propertyType) {//(String fieldName, String propertyType, String fieldType, final String propertyType) {
-        String fieldType = getFieldType(property.getType());
+    private void addPropertyAsPrivateField(Property property, final String propertyType) {
+        String fieldType = getFieldType(property);
         if (jc.isClass()) {
-            JFieldVar jFieldVar = jc.field(PRIVATE, codeModel.ref(fieldType), property.getField());
+            JClass fieldClass = property.getType().equalsIgnoreCase("multifield")
+                    ? codeModel.ref(fieldType).narrow(codeModel.ref(getFieldType(property.getItems().get(0))))
+                    : codeModel.ref(fieldType);
+            JFieldVar jFieldVar = jc.field(PRIVATE, fieldClass, property.getField());
 
             if (StringUtils.equalsIgnoreCase(property.getType(), "image")) {
                 jFieldVar.annotate(codeModel.ref(ChildRequest.class))
-                        .param("injectionStrategy",
-                                codeModel.ref(InjectionStrategy.class).staticRef("OPTIONAL"));
+                        .param(INJECTION_STRATEGY,
+                                codeModel.ref(InjectionStrategy.class).staticRef(OPTIONAL_INJECTION_STRATEGY));
 
             } else if (StringUtils.equalsIgnoreCase(propertyType, Constants.PROPERTY_TYPE_PRIVATE)) {
                 jFieldVar.annotate(codeModel.ref(ValueMapValue.class))
-                        .param("injectionStrategy",
-                                codeModel.ref(InjectionStrategy.class).staticRef("OPTIONAL"));
+                        .param(INJECTION_STRATEGY,
+                                codeModel.ref(InjectionStrategy.class).staticRef(OPTIONAL_INJECTION_STRATEGY));
             } else {
                 jFieldVar.annotate(codeModel.ref(SharedValueMapValue.class))
-                        .param("injectionStrategy",
-                                codeModel.ref(InjectionStrategy.class).staticRef("OPTIONAL"));
+                        .param(INJECTION_STRATEGY,
+                                codeModel.ref(InjectionStrategy.class).staticRef(OPTIONAL_INJECTION_STRATEGY));
             }
         } else if (jc.isInterface()) {
             jc.field(NONE, codeModel.ref(fieldType), property.getField());
@@ -239,14 +242,28 @@ public class JavaCodeModel {
     }
 
     /**
+     * method that add the fieldname as private and adds a class to jc
+     */
+    private void addPropertyAndObjectAsPrivateField(Property property) {
+        if (jc.isClass()) {
+            String fieldType = getFieldType(property);
+            JClass fieldClass = codeModel.ref(fieldType).narrow(codeModel.ref("org.apache.sling.api.resource.Resource"));
+            JFieldVar jFieldVar = jc.field(PRIVATE, fieldClass, property.getField());
+            jFieldVar.annotate(codeModel.ref(ChildRequest.class))
+                    .param(INJECTION_STRATEGY,
+                            codeModel.ref(InjectionStrategy.class).staticRef(OPTIONAL_INJECTION_STRATEGY));
+        }
+    }
+
+    /**
      * adds getters to all the fields available in the java class.
      */
-    private void _addGetters() {
+    private void addGetters() {
         Map<String, JFieldVar> fieldVars = jc.fields();
         if (fieldVars.size() > 0) {
             for (Map.Entry<String, JFieldVar> entry : fieldVars.entrySet()) {
                 if (entry.getValue() != null) {
-                    _addGetter(entry.getValue());
+                    addGetter(entry.getValue());
                 }
             }
         }
@@ -257,7 +274,7 @@ public class JavaCodeModel {
      *
      * @param jFieldVar
      */
-    private void _addGetter(JFieldVar jFieldVar) {
+    private void addGetter(JFieldVar jFieldVar) {
         if (jc.isClass()) {
             JMethod getMethod = jc.method(JMod.PUBLIC, jFieldVar.type(), getMethodFormattedString(jFieldVar.name()));
             getMethod.annotate(codeModel.ref(Override.class));
@@ -270,10 +287,11 @@ public class JavaCodeModel {
     /**
      * get the java fieldType based on the type input in the generationConfig
      *
-     * @param type
+     * @param property
      * @return String returns relevant java type of string passed in.
      */
-    private String getFieldType(String type) {
+    private String getFieldType(Property property) {
+        String type = property.getType();
         if (StringUtils.isNotBlank(type)) {
             if (type.equalsIgnoreCase("textfield")
                     || type.equalsIgnoreCase("pathfield")
@@ -290,6 +308,8 @@ public class JavaCodeModel {
                 return "java.util.Calendar";
             } else if (type.equalsIgnoreCase("image")) {
                 return "com.hs2solutions.aem.base.core.models.HS2Image";
+            } else if (type.equalsIgnoreCase("multifield")) {
+                return "java.util.List";
             }
         }
         return type;
@@ -300,10 +320,10 @@ public class JavaCodeModel {
      *
      * @param properties
      */
-    private void _addGettersWithoutFields(List<Property> properties) {
-        if (properties != null && properties.size() > 0) {
-            properties.forEach(property -> jc.method(NONE, codeModel.ref(getFieldType(property.getType())),
-                    Constants.STRING_GET + property.getFieldGetterName()));
+    private void addGettersWithoutFields(List<Property> properties) {
+        if (properties != null && !properties.isEmpty()) {
+            properties.forEach(property -> jc.method(NONE, getGetterMethodReturnType(property),
+                            Constants.STRING_GET + property.getFieldGetterName()));
         }
     }
 
@@ -320,4 +340,16 @@ public class JavaCodeModel {
         return fieldVariable;
     }
 
+    private JClass getGetterMethodReturnType(final Property property) {
+        String fieldType = getFieldType(property);
+        if (property.getType().equalsIgnoreCase("multifield")) {
+            if (property.getItems().size() == 1) {
+                return codeModel.ref(fieldType).narrow(codeModel.ref(getFieldType(property.getItems().get(0))));
+            } else {
+                return codeModel.ref(fieldType).narrow(codeModel.ref("org.apache.sling.api.resource.Resource"));
+            }
+        } else {
+            return codeModel.ref(fieldType);
+        }
+    }
 }
