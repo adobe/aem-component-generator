@@ -73,3 +73,6 @@ buildNumber.properties
 ### IntelliJ ###
 .idea/
 *.iml
+
+### MacOS ###
+.DS_Store
