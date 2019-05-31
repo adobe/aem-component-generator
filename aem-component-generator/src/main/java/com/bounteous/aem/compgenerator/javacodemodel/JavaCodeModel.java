@@ -1,21 +1,22 @@
 /*
- * ***********************************************************************
- * BOUNTEOUS CONFIDENTIAL
- * ___________________
+ * #%L
+ * AEM Component Generator
+ * %%
+ * Copyright (C) 2019 Bounteous
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Copyright 2019 Bounteous
- * All Rights Reserved.
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * NOTICE:  All information contained herein is, and remains the property
- * of Bounteous and its suppliers, if any. The intellectual and
- * technical concepts contained herein are proprietary to Bounteous
- * and its suppliers and are protected by trade secret or copyright law.
- * Dissemination of this information or reproduction of this material
- * is strictly forbidden unless prior written permission is obtained
- * from Bounteous.
- * ***********************************************************************
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
  */
-
 package com.bounteous.aem.compgenerator.javacodemodel;
 
 import com.adobe.acs.commons.models.injectors.annotation.SharedValueMapValue;
@@ -28,6 +29,8 @@ import com.sun.codemodel.writer.FileCodeWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
@@ -41,8 +44,6 @@ import java.util.Objects;
 import static com.bounteous.aem.compgenerator.utils.CommonUtils.getResourceContentAsString;
 import static com.sun.codemodel.JMod.NONE;
 import static com.sun.codemodel.JMod.PRIVATE;
-import static com.sun.codemodel.JMod.PUBLIC;
-import static com.sun.codemodel.JMod.STATIC;
 
 
 /**
@@ -173,8 +174,8 @@ public class JavaCodeModel {
                     .param("resourceType", generationConfig.getProjectSettings().getComponentPath() + "/"
                             + generationConfig.getType() + "/" + generationConfig.getName())
                     .paramArray("adaptables")
-                    .param(codeModel.ref("org.apache.sling.api.resource.Resource"))
-                    .param(codeModel.ref("org.apache.sling.api.SlingHttpServletRequest"));
+                    .param(codeModel.ref(Resource.class))
+                    .param(codeModel.ref(SlingHttpServletRequest.class));
         }
         return jDefinedClass;
     }
@@ -247,7 +248,7 @@ public class JavaCodeModel {
     private void addPropertyAndObjectAsPrivateField(Property property) {
         if (jc.isClass()) {
             String fieldType = getFieldType(property);
-            JClass fieldClass = codeModel.ref(fieldType).narrow(codeModel.ref("org.apache.sling.api.resource.Resource"));
+            JClass fieldClass = codeModel.ref(fieldType).narrow(codeModel.ref(Resource.class));
             JFieldVar jFieldVar = jc.field(PRIVATE, fieldClass, property.getField());
             jFieldVar.annotate(codeModel.ref(ChildRequest.class))
                     .param(INJECTION_STRATEGY,
@@ -346,7 +347,7 @@ public class JavaCodeModel {
             if (property.getItems().size() == 1) {
                 return codeModel.ref(fieldType).narrow(codeModel.ref(getFieldType(property.getItems().get(0))));
             } else {
-                return codeModel.ref(fieldType).narrow(codeModel.ref("org.apache.sling.api.resource.Resource"));
+                return codeModel.ref(fieldType).narrow(codeModel.ref(Resource.class));
             }
         } else {
             return codeModel.ref(fieldType);
