@@ -37,7 +37,6 @@ import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -341,31 +340,37 @@ public class JavaCodeModel {
     }
 
     /**
-     * Sets property attributes and sanitizes them
+     * Sets property attributes
      */
     private void setProperties() {
-        Set<String> propertyStrings = new HashSet<>();
-        globalProperties = setProperties(propertyStrings, generationConfig.getOptions().getGlobalProperties());
-        sharedProperties = setProperties(propertyStrings, generationConfig.getOptions().getSharedProperties());
-        privateProperties = setProperties(propertyStrings, generationConfig.getOptions().getProperties());
+        Set<Property> occurredProperties = new HashSet<>();
+
+        globalProperties = sanitizeProperties(occurredProperties, generationConfig.getOptions().getGlobalProperties());
+        occurredProperties.addAll(globalProperties);
+
+        sharedProperties = sanitizeProperties(occurredProperties, generationConfig.getOptions().getSharedProperties());
+        occurredProperties.addAll(sharedProperties);
+
+        privateProperties = sanitizeProperties(occurredProperties, generationConfig.getOptions().getProperties());
+        occurredProperties.addAll(privateProperties);
     }
 
     /**
-     * Sanitizes the given properties and returns all that are not contained in the set.
-     * @param propertyStrings
+     * Sanitizes the given properties and returns all that are not contained in the occurredProperties set.
+     *
+     * @param occurredProperties
      * @param originalProperties
      * @return sanitzed properties
      */
-    private List<Property> setProperties(Set<String> propertyStrings, List<Property> originalProperties) {
+    private List<Property> sanitizeProperties(Set<Property> occurredProperties, List<Property> originalProperties) {
         List<Property> properties;
         if (originalProperties != null) {
             properties = originalProperties.stream()
                     .filter(Objects::nonNull)
                     .filter(property -> StringUtils.isNotBlank(property.getField()))
                     .filter(property -> StringUtils.isNotBlank(property.getType()))
-                    .filter(property -> !(propertyStrings.contains(property.getField() + property.getType().toLowerCase())))
+                    .filter(property -> !(occurredProperties.contains(property)))
                     .collect(Collectors.toList());
-            properties.forEach(property -> propertyStrings.add(property.getField() + property.getType().toLowerCase()));
         } else {
             properties = Collections.emptyList();
         }
