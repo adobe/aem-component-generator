@@ -71,4 +71,6 @@ public class Constants {
 
     public static String STRING_GET = "get";
 
+    public static final String RENAME_FILE_DATE_PATTERN = "yyyyMMddHHmmss";
+
 }

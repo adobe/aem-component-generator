@@ -133,7 +133,6 @@ public class ComponentUtils {
             }
             doc.appendChild(rootElement);
             XMLUtils.transformDomToFile(doc, folderPath + "/" + Constants.FILENAME_CONTENT_XML);
-            LOG.info("Created : " + folderPath + "/" + Constants.FILENAME_CONTENT_XML);
         } catch (Exception e) {
             throw new GeneratorException("Exception while creating Folder/xml : " + path);
         }
