@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 
 public class CommonUtils {
     private static final Logger LOG = LogManager.getLogger(CommonUtils.class);
+    private static final Date CURRENT_TIME = new Date(System.currentTimeMillis());
 
     /**
      * Method to map JSON content from given file into given GenerationConfig type.
@@ -79,18 +80,17 @@ public class CommonUtils {
         File file = new File(path);
         if (file.exists()) {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Constants.RENAME_FILE_DATE_PATTERN);
-            String date = simpleDateFormat.format(new Date(System.currentTimeMillis()));
+            String date = simpleDateFormat.format(CURRENT_TIME);
             File oldFile = new File(path + ".sv." + date);
             boolean isSuccess = file.renameTo(oldFile);
             if (isSuccess) {
-                LOG.info("Replaced : " + path);
-                LOG.info("Old file : " + oldFile.getPath());
+                LOG.info("Replaced: " + path + " (Old file: " + oldFile.getName() + ")");
                 return file;
             } else {
                 throw new IOException();
             }
         }
-        LOG.info("Created : " + path);
+        LOG.info("Created: " + path);
         return file;
     }
 
