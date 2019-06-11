@@ -23,6 +23,7 @@ import com.adobe.acs.commons.models.injectors.annotation.SharedValueMapValue;
 import com.bounteous.aem.compgenerator.Constants;
 import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.models.Property;
+import com.bounteous.aem.compgenerator.utils.CommonUtils;
 import com.hs2solutions.aem.base.core.models.annotations.injectorspecific.ChildRequest;
 import com.sun.codemodel.*;
 import com.sun.codemodel.writer.FileCodeWriter;
@@ -92,6 +93,12 @@ public class JavaCodeModel {
         try {
             JPackage jPackage = codeModel._package(generationConfig.getProjectSettings().getModelInterfacePackage());
             jc = jPackage._interface(generationConfig.getJavaFormatedName());
+            String comment =  "Defines the {@code "
+                    + generationConfig.getJavaFormatedName()
+                    + "} Sling Model used for the {@code "
+                    + CommonUtils.getResourceType(generationConfig)
+                    +"} component.";
+            jc.javadoc().append(comment);
             jc.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
 
             if (generationConfig.getOptions().getGlobalProperties() != null) {
@@ -171,8 +178,7 @@ public class JavaCodeModel {
         if (jDefinedClass != null) {
             jDefinedClass.annotate(codeModel.ref(Model.class))
                     .param("adapters", jcInterface.getPackage()._getClass(generationConfig.getJavaFormatedName()))
-                    .param("resourceType", generationConfig.getProjectSettings().getComponentPath() + "/"
-                            + generationConfig.getType() + "/" + generationConfig.getName())
+                    .param("resourceType", CommonUtils.getResourceType(generationConfig))
                     .paramArray("adaptables")
                     .param(codeModel.ref(Resource.class))
                     .param(codeModel.ref(SlingHttpServletRequest.class));

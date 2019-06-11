@@ -161,4 +161,9 @@ public class CommonUtils {
         }
         return null;
     }
+
+    public static String getResourceType(GenerationConfig generationConfig) {
+        return generationConfig.getProjectSettings().getComponentPath() + "/"
+                + generationConfig.getType() + "/" + generationConfig.getName();
+    }
 }
