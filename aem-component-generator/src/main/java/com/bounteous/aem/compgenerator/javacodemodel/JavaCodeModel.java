@@ -345,24 +345,24 @@ public class JavaCodeModel {
     private void setProperties() {
         Set<Property> occurredProperties = new HashSet<>();
 
-        globalProperties = sanitizeProperties(occurredProperties, generationConfig.getOptions().getGlobalProperties());
+        globalProperties = filterProperties(occurredProperties, generationConfig.getOptions().getGlobalProperties());
         occurredProperties.addAll(globalProperties);
 
-        sharedProperties = sanitizeProperties(occurredProperties, generationConfig.getOptions().getSharedProperties());
+        sharedProperties = filterProperties(occurredProperties, generationConfig.getOptions().getSharedProperties());
         occurredProperties.addAll(sharedProperties);
 
-        privateProperties = sanitizeProperties(occurredProperties, generationConfig.getOptions().getProperties());
+        privateProperties = filterProperties(occurredProperties, generationConfig.getOptions().getProperties());
         occurredProperties.addAll(privateProperties);
     }
 
     /**
-     * Sanitizes the given properties and returns all that are not contained in the occurredProperties set.
+     * Filters the given properties for invalid fields and returns all that are not contained in occurredProperties.
      *
      * @param occurredProperties
      * @param originalProperties
-     * @return sanitzed properties
+     * @return filtered properties
      */
-    private List<Property> sanitizeProperties(Set<Property> occurredProperties, List<Property> originalProperties) {
+    private List<Property> filterProperties(Set<Property> occurredProperties, List<Property> originalProperties) {
         List<Property> properties;
         if (originalProperties != null) {
             properties = originalProperties.stream()
