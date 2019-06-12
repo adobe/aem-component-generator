@@ -329,8 +329,11 @@ public class JavaCodeModel {
      */
     private void addGettersWithoutFields(List<Property> properties) {
         if (properties != null && !properties.isEmpty()) {
-            properties.forEach(property -> jc.method(NONE, getGetterMethodReturnType(property),
-                            Constants.STRING_GET + property.getFieldGetterName()));
+            for (Property property : properties) {
+                JMethod method = jc.method(NONE, getGetterMethodReturnType(property),
+                        Constants.STRING_GET + property.getFieldGetterName());
+                addJavadocToMethod(method, property);
+            }
         }
     }
 
@@ -357,6 +360,22 @@ public class JavaCodeModel {
             }
         } else {
             return codeModel.ref(fieldType);
+        }
+    }
+
+    /**
+     * Adds Javadoc to the method based on the information in the property and the generation config options.
+     * @param method
+     * @param property
+     */
+    private void addJavadocToMethod(JMethod method, Property property) {
+        JDocComment javadoc = method.javadoc();
+        if (StringUtils.isNotBlank(property.getJavadoc())) {
+            javadoc.append(property.getJavadoc());
+            javadoc.append("\n\n@return " + getGetterMethodReturnType(property).name());
+        } else if (generationConfig.getOptions() != null && generationConfig.getOptions().isHasGenericJavadoc()) {
+            javadoc.append("Get the " + property.getField() + ".");
+            javadoc.append("\n\n@return " + getGetterMethodReturnType(property).name());
         }
     }
 }

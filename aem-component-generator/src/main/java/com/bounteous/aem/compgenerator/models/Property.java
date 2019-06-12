@@ -40,6 +40,9 @@ public class Property implements BaseModel {
     @JsonProperty("description")
     private String description;
 
+    @JsonProperty("javadoc")
+    private String javadoc;
+
     @JsonProperty("attributes")
     private Map<String, String> attributes;
 
@@ -98,6 +101,14 @@ public class Property implements BaseModel {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getJavadoc() {
+        return javadoc;
+    }
+
+    public void setJavadoc(String javadoc) {
+        this.javadoc = javadoc;
     }
 
     public List<Property> getItems() {
