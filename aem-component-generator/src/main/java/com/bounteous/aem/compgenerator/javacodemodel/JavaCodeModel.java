@@ -25,7 +25,16 @@ import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.models.Property;
 import com.bounteous.aem.compgenerator.utils.CommonUtils;
 import com.hs2solutions.aem.base.core.models.annotations.injectorspecific.ChildRequest;
-import com.sun.codemodel.*;
+import com.sun.codemodel.CodeWriter;
+import com.sun.codemodel.JClass;
+import com.sun.codemodel.JClassAlreadyExistsException;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JDocComment;
+import com.sun.codemodel.JFieldVar;
+import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JMod;
+import com.sun.codemodel.JPackage;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,9 +46,13 @@ import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.bounteous.aem.compgenerator.utils.CommonUtils.getResourceContentAsString;
 import static com.sun.codemodel.JMod.NONE;
@@ -72,6 +85,10 @@ public class JavaCodeModel {
     private JDefinedClass jc;
     private GenerationConfig generationConfig;
 
+    private List<Property> globalProperties;
+    private List<Property> sharedProperties;
+    private List<Property> privateProperties;
+
     /**
      * builds your slingModel interface and implementation class with all required
      * sling annotation, fields and getters based on the <code>generationConfig</code>.
@@ -79,6 +96,7 @@ public class JavaCodeModel {
     public void buildSlingModel(GenerationConfig generationConfig) {
         this.codeModel = new JCodeModel();
         this.generationConfig = generationConfig;
+        setProperties();
         buildInterface();
         buildImplClass();
         generateCodeFiles();
@@ -93,25 +111,17 @@ public class JavaCodeModel {
         try {
             JPackage jPackage = codeModel._package(generationConfig.getProjectSettings().getModelInterfacePackage());
             jc = jPackage._interface(generationConfig.getJavaFormatedName());
-            String comment =  "Defines the {@code "
+            String comment = "Defines the {@code "
                     + generationConfig.getJavaFormatedName()
                     + "} Sling Model used for the {@code "
                     + CommonUtils.getResourceType(generationConfig)
-                    +"} component.";
+                    + "} component.";
             jc.javadoc().append(comment);
             jc.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
 
-            if (generationConfig.getOptions().getGlobalProperties() != null) {
-                addGettersWithoutFields(generationConfig.getOptions().getGlobalProperties());
-            }
-
-            if (generationConfig.getOptions().getSharedProperties() != null) {
-                addGettersWithoutFields(generationConfig.getOptions().getSharedProperties());
-            }
-
-            if (generationConfig.getOptions().getProperties() != null) {
-                addGettersWithoutFields(generationConfig.getOptions().getProperties());
-            }
+            addGettersWithoutFields(globalProperties);
+            addGettersWithoutFields(sharedProperties);
+            addGettersWithoutFields(privateProperties);
 
         } catch (JClassAlreadyExistsException e) {
             LOG.error(e);
@@ -130,17 +140,9 @@ public class JavaCodeModel {
                     ._implements(jcInterface);
             jc = addSlingAnnotations(jc, jcInterface);
 
-            if (generationConfig.getOptions().getGlobalProperties() != null) {
-                addFieldVars(generationConfig.getOptions().getGlobalProperties(), Constants.PROPERTY_TYPE_GLOBAL);
-            }
-
-            if (generationConfig.getOptions().getSharedProperties() != null) {
-                addFieldVars(generationConfig.getOptions().getSharedProperties(), Constants.PROPERTY_TYPE_SHARED);
-            }
-
-            if (generationConfig.getOptions().getProperties() != null) {
-                addFieldVars(generationConfig.getOptions().getProperties(), Constants.PROPERTY_TYPE_PRIVATE);
-            }
+            addFieldVars(globalProperties, Constants.PROPERTY_TYPE_GLOBAL);
+            addFieldVars(sharedProperties, Constants.PROPERTY_TYPE_SHARED);
+            addFieldVars(privateProperties, Constants.PROPERTY_TYPE_PRIVATE);
 
             addGetters();
 
@@ -192,9 +194,7 @@ public class JavaCodeModel {
      * @param propertyType
      */
     private void addFieldVars(List<Property> properties, final String propertyType) {
-        properties.stream()
-                .filter(Objects::nonNull)
-                .forEach(property -> addFieldVar(property, propertyType));
+        properties.forEach(property -> addFieldVar(property, propertyType));
     }
 
     /**
@@ -203,14 +203,12 @@ public class JavaCodeModel {
      * @param property
      */
     private void addFieldVar(Property property, final String propertyType) {
-        if (property != null && StringUtils.isNotBlank(property.getField())) {
-            if (!property.getType().equalsIgnoreCase("multifield")) { // non multifield properties
-                addPropertyAsPrivateField(property, propertyType);
-            } else if (property.getItems().size() == 1) { // multifield with single property
-                addPropertyAsPrivateField(property, propertyType);
-            } else if (property.getItems().size() > 1) {
-                addPropertyAndObjectAsPrivateField(property);
-            }
+        if (!property.getType().equalsIgnoreCase("multifield")) { // non multifield properties
+            addPropertyAsPrivateField(property, propertyType);
+        } else if (property.getItems().size() == 1) { // multifield with single property
+            addPropertyAsPrivateField(property, propertyType);
+        } else if (property.getItems().size() > 1) {
+            addPropertyAndObjectAsPrivateField(property);
         }
     }
 
@@ -298,25 +296,23 @@ public class JavaCodeModel {
      */
     private String getFieldType(Property property) {
         String type = property.getType();
-        if (StringUtils.isNotBlank(type)) {
-            if (type.equalsIgnoreCase("textfield")
-                    || type.equalsIgnoreCase("pathfield")
-                    || type.equalsIgnoreCase("textarea")
-                    || type.equalsIgnoreCase("hidden")
-                    || type.equalsIgnoreCase("select")
-                    || type.equalsIgnoreCase("radiogroup")) {
-                return "java.lang.String";
-            } else if (type.equalsIgnoreCase("numberfield")) {
-                return "java.lang.Long";
-            } else if (type.equalsIgnoreCase("checkbox")) {
-                return "java.lang.Boolean";
-            } else if (type.equalsIgnoreCase("datepicker")) {
-                return "java.util.Calendar";
-            } else if (type.equalsIgnoreCase("image")) {
-                return "com.hs2solutions.aem.base.core.models.HS2Image";
-            } else if (type.equalsIgnoreCase("multifield")) {
-                return "java.util.List";
-            }
+        if (type.equalsIgnoreCase("textfield")
+                || type.equalsIgnoreCase("pathfield")
+                || type.equalsIgnoreCase("textarea")
+                || type.equalsIgnoreCase("hidden")
+                || type.equalsIgnoreCase("select")
+                || type.equalsIgnoreCase("radiogroup")) {
+            return "java.lang.String";
+        } else if (type.equalsIgnoreCase("numberfield")) {
+            return "java.lang.Long";
+        } else if (type.equalsIgnoreCase("checkbox")) {
+            return "java.lang.Boolean";
+        } else if (type.equalsIgnoreCase("datepicker")) {
+            return "java.util.Calendar";
+        } else if (type.equalsIgnoreCase("image")) {
+            return "com.hs2solutions.aem.base.core.models.HS2Image";
+        } else if (type.equalsIgnoreCase("multifield")) {
+            return "java.util.List";
         }
         return type;
     }
@@ -327,12 +323,10 @@ public class JavaCodeModel {
      * @param properties
      */
     private void addGettersWithoutFields(List<Property> properties) {
-        if (properties != null && !properties.isEmpty()) {
-            for (Property property : properties) {
-                JMethod method = jc.method(NONE, getGetterMethodReturnType(property),
-                        Constants.STRING_GET + property.getFieldGetterName());
-                addJavadocToMethod(method, property);
-            }
+        for (Property property : properties) {
+            JMethod method = jc.method(NONE, getGetterMethodReturnType(property),
+                    Constants.STRING_GET + property.getFieldGetterName());
+            addJavadocToMethod(method, property);
         }
     }
 
@@ -364,6 +358,7 @@ public class JavaCodeModel {
 
     /**
      * Adds Javadoc to the method based on the information in the property and the generation config options.
+     *
      * @param method
      * @param property
      */
@@ -376,5 +371,43 @@ public class JavaCodeModel {
             javadoc.append("Get the " + property.getField() + ".");
             javadoc.append("\n\n@return " + getGetterMethodReturnType(property).name());
         }
+    }
+
+    /**
+     * Sets property attributes
+     */
+    private void setProperties() {
+        Set<Property> occurredProperties = new HashSet<>();
+
+        globalProperties = filterProperties(occurredProperties, generationConfig.getOptions().getGlobalProperties());
+        occurredProperties.addAll(globalProperties);
+
+        sharedProperties = filterProperties(occurredProperties, generationConfig.getOptions().getSharedProperties());
+        occurredProperties.addAll(sharedProperties);
+
+        privateProperties = filterProperties(occurredProperties, generationConfig.getOptions().getProperties());
+        occurredProperties.addAll(privateProperties);
+    }
+
+    /**
+     * Filters the given properties for invalid fields and returns all that are not contained in occurredProperties.
+     *
+     * @param occurredProperties
+     * @param originalProperties
+     * @return filtered properties
+     */
+    private List<Property> filterProperties(Set<Property> occurredProperties, List<Property> originalProperties) {
+        List<Property> properties;
+        if (originalProperties != null) {
+            properties = originalProperties.stream()
+                    .filter(Objects::nonNull)
+                    .filter(property -> StringUtils.isNotBlank(property.getField()))
+                    .filter(property -> StringUtils.isNotBlank(property.getType()))
+                    .filter(property -> !(occurredProperties.contains(property)))
+                    .collect(Collectors.toList());
+        } else {
+            properties = Collections.emptyList();
+        }
+        return properties;
     }
 }

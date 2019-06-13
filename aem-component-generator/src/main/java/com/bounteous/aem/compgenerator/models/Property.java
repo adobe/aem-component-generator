@@ -123,4 +123,23 @@ public class Property implements BaseModel {
     public boolean isValid() {
         return true;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof Property)) {
+            return false;
+        }
+
+        Property property = (Property) obj;
+        return property.getField().equals(this.getField()) && property.getType().equals(this.getType());
+    }
+
+    @Override
+    public int hashCode() {
+        return getField().hashCode() + getType().hashCode();
+    }
 }
