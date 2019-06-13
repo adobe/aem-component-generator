@@ -23,9 +23,18 @@ import com.adobe.acs.commons.models.injectors.annotation.SharedValueMapValue;
 import com.bounteous.aem.compgenerator.Constants;
 import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.models.Property;
+import com.bounteous.aem.compgenerator.utils.CommonUtils;
 import com.hs2solutions.aem.base.core.models.annotations.injectorspecific.ChildRequest;
-import com.sun.codemodel.*;
-import com.sun.codemodel.writer.FileCodeWriter;
+import com.sun.codemodel.CodeWriter;
+import com.sun.codemodel.JClass;
+import com.sun.codemodel.JClassAlreadyExistsException;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JDocComment;
+import com.sun.codemodel.JFieldVar;
+import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JMod;
+import com.sun.codemodel.JPackage;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -90,6 +99,7 @@ public class JavaCodeModel {
         setProperties();
         buildInterface();
         buildImplClass();
+        generateCodeFiles();
         LOG.info("--------------* Sling Model successfully generated *--------------");
     }
 
@@ -101,15 +111,19 @@ public class JavaCodeModel {
         try {
             JPackage jPackage = codeModel._package(generationConfig.getProjectSettings().getModelInterfacePackage());
             jc = jPackage._interface(generationConfig.getJavaFormatedName());
+            String comment = "Defines the {@code "
+                    + generationConfig.getJavaFormatedName()
+                    + "} Sling Model used for the {@code "
+                    + CommonUtils.getResourceType(generationConfig)
+                    + "} component.";
+            jc.javadoc().append(comment);
             jc.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
 
             addGettersWithoutFields(globalProperties);
             addGettersWithoutFields(sharedProperties);
             addGettersWithoutFields(privateProperties);
 
-            generateCodeFile();
-
-        } catch (JClassAlreadyExistsException | IOException e) {
+        } catch (JClassAlreadyExistsException e) {
             LOG.error(e);
         }
     }
@@ -132,25 +146,26 @@ public class JavaCodeModel {
 
             addGetters();
 
-            generateCodeFile();
-
-        } catch (JClassAlreadyExistsException | IOException e) {
+        } catch (JClassAlreadyExistsException e) {
             LOG.error(e);
         }
     }
 
     /**
      * Generates the slingModel file based on values from the config and the current codeModel object.
-     * @throws IOException - exception thrown when file is unable to be created.
      */
-    private void generateCodeFile() throws IOException {
-        //Adding Class header comments to the class.
-        CodeWriter codeWriter = new FileCodeWriter(new File(generationConfig.getProjectSettings().getBundlePath()));
-        PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter,
-                getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_JAVA));
+    private void generateCodeFiles() {
+        try {
+            // RenameFileCodeWritern to rename existing files
+            CodeWriter codeWriter = new RenameFileCodeWriter(new File(generationConfig.getProjectSettings().getBundlePath()));
+            // PrologCodeWriter to prepend the copyright template in each file
+            PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter,
+                    getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_JAVA));
 
-        codeModel.build(prologCodeWriter);
-        LOG.info("Created : " + jc.fullName());
+            codeModel.build(prologCodeWriter);
+        } catch (IOException e) {
+            LOG.error(e);
+        }
     }
 
     /**
@@ -164,8 +179,7 @@ public class JavaCodeModel {
         if (jDefinedClass != null) {
             jDefinedClass.annotate(codeModel.ref(Model.class))
                     .param("adapters", jcInterface.getPackage()._getClass(generationConfig.getJavaFormatedName()))
-                    .param("resourceType", generationConfig.getProjectSettings().getComponentPath() + "/"
-                            + generationConfig.getType() + "/" + generationConfig.getName())
+                    .param("resourceType", CommonUtils.getResourceType(generationConfig))
                     .paramArray("adaptables")
                     .param(codeModel.ref(Resource.class))
                     .param(codeModel.ref(SlingHttpServletRequest.class));
@@ -309,8 +323,11 @@ public class JavaCodeModel {
      * @param properties
      */
     private void addGettersWithoutFields(List<Property> properties) {
-        properties.forEach(property -> jc.method(NONE, getGetterMethodReturnType(property),
-                Constants.STRING_GET + property.getFieldGetterName()));
+        for (Property property : properties) {
+            JMethod method = jc.method(NONE, getGetterMethodReturnType(property),
+                    Constants.STRING_GET + property.getFieldGetterName());
+            addJavadocToMethod(method, property);
+        }
     }
 
     /**
@@ -336,6 +353,23 @@ public class JavaCodeModel {
             }
         } else {
             return codeModel.ref(fieldType);
+        }
+    }
+
+    /**
+     * Adds Javadoc to the method based on the information in the property and the generation config options.
+     *
+     * @param method
+     * @param property
+     */
+    private void addJavadocToMethod(JMethod method, Property property) {
+        JDocComment javadoc = method.javadoc();
+        if (StringUtils.isNotBlank(property.getJavadoc())) {
+            javadoc.append(property.getJavadoc());
+            javadoc.append("\n\n@return " + getGetterMethodReturnType(property).name());
+        } else if (generationConfig.getOptions() != null && generationConfig.getOptions().isHasGenericJavadoc()) {
+            javadoc.append("Get the " + property.getField() + ".");
+            javadoc.append("\n\n@return " + getGetterMethodReturnType(property).name());
         }
     }
 
