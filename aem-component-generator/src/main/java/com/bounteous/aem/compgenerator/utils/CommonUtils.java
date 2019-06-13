@@ -40,12 +40,15 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CommonUtils {
     private static final Logger LOG = LogManager.getLogger(CommonUtils.class);
+    private static final Date CURRENT_TIME = new Date(System.currentTimeMillis());
 
     /**
      * Method to map JSON content from given file into given GenerationConfig type.
@@ -64,6 +67,31 @@ public class CommonUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * Renames the file at the given path (if it exists) and returns a new File with the given path.
+     *
+     * @param path file path
+     * @return File with the given path
+     * @throws IOException
+     */
+    public static File getNewFileAtPathAndRenameExisting(String path) throws IOException{
+        File file = new File(path);
+        if (file.exists()) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Constants.RENAME_FILE_DATE_PATTERN);
+            String date = simpleDateFormat.format(CURRENT_TIME);
+            File oldFile = new File(path + ".sv." + date);
+            boolean isSuccess = file.renameTo(oldFile);
+            if (isSuccess) {
+                LOG.info("Replaced: " + path + " (Old file: " + oldFile.getName() + ")");
+                return file;
+            } else {
+                throw new IOException();
+            }
+        }
+        LOG.info("Created: " + path);
+        return file;
     }
 
     /**
@@ -121,28 +149,25 @@ public class CommonUtils {
      * @throws IOException
      */
     public static void createFileWithCopyRight(String path, Map<String, String> templateValueMap) throws IOException {
-        File file = new File(path);
-        if (file != null) {
-            String template = Constants.TEMPLATE_COPYRIGHT_JAVA;
-            if (path.endsWith("js") || path.endsWith("java")) {
-                template = Constants.TEMPLATE_COPYRIGHT_JAVA;
-            } else if (path.endsWith("less")) {
-                template = Constants.TEMPLATE_COPYRIGHT_CSS;
-            } else if (path.endsWith("xml")) {
-                template = Constants.TEMPLATE_COPYRIGHT_XML;
-            } else if (path.endsWith("html")) {
-                template = Constants.TEMPLATE_HTL;
-            }
+        File file = getNewFileAtPathAndRenameExisting(path);
 
-            StrSubstitutor strSubstitutor = new StrSubstitutor(templateValueMap);
-            String templateString = CommonUtils.getResourceContentAsString(template);
-
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-            writer.write(strSubstitutor.replace(templateString));
-            writer.close();
-
-            LOG.info("Created : " + path);
+        String template = Constants.TEMPLATE_COPYRIGHT_JAVA;
+        if (path.endsWith("js") || path.endsWith("java")) {
+            template = Constants.TEMPLATE_COPYRIGHT_JAVA;
+        } else if (path.endsWith("less")) {
+            template = Constants.TEMPLATE_COPYRIGHT_CSS;
+        } else if (path.endsWith("xml")) {
+            template = Constants.TEMPLATE_COPYRIGHT_XML;
+        } else if (path.endsWith("html")) {
+            template = Constants.TEMPLATE_HTL;
         }
+
+        StrSubstitutor strSubstitutor = new StrSubstitutor(templateValueMap);
+        String templateString = CommonUtils.getResourceContentAsString(template);
+
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+        writer.write(strSubstitutor.replace(templateString));
+        writer.close();
     }
 
     /**

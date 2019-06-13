@@ -26,7 +26,6 @@ import com.bounteous.aem.compgenerator.models.Property;
 import com.bounteous.aem.compgenerator.utils.CommonUtils;
 import com.hs2solutions.aem.base.core.models.annotations.injectorspecific.ChildRequest;
 import com.sun.codemodel.*;
-import com.sun.codemodel.writer.FileCodeWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -82,6 +81,7 @@ public class JavaCodeModel {
         this.generationConfig = generationConfig;
         buildInterface();
         buildImplClass();
+        generateCodeFiles();
         LOG.info("--------------* Sling Model successfully generated *--------------");
     }
 
@@ -113,9 +113,7 @@ public class JavaCodeModel {
                 addGettersWithoutFields(generationConfig.getOptions().getProperties());
             }
 
-            generateCodeFile();
-
-        } catch (JClassAlreadyExistsException | IOException e) {
+        } catch (JClassAlreadyExistsException e) {
             LOG.error(e);
         }
     }
@@ -146,25 +144,26 @@ public class JavaCodeModel {
 
             addGetters();
 
-            generateCodeFile();
-
-        } catch (JClassAlreadyExistsException | IOException e) {
+        } catch (JClassAlreadyExistsException e) {
             LOG.error(e);
         }
     }
 
     /**
      * Generates the slingModel file based on values from the config and the current codeModel object.
-     * @throws IOException - exception thrown when file is unable to be created.
      */
-    private void generateCodeFile() throws IOException {
-        //Adding Class header comments to the class.
-        CodeWriter codeWriter = new FileCodeWriter(new File(generationConfig.getProjectSettings().getBundlePath()));
-        PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter,
-                getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_JAVA));
+    private void generateCodeFiles() {
+        try {
+            // RenameFileCodeWritern to rename existing files
+            CodeWriter codeWriter = new RenameFileCodeWriter(new File(generationConfig.getProjectSettings().getBundlePath()));
+            // PrologCodeWriter to prepend the copyright template in each file
+            PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter,
+                    getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_JAVA));
 
-        codeModel.build(prologCodeWriter);
-        LOG.info("Created : " + jc.fullName());
+            codeModel.build(prologCodeWriter);
+        } catch (IOException e) {
+            LOG.error(e);
+        }
     }
 
     /**

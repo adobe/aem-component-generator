@@ -71,7 +71,8 @@ public class XMLUtils {
             tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
             DOMSource source = new DOMSource(document);
-            StreamResult result = new StreamResult(new File(filePath));
+            File file = CommonUtils.getNewFileAtPathAndRenameExisting(filePath);
+            StreamResult result = new StreamResult(file);
 
             //transform your DOM source to the given file location.
             tr.transform(source, result);
