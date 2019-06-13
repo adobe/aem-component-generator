@@ -20,7 +20,7 @@
       {
         "field": "textfieldTest",
         "description": "Adds a fieldDescription tooltip",
-        "javadoc": "Returns a fieldDescription tooltip used somewhere in the component",
+        "javadoc": "Returns a text value tooltip used somewhere in the component",
         "type": "textfield",
         "label": "Textfield Test",
         "attributes": {}
