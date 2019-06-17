@@ -40,6 +40,9 @@ public class Property implements BaseModel {
     @JsonProperty("description")
     private String description;
 
+    @JsonProperty("javadoc")
+    private String javadoc;
+
     @JsonProperty("attributes")
     private Map<String, String> attributes;
 
@@ -100,6 +103,14 @@ public class Property implements BaseModel {
         this.description = description;
     }
 
+    public String getJavadoc() {
+        return javadoc;
+    }
+
+    public void setJavadoc(String javadoc) {
+        this.javadoc = javadoc;
+    }
+
     public List<Property> getItems() {
         return items;
     }
@@ -111,5 +122,24 @@ public class Property implements BaseModel {
     @Override
     public boolean isValid() {
         return true;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof Property)) {
+            return false;
+        }
+
+        Property property = (Property) obj;
+        return property.getField().equals(this.getField()) && property.getType().equals(this.getType());
+    }
+
+    @Override
+    public int hashCode() {
+        return getField().hashCode() + getType().hashCode();
     }
 }

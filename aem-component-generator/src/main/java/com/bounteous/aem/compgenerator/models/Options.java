@@ -25,6 +25,9 @@ import java.util.List;
 
 public class Options implements BaseModel {
 
+    @JsonProperty("generic-javadoc")
+    private boolean hasGenericJavadoc;
+
     @JsonProperty("js")
     private boolean hasJs;
 
@@ -45,6 +48,14 @@ public class Options implements BaseModel {
 
     @JsonProperty("properties-shared")
     private List<Property> sharedProperties;
+
+    public boolean isHasGenericJavadoc() {
+        return hasGenericJavadoc;
+    }
+
+    public void setHasGenericJavadoc(boolean hasGenericJavadoc) {
+        this.hasGenericJavadoc = hasGenericJavadoc;
+    }
 
     public boolean isHasJs() {
         return hasJs;

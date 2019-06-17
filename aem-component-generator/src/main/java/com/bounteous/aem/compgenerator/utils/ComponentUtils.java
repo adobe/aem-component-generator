@@ -66,7 +66,7 @@ public class ComponentUtils {
 
         //create dialogglobal xml file with user input global properties in json.
         if (generationConfig.getOptions().getGlobalProperties() != null &&
-                generationConfig.getOptions().getGlobalProperties().size() > 0) {
+                !generationConfig.getOptions().getGlobalProperties().isEmpty()) {
             DialogUtils.createDialogXml(generationConfig, Constants.DIALOG_TYPE_GLOBAL);
         }
 
@@ -133,7 +133,6 @@ public class ComponentUtils {
             }
             doc.appendChild(rootElement);
             XMLUtils.transformDomToFile(doc, folderPath + "/" + Constants.FILENAME_CONTENT_XML);
-            LOG.info("Created : " + folderPath + "/" + Constants.FILENAME_CONTENT_XML);
         } catch (Exception e) {
             throw new GeneratorException("Exception while creating Folder/xml : " + path);
         }

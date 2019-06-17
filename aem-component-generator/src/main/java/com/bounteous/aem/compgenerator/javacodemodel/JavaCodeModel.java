@@ -23,9 +23,9 @@ import com.adobe.acs.commons.models.injectors.annotation.SharedValueMapValue;
 import com.bounteous.aem.compgenerator.Constants;
 import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.models.Property;
+import com.bounteous.aem.compgenerator.utils.CommonUtils;
 import com.hs2solutions.aem.base.core.models.annotations.injectorspecific.ChildRequest;
 import com.sun.codemodel.*;
-import com.sun.codemodel.writer.FileCodeWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,9 +37,13 @@ import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.bounteous.aem.compgenerator.utils.CommonUtils.getResourceContentAsString;
 import static com.sun.codemodel.JMod.NONE;
@@ -49,7 +53,7 @@ import static com.sun.codemodel.JMod.PRIVATE;
 /**
  * Root of the code.
  *
- * <p>
+ *
  * Here's your JavaCodeModel application.
  *
  * <pre>
@@ -58,10 +62,11 @@ import static com.sun.codemodel.JMod.PRIVATE;
  * // generate source code and write them from jcm.
  * jcm.buildSlingModel(generationConfig);
  * ...
+ * </pre>
  *
- * <p>
  * JavaCodeModel creates source code of your sling-model interface and implementation
  * using user data config configuration object.
+ *
  */
 public class JavaCodeModel {
     private static final Logger LOG = LogManager.getLogger(JavaCodeModel.class);
@@ -70,8 +75,11 @@ public class JavaCodeModel {
 
     private JCodeModel codeModel;
     private JDefinedClass jc;
-    private JDefinedClass childJc;
     private GenerationConfig generationConfig;
+
+    private List<Property> globalProperties;
+    private List<Property> sharedProperties;
+    private List<Property> privateProperties;
 
     /**
      * builds your slingModel interface and implementation class with all required
@@ -80,8 +88,13 @@ public class JavaCodeModel {
     public void buildSlingModel(GenerationConfig generationConfig) {
         this.codeModel = new JCodeModel();
         this.generationConfig = generationConfig;
+        setProperties();
         buildInterface();
         buildImplClass();
+        LOG.info( () -> "Starting to build multifield interfaces and classes." );
+
+        buildChildInterfacesAndClasses();
+        generateCodeFiles();
         LOG.info("--------------* Sling Model successfully generated *--------------");
     }
 
@@ -93,43 +106,19 @@ public class JavaCodeModel {
         try {
             JPackage jPackage = codeModel._package(generationConfig.getProjectSettings().getModelInterfacePackage());
             jc = jPackage._interface(generationConfig.getJavaFormatedName());
+            String comment = "Defines the {@code "
+                    + generationConfig.getJavaFormatedName()
+                    + "} Sling Model used for the {@code "
+                    + CommonUtils.getResourceType(generationConfig)
+                    + "} component.";
+            jc.javadoc().append(comment);
             jc.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
 
-
-            generationConfig.getOptions().getProperties().stream().filter(Objects::nonNull)
-                    .forEach(prop -> {
-                        if (prop.getType().equalsIgnoreCase("multifield")
-                                && prop.getItems().size() > 1) {
-                            buildChildInterface(prop);
-                        }
-                    });
-
-            if (generationConfig.getOptions().getGlobalProperties() != null) {
-                addGettersWithoutFields(jc, generationConfig.getOptions().getGlobalProperties());
-            }
-
-            if (generationConfig.getOptions().getSharedProperties() != null) {
-                addGettersWithoutFields(jc, generationConfig.getOptions().getSharedProperties());
-            }
-
-            if (generationConfig.getOptions().getProperties() != null) {
-                addGettersWithoutFields(jc, generationConfig.getOptions().getProperties());
-            }
-
-            generateCodeFile();
-
-        } catch (JClassAlreadyExistsException | IOException e) {
+            addGettersWithoutFields(jc, globalProperties);
+            addGettersWithoutFields(jc, sharedProperties);
+            addGettersWithoutFields(jc, privateProperties);
+        } catch (JClassAlreadyExistsException e) {
             LOG.error(e);
-        }
-    }
-
-    private void buildChildInterface(Property prop) {
-        try {
-            childJc = jc._interface(StringUtils.capitalize(prop.getField()) + "Multifield");
-            childJc.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
-            addGettersWithoutFields(childJc, prop.getItems());
-        } catch (Exception e) {
-            LOG.error("Failed to create child interface.", e);
         }
     }
 
@@ -145,61 +134,68 @@ public class JavaCodeModel {
                     ._implements(jcInterface);
             jc = addSlingAnnotations(jc, jcInterface);
 
-            generationConfig.getOptions().getProperties().stream().filter(Objects::nonNull)
-                    .forEach(prop -> {
-                        if (prop.getType().equalsIgnoreCase("multifield")
-                                && prop.getItems().size() > 1) {
-                            buildChildImplClass(prop);
-                        }
-                    });
-
-            if (generationConfig.getOptions().getGlobalProperties() != null) {
-                addFieldVars(jc, generationConfig.getOptions().getGlobalProperties(), Constants.PROPERTY_TYPE_GLOBAL);
-            }
-
-            if (generationConfig.getOptions().getSharedProperties() != null) {
-                addFieldVars(jc, generationConfig.getOptions().getSharedProperties(), Constants.PROPERTY_TYPE_SHARED);
-            }
-
-            if (generationConfig.getOptions().getProperties() != null) {
-                addFieldVars(jc, generationConfig.getOptions().getProperties(), Constants.PROPERTY_TYPE_PRIVATE);
-            }
+            addFieldVars(jc, globalProperties, Constants.PROPERTY_TYPE_GLOBAL);
+            addFieldVars(jc, sharedProperties, Constants.PROPERTY_TYPE_SHARED);
+            addFieldVars(jc, privateProperties, Constants.PROPERTY_TYPE_PRIVATE);
 
             addGetters(jc);
 
-            generateCodeFile();
-
-        } catch (JClassAlreadyExistsException | IOException e) {
+        } catch (JClassAlreadyExistsException e) {
             LOG.error(e);
         }
     }
 
-    private void buildChildImplClass(Property property) {
-        try {
-            JDefinedClass childClass = jc._class(StringUtils.capitalize(property.getField()) + "MultifieldImpl")
-                    ._implements(childJc);
-            JAnnotationUse jau = childClass.annotate(codeModel.ref(Model.class));
-            jau.param("adapters", codeModel.ref(childJc.fullName()));
-            jau.paramArray("adaptables").param(codeModel.ref(Resource.class)).param(codeModel.ref(SlingHttpServletRequest.class));
-            addFieldVars(childClass, property.getItems(), Constants.PROPERTY_TYPE_PRIVATE);
-            addGetters(childClass);
-        } catch (Exception e) {
-            LOG.error("Failed to create child implementation class.", e);
-        }
+    private void buildChildInterfacesAndClasses() {
+        List<Property> props = generationConfig.getOptions().getProperties();
+        props.stream().filter(Objects::nonNull)
+                .forEach(prop -> {
+                    if (prop.getType().equalsIgnoreCase("multifield")
+                            && prop.getItems().size() > 1) {
+                        try {
+                            JPackage jPackage = codeModel._package(generationConfig.getProjectSettings().getModelInterfacePackage());
+                            JDefinedClass interfaceClass = jPackage._interface(StringUtils.capitalize(prop.getField()) + "Multifield");
+                            String comment = "Defines the {@code "
+                                    + StringUtils.capitalize(prop.getField()) + "Multifield"
+                                    + "} Sling Model used for the multifield in {@code "
+                                    + CommonUtils.getResourceType(generationConfig)
+                                    + "} component.";
+                            interfaceClass.javadoc().append(comment);
+                            interfaceClass.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
+                            addGettersWithoutFields(interfaceClass, prop.getItems());
+
+                            jPackage = codeModel._package(generationConfig.getProjectSettings().getModelImplPackage());
+                            JDefinedClass implClass = jPackage._class(StringUtils.capitalize(prop.getField()) + "MultifieldImpl")
+                                    ._implements(interfaceClass);
+                            JAnnotationUse jau = implClass.annotate(codeModel.ref(Model.class));
+                            jau.param("adapters", interfaceClass);
+                            jau.paramArray("adaptables")
+                                    .param(codeModel.ref(Resource.class))
+                                    .param(codeModel.ref(SlingHttpServletRequest.class));
+                            addFieldVars(implClass, prop.getItems(), Constants.PROPERTY_TYPE_PRIVATE);
+                            addGetters(implClass);
+                        } catch (JClassAlreadyExistsException e) {
+                            LOG.error("Failed to generate child interface and implementation classes.", e);
+                        }
+                    }
+                });
+
     }
 
     /**
      * Generates the slingModel file based on values from the config and the current codeModel object.
-     * @throws IOException - exception thrown when file is unable to be created.
      */
-    private void generateCodeFile() throws IOException {
-        //Adding Class header comments to the class.
-        CodeWriter codeWriter = new FileCodeWriter(new File(generationConfig.getProjectSettings().getBundlePath()));
-        PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter,
-                getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_JAVA));
+    private void generateCodeFiles() {
+        try {
+            // RenameFileCodeWritern to rename existing files
+            CodeWriter codeWriter = new RenameFileCodeWriter(new File(generationConfig.getProjectSettings().getBundlePath()));
+            // PrologCodeWriter to prepend the copyright template in each file
+            PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter,
+                    getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_JAVA));
 
-        codeModel.build(prologCodeWriter);
-        LOG.info("Created : " + jc.fullName());
+            codeModel.build(prologCodeWriter);
+        } catch (IOException e) {
+            LOG.error(e);
+        }
     }
 
     /**
@@ -213,8 +209,7 @@ public class JavaCodeModel {
         if (jDefinedClass != null) {
             jDefinedClass.annotate(codeModel.ref(Model.class))
                     .param("adapters", jcInterface.getPackage()._getClass(generationConfig.getJavaFormatedName()))
-                    .param("resourceType", generationConfig.getProjectSettings().getComponentPath() + "/"
-                            + generationConfig.getType() + "/" + generationConfig.getName())
+                    .param("resourceType", CommonUtils.getResourceType(generationConfig))
                     .paramArray("adaptables")
                     .param(codeModel.ref(Resource.class))
                     .param(codeModel.ref(SlingHttpServletRequest.class));
@@ -290,7 +285,8 @@ public class JavaCodeModel {
     private void addPropertyAndObjectAsPrivateField(JDefinedClass jc, Property property) {
         if (jc.isClass()) {
             String fieldType = getFieldType(property);
-            JClass fieldClass = codeModel.ref(fieldType).narrow(childJc);
+            JClass narrowedClass = codeModel.ref(generationConfig.getProjectSettings().getModelInterfacePackage() + "." + StringUtils.capitalize(property.getField()) + "Multifield");
+            JClass fieldClass = codeModel.ref(fieldType).narrow(narrowedClass);
             JFieldVar jFieldVar = jc.field(PRIVATE, fieldClass, property.getField());
             jFieldVar.annotate(codeModel.ref(ChildRequest.class))
                     .param(INJECTION_STRATEGY,
@@ -335,25 +331,23 @@ public class JavaCodeModel {
      */
     private String getFieldType(Property property) {
         String type = property.getType();
-        if (StringUtils.isNotBlank(type)) {
-            if (type.equalsIgnoreCase("textfield")
-                    || type.equalsIgnoreCase("pathfield")
-                    || type.equalsIgnoreCase("textarea")
-                    || type.equalsIgnoreCase("hidden")
-                    || type.equalsIgnoreCase("select")
-                    || type.equalsIgnoreCase("radiogroup")) {
-                return "java.lang.String";
-            } else if (type.equalsIgnoreCase("numberfield")) {
-                return "java.lang.Long";
-            } else if (type.equalsIgnoreCase("checkbox")) {
-                return "java.lang.Boolean";
-            } else if (type.equalsIgnoreCase("datepicker")) {
-                return "java.util.Calendar";
-            } else if (type.equalsIgnoreCase("image")) {
-                return "com.hs2solutions.aem.base.core.models.HS2Image";
-            } else if (type.equalsIgnoreCase("multifield")) {
-                return "java.util.List";
-            }
+        if (type.equalsIgnoreCase("textfield")
+                || type.equalsIgnoreCase("pathfield")
+                || type.equalsIgnoreCase("textarea")
+                || type.equalsIgnoreCase("hidden")
+                || type.equalsIgnoreCase("select")
+                || type.equalsIgnoreCase("radiogroup")) {
+            return "java.lang.String";
+        } else if (type.equalsIgnoreCase("numberfield")) {
+            return "java.lang.Long";
+        } else if (type.equalsIgnoreCase("checkbox")) {
+            return "java.lang.Boolean";
+        } else if (type.equalsIgnoreCase("datepicker")) {
+            return "java.util.Calendar";
+        } else if (type.equalsIgnoreCase("image")) {
+            return "com.hs2solutions.aem.base.core.models.HS2Image";
+        } else if (type.equalsIgnoreCase("multifield")) {
+            return "java.util.List";
         }
         return type;
     }
@@ -365,8 +359,10 @@ public class JavaCodeModel {
      */
     private void addGettersWithoutFields(JDefinedClass jc, List<Property> properties) {
         if (properties != null && !properties.isEmpty()) {
-            properties.forEach(property -> jc.method(NONE, getGetterMethodReturnType(property),
-                            Constants.STRING_GET + property.getFieldGetterName()));
+            properties.forEach(property -> {
+                JMethod method = jc.method(NONE, getGetterMethodReturnType(property), Constants.STRING_GET + property.getFieldGetterName());
+                addJavadocToMethod(method, property);
+            });
         }
     }
 
@@ -389,10 +385,65 @@ public class JavaCodeModel {
             if (property.getItems().size() == 1) {
                 return codeModel.ref(fieldType).narrow(codeModel.ref(getFieldType(property.getItems().get(0))));
             } else {
-                return codeModel.ref(fieldType).narrow(childJc);
+                return codeModel.ref(fieldType).narrow(codeModel.ref(StringUtils.capitalize(property.getField()) + "Multifield"));
             }
         } else {
             return codeModel.ref(fieldType);
         }
+    }
+
+    /**
+     * Adds Javadoc to the method based on the information in the property and the generation config options.
+     *
+     * @param method
+     * @param property
+     */
+    private void addJavadocToMethod(JMethod method, Property property) {
+        JDocComment javadoc = method.javadoc();
+        if (StringUtils.isNotBlank(property.getJavadoc())) {
+            javadoc.append(property.getJavadoc());
+            javadoc.append("\n\n@return " + getGetterMethodReturnType(property).name());
+        } else if (generationConfig.getOptions() != null && generationConfig.getOptions().isHasGenericJavadoc()) {
+            javadoc.append("Get the " + property.getField() + ".");
+            javadoc.append("\n\n@return " + getGetterMethodReturnType(property).name());
+        }
+    }
+
+    /**
+     * Sets property attributes
+     */
+    private void setProperties() {
+        Set<Property> occurredProperties = new HashSet<>();
+
+        globalProperties = filterProperties(occurredProperties, generationConfig.getOptions().getGlobalProperties());
+        occurredProperties.addAll(globalProperties);
+
+        sharedProperties = filterProperties(occurredProperties, generationConfig.getOptions().getSharedProperties());
+        occurredProperties.addAll(sharedProperties);
+
+        privateProperties = filterProperties(occurredProperties, generationConfig.getOptions().getProperties());
+        occurredProperties.addAll(privateProperties);
+    }
+
+    /**
+     * Filters the given properties for invalid fields and returns all that are not contained in occurredProperties.
+     *
+     * @param occurredProperties
+     * @param originalProperties
+     * @return filtered properties
+     */
+    private List<Property> filterProperties(Set<Property> occurredProperties, List<Property> originalProperties) {
+        List<Property> properties;
+        if (originalProperties != null) {
+            properties = originalProperties.stream()
+                    .filter(Objects::nonNull)
+                    .filter(property -> StringUtils.isNotBlank(property.getField()))
+                    .filter(property -> StringUtils.isNotBlank(property.getType()))
+                    .filter(property -> !(occurredProperties.contains(property)))
+                    .collect(Collectors.toList());
+        } else {
+            properties = Collections.emptyList();
+        }
+        return properties;
     }
 }
