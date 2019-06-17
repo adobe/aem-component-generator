@@ -89,11 +89,8 @@ public class JavaCodeModel {
         this.codeModel = new JCodeModel();
         this.generationConfig = generationConfig;
         setProperties();
-        buildInterface();
-        buildImplClass();
-        LOG.info( () -> "Starting to build multifield interfaces and classes." );
-
-        buildChildInterfacesAndClasses();
+        buildInterfaces();
+        buildImplClasses();
         generateCodeFiles();
         LOG.info("--------------* Sling Model successfully generated *--------------");
     }
@@ -102,7 +99,7 @@ public class JavaCodeModel {
      * builds your slingModel interface with all required annotation,
      * fields and getters based on the <code>generationConfig</code>.
      */
-    private void buildInterface() {
+    private void buildInterfaces() {
         try {
             JPackage jPackage = codeModel._package(generationConfig.getProjectSettings().getModelInterfacePackage());
             jc = jPackage._interface(generationConfig.getJavaFormatedName());
@@ -113,6 +110,28 @@ public class JavaCodeModel {
                     + "} component.";
             jc.javadoc().append(comment);
             jc.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
+
+            generationConfig.getOptions().getProperties()
+                    .stream().filter(Objects::nonNull)
+                    .forEach(prop -> {
+                        if (prop.getType().equalsIgnoreCase("multifield")
+                                && prop.getItems().size() > 1) {
+                            try {
+                                JPackage jChildPackage = codeModel._package(generationConfig.getProjectSettings().getModelInterfacePackage());
+                                JDefinedClass interfaceClass = jChildPackage._interface(StringUtils.capitalize(prop.getField()) + "Multifield");
+                                String childComment = "Defines the {@code "
+                                        + StringUtils.capitalize(prop.getField()) + "Multifield"
+                                        + "} Sling Model used for the multifield in {@code "
+                                        + CommonUtils.getResourceType(generationConfig)
+                                        + "} component.";
+                                interfaceClass.javadoc().append(childComment);
+                                interfaceClass.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
+                                addGettersWithoutFields(interfaceClass, prop.getItems());
+                            } catch (JClassAlreadyExistsException ex) {
+                                LOG.error("Failed to generate child interface.", ex);
+                            }
+                        }
+                    });
 
             addGettersWithoutFields(jc, globalProperties);
             addGettersWithoutFields(jc, sharedProperties);
@@ -126,7 +145,7 @@ public class JavaCodeModel {
      * builds your slingModel implementation with all required sling annotation,
      * fields and getters based on the <code>generationConfig</code>.
      */
-    private void buildImplClass() {
+    private void buildImplClasses() {
         try {
             JPackage jPackage = codeModel._package(generationConfig.getProjectSettings().getModelImplPackage());
             JDefinedClass jcInterface = jc;
@@ -138,47 +157,34 @@ public class JavaCodeModel {
             addFieldVars(jc, sharedProperties, Constants.PROPERTY_TYPE_SHARED);
             addFieldVars(jc, privateProperties, Constants.PROPERTY_TYPE_PRIVATE);
 
+            generationConfig.getOptions().getProperties()
+                    .stream().filter(Objects::nonNull)
+                    .forEach(prop -> {
+                        if (prop.getType().equalsIgnoreCase("multifield")
+                                && prop.getItems().size() > 1) {
+                            try {
+                                JPackage jChildPackage = codeModel._package(generationConfig.getProjectSettings().getModelImplPackage());
+                                JClass interfaceClass = codeModel.ref(generationConfig.getProjectSettings().getModelInterfacePackage() + "." + StringUtils.capitalize(prop.getField()) + "Multifield");
+                                JDefinedClass implClass = jChildPackage._class(StringUtils.capitalize(prop.getField()) + "MultifieldImpl")
+                                        ._implements(interfaceClass);
+                                JAnnotationUse jau = implClass.annotate(codeModel.ref(Model.class));
+                                jau.param("adapters", interfaceClass);
+                                jau.paramArray("adaptables")
+                                        .param(codeModel.ref(Resource.class))
+                                        .param(codeModel.ref(SlingHttpServletRequest.class));
+                                addFieldVars(implClass, prop.getItems(), Constants.PROPERTY_TYPE_PRIVATE);
+                                addGetters(implClass);
+                            } catch (JClassAlreadyExistsException ex) {
+                                LOG.error("Failed to generate child implementation classes.", ex);
+                            }
+                        }
+                    });
+
             addGetters(jc);
 
         } catch (JClassAlreadyExistsException e) {
             LOG.error(e);
         }
-    }
-
-    private void buildChildInterfacesAndClasses() {
-        List<Property> props = generationConfig.getOptions().getProperties();
-        props.stream().filter(Objects::nonNull)
-                .forEach(prop -> {
-                    if (prop.getType().equalsIgnoreCase("multifield")
-                            && prop.getItems().size() > 1) {
-                        try {
-                            JPackage jPackage = codeModel._package(generationConfig.getProjectSettings().getModelInterfacePackage());
-                            JDefinedClass interfaceClass = jPackage._interface(StringUtils.capitalize(prop.getField()) + "Multifield");
-                            String comment = "Defines the {@code "
-                                    + StringUtils.capitalize(prop.getField()) + "Multifield"
-                                    + "} Sling Model used for the multifield in {@code "
-                                    + CommonUtils.getResourceType(generationConfig)
-                                    + "} component.";
-                            interfaceClass.javadoc().append(comment);
-                            interfaceClass.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
-                            addGettersWithoutFields(interfaceClass, prop.getItems());
-
-                            jPackage = codeModel._package(generationConfig.getProjectSettings().getModelImplPackage());
-                            JDefinedClass implClass = jPackage._class(StringUtils.capitalize(prop.getField()) + "MultifieldImpl")
-                                    ._implements(interfaceClass);
-                            JAnnotationUse jau = implClass.annotate(codeModel.ref(Model.class));
-                            jau.param("adapters", interfaceClass);
-                            jau.paramArray("adaptables")
-                                    .param(codeModel.ref(Resource.class))
-                                    .param(codeModel.ref(SlingHttpServletRequest.class));
-                            addFieldVars(implClass, prop.getItems(), Constants.PROPERTY_TYPE_PRIVATE);
-                            addGetters(implClass);
-                        } catch (JClassAlreadyExistsException e) {
-                            LOG.error("Failed to generate child interface and implementation classes.", e);
-                        }
-                    }
-                });
-
     }
 
     /**
