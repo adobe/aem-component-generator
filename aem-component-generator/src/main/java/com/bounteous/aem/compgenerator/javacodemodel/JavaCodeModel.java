@@ -70,6 +70,7 @@ public class JavaCodeModel {
 
     private JCodeModel codeModel;
     private JDefinedClass jc;
+    private JDefinedClass childJc;
     private GenerationConfig generationConfig;
 
     /**
@@ -94,22 +95,41 @@ public class JavaCodeModel {
             jc = jPackage._interface(generationConfig.getJavaFormatedName());
             jc.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
 
+
+            generationConfig.getOptions().getProperties().stream().filter(Objects::nonNull)
+                    .forEach(prop -> {
+                        if (prop.getType().equalsIgnoreCase("multifield")
+                                && prop.getItems().size() > 1) {
+                            buildChildInterface(prop);
+                        }
+                    });
+
             if (generationConfig.getOptions().getGlobalProperties() != null) {
-                addGettersWithoutFields(generationConfig.getOptions().getGlobalProperties());
+                addGettersWithoutFields(jc, generationConfig.getOptions().getGlobalProperties());
             }
 
             if (generationConfig.getOptions().getSharedProperties() != null) {
-                addGettersWithoutFields(generationConfig.getOptions().getSharedProperties());
+                addGettersWithoutFields(jc, generationConfig.getOptions().getSharedProperties());
             }
 
             if (generationConfig.getOptions().getProperties() != null) {
-                addGettersWithoutFields(generationConfig.getOptions().getProperties());
+                addGettersWithoutFields(jc, generationConfig.getOptions().getProperties());
             }
 
             generateCodeFile();
 
         } catch (JClassAlreadyExistsException | IOException e) {
             LOG.error(e);
+        }
+    }
+
+    private void buildChildInterface(Property prop) {
+        try {
+            childJc = jc._interface(StringUtils.capitalize(prop.getField()) + "Multifield");
+            childJc.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
+            addGettersWithoutFields(childJc, prop.getItems());
+        } catch (Exception e) {
+            LOG.error("Failed to create child interface.", e);
         }
     }
 
@@ -125,24 +145,46 @@ public class JavaCodeModel {
                     ._implements(jcInterface);
             jc = addSlingAnnotations(jc, jcInterface);
 
+            generationConfig.getOptions().getProperties().stream().filter(Objects::nonNull)
+                    .forEach(prop -> {
+                        if (prop.getType().equalsIgnoreCase("multifield")
+                                && prop.getItems().size() > 1) {
+                            buildChildImplClass(prop);
+                        }
+                    });
+
             if (generationConfig.getOptions().getGlobalProperties() != null) {
-                addFieldVars(generationConfig.getOptions().getGlobalProperties(), Constants.PROPERTY_TYPE_GLOBAL);
+                addFieldVars(jc, generationConfig.getOptions().getGlobalProperties(), Constants.PROPERTY_TYPE_GLOBAL);
             }
 
             if (generationConfig.getOptions().getSharedProperties() != null) {
-                addFieldVars(generationConfig.getOptions().getSharedProperties(), Constants.PROPERTY_TYPE_SHARED);
+                addFieldVars(jc, generationConfig.getOptions().getSharedProperties(), Constants.PROPERTY_TYPE_SHARED);
             }
 
             if (generationConfig.getOptions().getProperties() != null) {
-                addFieldVars(generationConfig.getOptions().getProperties(), Constants.PROPERTY_TYPE_PRIVATE);
+                addFieldVars(jc, generationConfig.getOptions().getProperties(), Constants.PROPERTY_TYPE_PRIVATE);
             }
 
-            addGetters();
+            addGetters(jc);
 
             generateCodeFile();
 
         } catch (JClassAlreadyExistsException | IOException e) {
             LOG.error(e);
+        }
+    }
+
+    private void buildChildImplClass(Property property) {
+        try {
+            JDefinedClass childClass = jc._class(StringUtils.capitalize(property.getField()) + "MultifieldImpl")
+                    ._implements(childJc);
+            JAnnotationUse jau = childClass.annotate(codeModel.ref(Model.class));
+            jau.param("adapters", codeModel.ref(childJc.fullName()));
+            jau.paramArray("adaptables").param(codeModel.ref(Resource.class)).param(codeModel.ref(SlingHttpServletRequest.class));
+            addFieldVars(childClass, property.getItems(), Constants.PROPERTY_TYPE_PRIVATE);
+            addGetters(childClass);
+        } catch (Exception e) {
+            LOG.error("Failed to create child implementation class.", e);
         }
     }
 
@@ -186,10 +228,10 @@ public class JavaCodeModel {
      * @param properties
      * @param propertyType
      */
-    private void addFieldVars(List<Property> properties, final String propertyType) {
+    private void addFieldVars(JDefinedClass jc, List<Property> properties, final String propertyType) {
         properties.stream()
                 .filter(Objects::nonNull)
-                .forEach(property -> addFieldVar(property, propertyType));
+                .forEach(property -> addFieldVar(jc, property, propertyType));
     }
 
     /**
@@ -197,14 +239,14 @@ public class JavaCodeModel {
      *
      * @param property
      */
-    private void addFieldVar(Property property, final String propertyType) {
+    private void addFieldVar(JDefinedClass jc, Property property, final String propertyType) {
         if (property != null && StringUtils.isNotBlank(property.getField())) {
             if (!property.getType().equalsIgnoreCase("multifield")) { // non multifield properties
-                addPropertyAsPrivateField(property, propertyType);
+                addPropertyAsPrivateField(jc, property, propertyType);
             } else if (property.getItems().size() == 1) { // multifield with single property
-                addPropertyAsPrivateField(property, propertyType);
+                addPropertyAsPrivateField(jc, property, propertyType);
             } else if (property.getItems().size() > 1) {
-                addPropertyAndObjectAsPrivateField(property);
+                addPropertyAndObjectAsPrivateField(jc, property);
             }
         }
     }
@@ -215,7 +257,7 @@ public class JavaCodeModel {
      * @param property
      * @param propertyType
      */
-    private void addPropertyAsPrivateField(Property property, final String propertyType) {
+    private void addPropertyAsPrivateField(JDefinedClass jc, Property property, final String propertyType) {
         String fieldType = getFieldType(property);
         if (jc.isClass()) {
             JClass fieldClass = property.getType().equalsIgnoreCase("multifield")
@@ -245,10 +287,10 @@ public class JavaCodeModel {
     /**
      * method that add the fieldname as private and adds a class to jc
      */
-    private void addPropertyAndObjectAsPrivateField(Property property) {
+    private void addPropertyAndObjectAsPrivateField(JDefinedClass jc, Property property) {
         if (jc.isClass()) {
             String fieldType = getFieldType(property);
-            JClass fieldClass = codeModel.ref(fieldType).narrow(codeModel.ref(Resource.class));
+            JClass fieldClass = codeModel.ref(fieldType).narrow(childJc);
             JFieldVar jFieldVar = jc.field(PRIVATE, fieldClass, property.getField());
             jFieldVar.annotate(codeModel.ref(ChildRequest.class))
                     .param(INJECTION_STRATEGY,
@@ -259,12 +301,12 @@ public class JavaCodeModel {
     /**
      * adds getters to all the fields available in the java class.
      */
-    private void addGetters() {
+    private void addGetters(JDefinedClass jc) {
         Map<String, JFieldVar> fieldVars = jc.fields();
         if (fieldVars.size() > 0) {
             for (Map.Entry<String, JFieldVar> entry : fieldVars.entrySet()) {
                 if (entry.getValue() != null) {
-                    addGetter(entry.getValue());
+                    addGetter(jc, entry.getValue());
                 }
             }
         }
@@ -275,7 +317,7 @@ public class JavaCodeModel {
      *
      * @param jFieldVar
      */
-    private void addGetter(JFieldVar jFieldVar) {
+    private void addGetter(JDefinedClass jc, JFieldVar jFieldVar) {
         if (jc.isClass()) {
             JMethod getMethod = jc.method(JMod.PUBLIC, jFieldVar.type(), getMethodFormattedString(jFieldVar.name()));
             getMethod.annotate(codeModel.ref(Override.class));
@@ -321,7 +363,7 @@ public class JavaCodeModel {
      *
      * @param properties
      */
-    private void addGettersWithoutFields(List<Property> properties) {
+    private void addGettersWithoutFields(JDefinedClass jc, List<Property> properties) {
         if (properties != null && !properties.isEmpty()) {
             properties.forEach(property -> jc.method(NONE, getGetterMethodReturnType(property),
                             Constants.STRING_GET + property.getFieldGetterName()));
@@ -347,7 +389,7 @@ public class JavaCodeModel {
             if (property.getItems().size() == 1) {
                 return codeModel.ref(fieldType).narrow(codeModel.ref(getFieldType(property.getItems().get(0))));
             } else {
-                return codeModel.ref(fieldType).narrow(codeModel.ref(Resource.class));
+                return codeModel.ref(fieldType).narrow(childJc);
             }
         } else {
             return codeModel.ref(fieldType);
