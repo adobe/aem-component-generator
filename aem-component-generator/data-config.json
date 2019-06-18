@@ -148,6 +148,7 @@
       {
         "field": "links",
         "type": "multifield",
+        "model-name": "MultiLink",
         "label": "Links",
         "items": [
           {

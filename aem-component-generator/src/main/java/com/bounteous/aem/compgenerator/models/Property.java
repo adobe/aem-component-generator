@@ -49,6 +49,12 @@ public class Property implements BaseModel {
     @JsonProperty(value = "items")
     private List<Property> items;
 
+    @JsonProperty(value = "model-name")
+    private String modelName;
+
+    @JsonProperty(value = "use-existing-model", defaultValue = "false")
+    private boolean useExistingModel;
+
     public String getField() {
         if (StringUtils.isNotBlank(field)) {
             return field;
@@ -118,6 +124,14 @@ public class Property implements BaseModel {
     public void setItems(List<Property> items) {
         this.items = items;
     }
+
+    public String getModelName() { return modelName; }
+
+    public void setModelName(String modelName) { this.modelName = modelName; }
+
+    public boolean getUseExistingModel() { return useExistingModel; }
+
+    public void setUseExistingModel(boolean useExistingModel) { this.useExistingModel = useExistingModel; }
 
     @Override
     public boolean isValid() {
