@@ -75,7 +75,7 @@ public class InterfaceBuilder extends JavaCodeBuilder {
     }
 
     private void buildMultifieldInterface(Property property) {
-        String modelInterfaceName = StringUtils.defaultString(property.getModelName(), CaseUtils.toCamelCase(property.getField(), true) + "Multifield");
+        String modelInterfaceName = JavaCodeModel.getMultifieldInterfaceName(property);
         String childComment = "Defines the {@code "
                 + modelInterfaceName
                 + "} Sling Model used for the multifield in {@code "

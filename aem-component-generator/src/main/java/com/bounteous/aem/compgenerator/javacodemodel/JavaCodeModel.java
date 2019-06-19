@@ -86,8 +86,10 @@ public class JavaCodeModel {
     }
 
     /**
-     * builds your slingModel interface and implementation class with all required
+     * Builds your slingModel interface and implementation class with all required
      * sling annotation, fields and getters based on the <code>generationConfig</code>.
+     *
+     * @param generationConfig the configuration for generating the java code
      */
     public void buildSlingModel(GenerationConfig generationConfig) {
         try {
@@ -102,7 +104,7 @@ public class JavaCodeModel {
     }
 
     /**
-     * builds your slingModel interface with all required annotation,
+     * Builds your slingModel interface with all required annotation,
      * fields and getters based on the <code>generationConfig</code>.
      */
     private void buildInterface() throws JClassAlreadyExistsException {
@@ -111,7 +113,7 @@ public class JavaCodeModel {
     }
 
     /**
-     * builds your slingModel implementation with all required sling annotation,
+     * Builds your slingModel implementation with all required sling annotation,
      * fields and getters based on the <code>generationConfig</code>.
      */
     private void buildImplClass() throws JClassAlreadyExistsException {
@@ -132,9 +134,29 @@ public class JavaCodeModel {
     }
 
     /**
-     * get the java fieldType based on the type input in the generationConfig
+     * Generates the sling model interface name for a multifield type
      *
-     * @param property
+     * @param property the property definition for the multifield type
+     * @return the sling model interface name
+     */
+    public static String getMultifieldInterfaceName(Property property) {
+        return StringUtils.defaultString(property.getModelName(), CaseUtils.toCamelCase(property.getField(), true) + "Multifield");
+    }
+
+    /**
+     * Generates the sling model implementation class name for a multifield type
+     *
+     * @param property the property definition for the multifield type
+     * @return the sling model implementation class name
+     */
+    public static String getMultifieldClassName(Property property) {
+        return getMultifieldInterfaceName(property) + "Impl";
+    }
+
+    /**
+     * Get the java fieldType based on the type input in the generationConfig
+     *
+     * @param property the property definition
      * @return String returns relevant java type of string passed in.
      */
     public static String getFieldType(Property property) {
