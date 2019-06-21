@@ -42,29 +42,27 @@ public class PrologCodeWriter extends FilterCodeWriter {
      *      and will be inserted at the beginning of each line to make it
      *      a valid Java comment.
      */
-    public PrologCodeWriter( CodeWriter core, String prolog ) {
+    public PrologCodeWriter(CodeWriter core, String prolog ) {
         super(core);
         this.prolog = prolog;
     }
 
-
+    @Override
     public Writer openSource(JPackage pkg, String fileName) throws IOException {
         Writer w = super.openSource(pkg,fileName);
 
         PrintWriter out = new PrintWriter(w);
-
         // write prolog if this is a java source file
-        if( prolog != null ) {
+        if (prolog != null) {
 
             String s = prolog;
             int idx;
-            while( (idx=s.indexOf('\n'))!=-1 ) {
-                out.println(s.substring(0,idx) );
-                s = s.substring(idx+1);
+            while ((idx = s.indexOf('\n')) != -1) {
+                out.println(s.substring(0, idx));
+                s = s.substring(idx + 1);
             }
         }
         out.flush();
-
         return w;
     }
 }

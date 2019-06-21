@@ -42,7 +42,7 @@ public class AemCompGenerator {
     public static void main(String[] args) {
         try {
             String configPath = "data-config.json";
-            if (args != null && args.length > 0) {
+            if (args.length > 0) {
                 configPath = args[0];
             }
 
@@ -77,7 +77,7 @@ public class AemCompGenerator {
                 javaCodeModel.buildSlingModel(config);
             }
         } catch (Exception e) {
-            LOG.error(e);
+            LOG.error("Failed to generate aem component.", e);
         }
     }
 }

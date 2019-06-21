@@ -38,6 +38,15 @@ Step 2: Copy the `data-config.json` file from this project to the same folder an
     - Fields are derived from dialog properties (see below)
 - `options.generic-javadoc`: whether to create generic javadoc for the getters in the model interface
 - `options.properties`: properties to create in standard dialog for this component. If empty, no standard dialog will be created. This sample includes one of every possible sling:resourceType
+    - `options.properties[].field`: the property "name" and java variable name.
+    - `options.properties[].javadoc`: the javadoc associated with the property
+    - `options.properties[].type`: the property field type
+    - `options.properties[].label`: the `fieldLabel` associated with the property
+    - `options.properties[].description`: the `fieldDescription` associated with the property
+    - `options.properties[].items`: any child items needed for the specified property type
+    - `options.properties[].attributes`: any additional attributes to be associated with property in `cq:dialog`
+    - `options.properties[].model-name`: **(Multifield type Only)** the name of the sling model class generated for a multifield property
+    - `options.properties[].use-existing-model`: **(Multifield type Only)**  whether or not to generate a new sling model for the multifield property
 - `options.properties-shared`: properties to create in shared dialog for this component. If empty, no shared dialog will be created
 - `options.properties-global`: properties to create in global dialog for this component. If empty, no global dialog will be created
 

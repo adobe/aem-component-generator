@@ -66,7 +66,7 @@ public class ComponentUtils {
 
         //create dialogglobal xml file with user input global properties in json.
         if (generationConfig.getOptions().getGlobalProperties() != null &&
-                generationConfig.getOptions().getGlobalProperties().size() > 0) {
+                !generationConfig.getOptions().getGlobalProperties().isEmpty()) {
             DialogUtils.createDialogXml(generationConfig, Constants.DIALOG_TYPE_GLOBAL);
         }
 
