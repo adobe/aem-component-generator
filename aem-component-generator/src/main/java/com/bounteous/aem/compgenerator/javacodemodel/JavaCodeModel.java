@@ -144,16 +144,6 @@ public class JavaCodeModel {
     }
 
     /**
-     * Generates the sling model implementation class name for a multifield type
-     *
-     * @param property the property definition for the multifield type
-     * @return the sling model implementation class name
-     */
-    public static String getMultifieldClassName(Property property) {
-        return getMultifieldInterfaceName(property) + "Impl";
-    }
-
-    /**
      * Get the java fieldType based on the type input in the generationConfig
      *
      * @param property the property definition

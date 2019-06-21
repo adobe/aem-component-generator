@@ -138,7 +138,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
      * method that add the fieldname as private and adds a class to jc
      */
     private void addPropertyAndObjectAsPrivateField(JDefinedClass jc, Property property) {
-        String modelClassName = JavaCodeModel.getMultifieldClassName(property);
+        String modelClassName = JavaCodeModel.getMultifieldInterfaceName(property);
 
         // Create the multifield item
         if (!property.getUseExistingModel()) {
