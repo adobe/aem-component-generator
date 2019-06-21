@@ -15,6 +15,7 @@
     "css": true,
     "html": true,
     "slingmodel": true,
+    "exporter": true,
     "generic-javadoc": false,
     "properties": [
       {
@@ -52,6 +53,7 @@
         "description": "Context tooltip for authors.",
         "type": "datepicker",
         "label": "Select Date",
+        "json-ignore": true,
         "attributes": {
           "displayedFormat": "MM/DD/YYYY"
         }
@@ -60,6 +62,7 @@
         "field": "selectTest",
         "type": "select",
         "label": "Select Test",
+        "json-property": "selection",
         "attributes": {
           "defaultValue": "opt1",
           "value": "opt1"
