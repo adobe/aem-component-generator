@@ -40,7 +40,7 @@ public class Options implements BaseModel {
     @JsonProperty("slingmodel")
     private boolean hasSlingModel;
 
-    @JsonProperty("exporter")
+    @JsonProperty("content-exporter")
     private boolean allowExporting;
 
     @JsonProperty("properties")

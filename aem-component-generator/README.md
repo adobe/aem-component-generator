@@ -36,7 +36,7 @@ Step 2: Copy the `data-config.json` file from this project to the same folder an
 - `options.slingmodel`: whether to create a sling model for the component
     - Class name is derived from converting "name" prop above to camel case (e.g. "google-maps" -> `GoogleMaps`/`GoogleMapsImpl`)
     - Fields are derived from dialog properties (see below)
-- `options.exporter`: whether to configure sling model for content export
+- `options.content-exporter`: whether to configure sling model for content export
 - `options.generic-javadoc`: whether to create generic javadoc for the getters in the model interface
 - `options.properties`: properties to create in standard dialog for this component. If empty, no standard dialog will be created. This sample includes one of every possible sling:resourceType
     - `options.properties[].field`: the property "name" and java variable name.
