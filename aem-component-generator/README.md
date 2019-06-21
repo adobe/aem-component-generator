@@ -1,4 +1,4 @@
-# AEM Component Generator by Bounteous
+# AEM Component Generator
 
 AEM Component Generator is a java project that enables developers to generate the base structure of an
 AEM component using a JSON configuration file specifying component and dialog properties and other configuration
@@ -24,7 +24,7 @@ Step 1: Clone the project from github.
 Step 2: Update placeholder references in the codebase.
 - Replace the `<CODEOWNER>` placeholder in resource files (`aem-component-generator/src/main/resources`) with
 the name of your company.
-- Update the demo config file (`data-config.json`) to your company defaults, removing references to Bounteous
+- Update the demo config file (`data-config.json`) to your company defaults, removing references to `NewCo`/`newco`
 in the `project-settings` and `group` values.
 
 Step 3: Build the project by running `mvn clean install` from the main project folder.
@@ -83,16 +83,26 @@ $ java -jar scripts/compgen/component-generator-1.0.jar scripts/compgen/data-con
 
 Successful component generation should result in output similar to the following:
 ```
-[17:57:50.427 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/bounteous/components/content/demo-comp/.content.xml
-[17:57:50.441 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/bounteous/components/content/demo-comp/_cq_dialog/.content.xml
-[17:57:50.443 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/bounteous/components/content/demo-comp/dialogglobal/.content.xml
-[17:57:50.446 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/bounteous/components/content/demo-comp/dialogshared/.content.xml
-[17:57:50.447 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/bounteous/components/content/demo-comp/clientlibs/.content.xml
-[17:57:50.453 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/bounteous/components/content/demo-comp/clientlibs/site/css/demo-comp.less
-[17:57:50.454 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/bounteous/components/content/demo-comp/clientlibs/site/js/demo-comp.js
-[17:57:50.456 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/bounteous/components/content/demo-comp/demo-comp.html
+[17:57:50.427 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/newco/components/content/demo-comp/.content.xml
+[17:57:50.441 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/newco/components/content/demo-comp/_cq_dialog/.content.xml
+[17:57:50.443 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/newco/components/content/demo-comp/dialogglobal/.content.xml
+[17:57:50.446 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/newco/components/content/demo-comp/dialogshared/.content.xml
+[17:57:50.447 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/newco/components/content/demo-comp/clientlibs/.content.xml
+[17:57:50.453 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/newco/components/content/demo-comp/clientlibs/site/css/demo-comp.less
+[17:57:50.454 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/newco/components/content/demo-comp/clientlibs/site/js/demo-comp.js
+[17:57:50.456 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/newco/components/content/demo-comp/demo-comp.html
 [17:57:50.456 [INFO ] ComponentUtils @85] - --------------* Component 'demo-comp' successfully generated *--------------
-[17:57:50.476 [INFO ] CommonUtils @93] - Created: core/src/main/java/com/bounteous/aem/base/core/models/DemoComp.java
-[17:57:50.488 [INFO ] CommonUtils @93] - Created: core/src/main/java/com/bounteous/aem/base/core/models/impl/DemoCompImpl.java
+[17:57:50.476 [INFO ] CommonUtils @93] - Created: core/src/main/java/com/newco/aem/base/core/models/DemoComp.java
+[17:57:50.488 [INFO ] CommonUtils @93] - Created: core/src/main/java/com/newco/aem/base/core/models/impl/DemoCompImpl.java
 [17:57:50.488 [INFO ] JavaCodeModel @103] - --------------* Sling Model successfully generated *--------------
 ```
+
+## Contributing
+ 
+Originally developed and contributed by Bounteous.
+
+Contributions are welcomed! Read the [Contributing Guide](.github/CONTRIBUTING.md) for more information.
+ 
+## Licensing
+ 
+This project is licensed under the Apache V2 License. See [LICENSE](LICENSE) for more information.

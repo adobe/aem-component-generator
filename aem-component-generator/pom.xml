@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>bounteous</groupId>
+    <groupId>adobe</groupId>
     <artifactId>component-generator</artifactId>
     <version>1.0</version>
     <build>
@@ -41,7 +41,7 @@
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
-                            <mainClass>com.bounteous.aem.compgenerator.AemCompGenerator</mainClass>
+                            <mainClass>com.adobe.aem.compgenerator.AemCompGenerator</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

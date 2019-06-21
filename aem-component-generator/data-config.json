@@ -2,13 +2,13 @@
   "project-settings" : {
     "bundle-path": "core/src/main/java",
     "apps-path": "ui.apps/src/main/content/jcr_root/apps",
-    "component-path": "bounteous/components",
-    "model-interface-pkg": "com.bounteous.aem.base.core.models",
-    "model-impl-pkg": "com.bounteous.aem.base.core.models.impl"
+    "component-path": "newco/components",
+    "model-interface-pkg": "com.newco.aem.base.core.models",
+    "model-impl-pkg": "com.newco.aem.base.core.models.impl"
   },
   "name": "demo-comp",
   "title": "Demo Component",
-  "group": "Bounteous Base",
+  "group": "NewCo Base",
   "type": "content",
   "options": {
     "js": true,
