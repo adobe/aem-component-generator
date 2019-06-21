@@ -2,13 +2,13 @@
   "project-settings" : {
     "bundle-path": "core/src/main/java",
     "apps-path": "ui.apps/src/main/content/jcr_root/apps",
-    "component-path": "hs2-aem-base/components",
-    "model-interface-pkg": "com.hs2solutions.aem.base.core.models",
-    "model-impl-pkg": "com.hs2solutions.aem.base.core.models.impl"
+    "component-path": "bounteous/components",
+    "model-interface-pkg": "com.bounteous.aem.base.core.models",
+    "model-impl-pkg": "com.bounteous.aem.base.core.models.impl"
   },
   "name": "demo-comp",
   "title": "Demo Component",
-  "group": "HS2 Base",
+  "group": "Bounteous Base",
   "type": "content",
   "options": {
     "js": true,

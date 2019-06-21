@@ -32,7 +32,7 @@ public class Constants {
     public static String RESOURCE_TYPE_RADIOGROUP = "granite/ui/components/coral/foundation/form/radiogroup";
     public static String RESOURCE_TYPE_RADIO = "granite/ui/components/coral/foundation/form/radio";
     public static String RESOURCE_TYPE_IMAGE = "cq/gui/components/authoring/dialog/fileupload";
-    public static String RESOURCE_TYPE_IMAGE_HIDDEN_TYPE = "hs2-aem-base/components/content/image";
+    public static String RESOURCE_TYPE_IMAGE_HIDDEN_TYPE = "core/wcm/components/image/v2/image";
     public static String RESOURCE_TYPE_MULTIFIELD = "granite/ui/components/coral/foundation/form/multifield";
     public static String RESOURCE_TYPE_DIALOG = "cq/gui/components/authoring/dialog";
     public static String RESOURCE_TYPE_CONTAINER = "granite/ui/components/foundation/container";

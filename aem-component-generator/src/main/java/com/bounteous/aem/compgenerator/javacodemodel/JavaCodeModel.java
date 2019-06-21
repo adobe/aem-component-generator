@@ -19,13 +19,13 @@
  */
 package com.bounteous.aem.compgenerator.javacodemodel;
 
+import com.adobe.acs.commons.models.injectors.annotation.ChildResourceFromRequest;
 import com.adobe.acs.commons.models.injectors.annotation.SharedValueMapValue;
 import com.bounteous.aem.compgenerator.Constants;
 import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.models.Property;
 import com.bounteous.aem.compgenerator.utils.CommonUtils;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
-import com.hs2solutions.aem.base.core.models.annotations.injectorspecific.ChildRequest;
 import com.sun.codemodel.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
@@ -165,7 +165,7 @@ public class JavaCodeModel {
         } else if (type.equalsIgnoreCase("datepicker")) {
             return "java.util.Calendar";
         } else if (type.equalsIgnoreCase("image")) {
-            return "com.hs2solutions.aem.base.core.models.HS2Image";
+            return "com.adobe.cq.wcm.core.components.models.Image";
         } else if (type.equalsIgnoreCase("multifield")) {
             return "java.util.List";
         }

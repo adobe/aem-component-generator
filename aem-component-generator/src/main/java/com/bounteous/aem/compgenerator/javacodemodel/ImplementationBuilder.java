@@ -1,14 +1,20 @@
 package com.bounteous.aem.compgenerator.javacodemodel;
 
+import com.adobe.acs.commons.models.injectors.annotation.ChildResourceFromRequest;
 import com.adobe.acs.commons.models.injectors.annotation.SharedValueMapValue;
 import com.bounteous.aem.compgenerator.Constants;
 import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.models.Property;
-import com.bounteous.aem.compgenerator.utils.CommonUtils;
-import com.hs2solutions.aem.base.core.models.annotations.injectorspecific.ChildRequest;
-import com.sun.codemodel.*;
+import com.sun.codemodel.JAnnotationUse;
+import com.sun.codemodel.JClass;
+import com.sun.codemodel.JClassAlreadyExistsException;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JFieldVar;
+import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JMod;
+import com.sun.codemodel.JPackage;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.CaseUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -21,9 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.sun.codemodel.JMod.NONE;
-import static com.sun.codemodel.JMod.PRIVATE;
 import static com.bounteous.aem.compgenerator.javacodemodel.JavaCodeModel.getFieldType;
+import static com.sun.codemodel.JMod.PRIVATE;
 
 public class ImplementationBuilder extends JavaCodeBuilder {
     private static final Logger LOG = LogManager.getLogger(ImplementationBuilder.class);
@@ -118,7 +123,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
         JFieldVar jFieldVar = jc.field(PRIVATE, fieldClass, property.getField());
 
         if (StringUtils.equalsIgnoreCase(property.getType(), "image")) {
-            jFieldVar.annotate(codeModel.ref(ChildRequest.class))
+            jFieldVar.annotate(codeModel.ref(ChildResourceFromRequest.class))
                     .param(INJECTION_STRATEGY,
                             codeModel.ref(InjectionStrategy.class).staticRef(OPTIONAL_INJECTION_STRATEGY));
 
@@ -149,7 +154,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
         JClass narrowedClass = codeModel.ref(generationConfig.getProjectSettings().getModelInterfacePackage() + "." + modelClassName);
         JClass fieldClass = codeModel.ref(fieldType).narrow(narrowedClass);
         JFieldVar jFieldVar = jc.field(PRIVATE, fieldClass, property.getField());
-        jFieldVar.annotate(codeModel.ref(ChildRequest.class))
+        jFieldVar.annotate(codeModel.ref(ChildResourceFromRequest.class))
                 .param(INJECTION_STRATEGY,
                         codeModel.ref(InjectionStrategy.class).staticRef(OPTIONAL_INJECTION_STRATEGY));
     }
