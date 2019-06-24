@@ -24,7 +24,7 @@ Step 2: Copy the `data-config.json` file from this project to the same folder an
 - `project-settings.bundle-path`: path to the code bundle's root of Java packages
 - `project-settings.apps-path`: path to the apps root
 - `project-settings.component-path`: path to the project's components directory
-- `project-settings.model-adaptables`: array of adaptables to include in the Sling Model (use the class's name as the values)
+- `project-settings.model-adaptables`: array of adaptables to include in the Sling Model ('request' and/or 'resource')
 - `project-settings.model-interface-pkg`: Java package for the interface model objects
 - `project-settings.model-impl-pkg`: Java package for the implementation model objects
 - `name`: folder name for the component

@@ -75,10 +75,10 @@ public class ImplementationBuilder extends JavaCodeBuilder {
         JAnnotationUse jAUse = jDefinedClass.annotate(codeModel.ref(Model.class));
         JAnnotationArrayMember adaptablesArray = jAUse.paramArray("adaptables");
         for (String adaptable : adaptables) {
-            if ("Resource".equals(adaptable)) {
+            if ("resource".equalsIgnoreCase(adaptable)) {
                 adaptablesArray.param(codeModel.ref(Resource.class));
             }
-            if ("SlingHttpServletRequest".equals(adaptable)) {
+            if ("request".equalsIgnoreCase(adaptable)) {
                 adaptablesArray.param(codeModel.ref(SlingHttpServletRequest.class));
             }
         }
