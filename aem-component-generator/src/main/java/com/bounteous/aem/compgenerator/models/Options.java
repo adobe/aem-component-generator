@@ -40,6 +40,9 @@ public class Options implements BaseModel {
     @JsonProperty("slingmodel")
     private boolean hasSlingModel;
 
+    @JsonProperty("content-exporter")
+    private boolean allowExporting;
+
     @JsonProperty("properties")
     private List<Property> properties;
 
@@ -87,6 +90,14 @@ public class Options implements BaseModel {
 
     public void setHasSlingModel(boolean hasSlingModel) {
         this.hasSlingModel = hasSlingModel;
+    }
+
+    public boolean isAllowExporting() {
+        return this.allowExporting;
+    }
+
+    public void setAllowExporting(boolean allowExporting) {
+        this.allowExporting = allowExporting;
     }
 
     public List<Property> getProperties() {

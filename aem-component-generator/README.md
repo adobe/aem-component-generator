@@ -36,6 +36,7 @@ Step 2: Copy the `data-config.json` file from this project to the same folder an
 - `options.slingmodel`: whether to create a sling model for the component
     - Class name is derived from converting "name" prop above to camel case (e.g. "google-maps" -> `GoogleMaps`/`GoogleMapsImpl`)
     - Fields are derived from dialog properties (see below)
+- `options.content-exporter`: whether to configure sling model for content export
 - `options.generic-javadoc`: whether to create generic javadoc for the getters in the model interface
 - `options.properties`: properties to create in standard dialog for this component. If empty, no standard dialog will be created. This sample includes one of every possible sling:resourceType
     - `options.properties[].field`: the property "name" and java variable name.
@@ -47,6 +48,8 @@ Step 2: Copy the `data-config.json` file from this project to the same folder an
     - `options.properties[].attributes`: any additional attributes to be associated with property in `cq:dialog`
     - `options.properties[].model-name`: **(Multifield type Only)** the name of the sling model class generated for a multifield property
     - `options.properties[].use-existing-model`: **(Multifield type Only)**  whether or not to generate a new sling model for the multifield property
+    - `options.properties[].json-ignore`: whether to ignore the property when content export is configured
+    - `options.properties[].json-property`: the json key for the property to be used when content export is configured
 - `options.properties-shared`: properties to create in shared dialog for this component. If empty, no shared dialog will be created
 - `options.properties-global`: properties to create in global dialog for this component. If empty, no global dialog will be created
 
