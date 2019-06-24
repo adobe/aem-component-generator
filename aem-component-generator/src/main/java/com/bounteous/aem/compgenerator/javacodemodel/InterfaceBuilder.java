@@ -22,7 +22,6 @@ import static com.bounteous.aem.compgenerator.javacodemodel.JavaCodeModel.getFie
  * <p>
  * Manages generating the necessary details to create the sling model interface.
  * </p>
- * {@author Aditya Vennelakanti}
  */
 public class InterfaceBuilder extends JavaCodeBuilder {
     private static final Logger LOG = LogManager.getLogger(InterfaceBuilder.class);
@@ -69,7 +68,7 @@ public class InterfaceBuilder extends JavaCodeBuilder {
                     .forEach(property -> {
                         JMethod method = jc.method(NONE, getGetterMethodReturnType(property), Constants.STRING_GET + property.getFieldGetterName());
                         addJavadocToMethod(method, property);
-                        if (property.isShouldExporterIgnore()) {
+                        if (!property.isShouldExporterExpose()) {
                             method.annotate(codeModel.ref(JsonIgnore.class));
                         }
                         if (property.getType().equalsIgnoreCase("multifield")

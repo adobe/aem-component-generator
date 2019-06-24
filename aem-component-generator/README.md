@@ -24,6 +24,7 @@ Step 2: Copy the `data-config.json` file from this project to the same folder an
 - `project-settings.bundle-path`: path to the code bundle's root of Java packages
 - `project-settings.apps-path`: path to the apps root
 - `project-settings.component-path`: path to the project's components directory
+- `project-settings.model-adaptables`: array of adaptables to include in the Sling Model (use the class's name as the values)
 - `project-settings.model-interface-pkg`: Java package for the interface model objects
 - `project-settings.model-impl-pkg`: Java package for the implementation model objects
 - `name`: folder name for the component
@@ -48,7 +49,7 @@ Step 2: Copy the `data-config.json` file from this project to the same folder an
     - `options.properties[].attributes`: any additional attributes to be associated with property in `cq:dialog`
     - `options.properties[].model-name`: **(Multifield type Only)** the name of the sling model class generated for a multifield property
     - `options.properties[].use-existing-model`: **(Multifield type Only)**  whether or not to generate a new sling model for the multifield property
-    - `options.properties[].json-ignore`: whether to ignore the property when content export is configured
+    - `options.properties[].json-expose`: by default, the content exporter will ignore all properties unless `json-expose` is set to `true`
     - `options.properties[].json-property`: the json key for the property to be used when content export is configured
 - `options.properties-shared`: properties to create in shared dialog for this component. If empty, no shared dialog will be created
 - `options.properties-global`: properties to create in global dialog for this component. If empty, no global dialog will be created

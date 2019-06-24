@@ -38,6 +38,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
     private final String className;
     private final JClass interfaceClass;
     private final JPackage implPackage;
+    private final String[] adaptables;
 
     /**
      * Construct a new Sling Model implementation class.
@@ -55,6 +56,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
         this.className = className;
         this.interfaceClass = interfaceClass;
         this.implPackage = codeModel._package(generationConfig.getProjectSettings().getModelImplPackage());
+        this.adaptables = generationConfig.getProjectSettings().getModelAdaptables();
     }
 
     public void build(String resourceType) throws JClassAlreadyExistsException {
@@ -71,9 +73,15 @@ public class ImplementationBuilder extends JavaCodeBuilder {
 
     private void addSlingAnnotations(JDefinedClass jDefinedClass, JClass adapterClass, String resourceType) {
         JAnnotationUse jAUse = jDefinedClass.annotate(codeModel.ref(Model.class));
-        jAUse.paramArray("adaptables")
-                .param(codeModel.ref(Resource.class))
-                .param(codeModel.ref(SlingHttpServletRequest.class));
+        JAnnotationArrayMember adaptablesArray = jAUse.paramArray("adaptables");
+        for (String adaptable : adaptables) {
+            if ("Resource".equals(adaptable)) {
+                adaptablesArray.param(codeModel.ref(Resource.class));
+            }
+            if ("SlingHttpServletRequest".equals(adaptable)) {
+                adaptablesArray.param(codeModel.ref(SlingHttpServletRequest.class));
+            }
+        }
         if (generationConfig.getOptions().isAllowExporting()) {
             jAUse.paramArray("adapters").param(adapterClass).param(codeModel.ref(ComponentExporter.class));
         } else {
@@ -235,7 +243,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
             if (StringUtils.isNotBlank(property.getJsonProperty())) {
                 jFieldVar.annotate(codeModel.ref(JsonProperty.class)).param("value", property.getJsonProperty());
             }
-            if (property.isShouldExporterIgnore()) {
+            if (!property.isShouldExporterExpose()) {
                 jFieldVar.annotate(codeModel.ref(JsonIgnore.class));
             }
         }
