@@ -6,13 +6,11 @@ import com.adobe.cq.export.json.ExporterConstants;
 import com.bounteous.aem.compgenerator.Constants;
 import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.models.Property;
-import com.bounteous.aem.compgenerator.utils.CommonUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hs2solutions.aem.base.core.models.annotations.injectorspecific.ChildRequest;
 import com.sun.codemodel.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.CaseUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -20,16 +18,13 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
-import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 
 import javax.inject.Inject;
-import java.beans.Expression;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.sun.codemodel.JMod.NONE;
 import static com.sun.codemodel.JMod.PRIVATE;
 import static com.bounteous.aem.compgenerator.javacodemodel.JavaCodeModel.getFieldType;
 
