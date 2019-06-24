@@ -92,9 +92,13 @@ public class Options implements BaseModel {
         this.hasSlingModel = hasSlingModel;
     }
 
-    public boolean isAllowExporting() { return this.allowExporting; }
+    public boolean isAllowExporting() {
+        return this.allowExporting;
+    }
 
-    public void setAllowExporting(boolean allowExporting) {  this.allowExporting = allowExporting; }
+    public void setAllowExporting(boolean allowExporting) {
+        this.allowExporting = allowExporting;
+    }
 
     public List<Property> getProperties() {
         return properties;
