@@ -19,10 +19,12 @@
  */
 package com.adobe.aem.compgenerator.javacodemodel;
 
+import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.utils.CommonUtils;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.adobe.aem.compgenerator.models.Property;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.codemodel.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
@@ -37,7 +39,7 @@ import static com.adobe.aem.compgenerator.javacodemodel.JavaCodeModel.getFieldTy
 
 /**
  * <p>
- *     Manages generating the necessary details to create the sling model interface.
+ * Manages generating the necessary details to create the sling model interface.
  * </p>
  * {@author Aditya Vennelakanti}
  */
@@ -48,9 +50,10 @@ public class InterfaceBuilder extends JavaCodeBuilder {
 
     /**
      * Construct a interface class builder
-     * @param codeModel The {@link JCodeModel codeModel}
+     *
+     * @param codeModel        The {@link JCodeModel codeModel}
      * @param generationConfig The {@link GenerationConfig generationConfig}
-     * @param interfaceName The name of the interface
+     * @param interfaceName    The name of the interface
      */
     public InterfaceBuilder(JCodeModel codeModel, GenerationConfig generationConfig, String interfaceName) {
         super(codeModel, generationConfig);
@@ -85,6 +88,9 @@ public class InterfaceBuilder extends JavaCodeBuilder {
                     .forEach(property -> {
                         JMethod method = jc.method(NONE, getGetterMethodReturnType(property), Constants.STRING_GET + property.getFieldGetterName());
                         addJavadocToMethod(method, property);
+                        if (property.isShouldExporterIgnore()) {
+                            method.annotate(codeModel.ref(JsonIgnore.class));
+                        }
                         if (property.getType().equalsIgnoreCase("multifield")
                                 && property.getItems().size() > 1) {
                             buildMultifieldInterface(property);
@@ -113,6 +119,10 @@ public class InterfaceBuilder extends JavaCodeBuilder {
             JDefinedClass interfaceClass = jPackage._interface(interfaceName);
             interfaceClass.javadoc().append(comment);
             interfaceClass.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
+
+            if (generationConfig.getOptions().isAllowExporting()) {
+                interfaceClass._extends(codeModel.ref(ComponentExporter.class));
+            }
             if (propertiesLists != null) {
                 for (List<Property> properties : propertiesLists) {
                     addGettersWithoutFields(interfaceClass, properties);
