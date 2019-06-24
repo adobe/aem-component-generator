@@ -19,6 +19,10 @@ Generated code includes:
 
 ## How To Use
 
+To see the AEM Component Generator in action,
+[watch this video](https://s3.amazonaws.com/HS2Presentations/AEMPublic/2019-Adobe-AEM-Component-Code-Generator-Demo-Bounteous.mp4).
+Detailed steps for using the generator are found below. 
+
 Step 1: Clone the project from github.
 
 Step 2: Update placeholder references in the codebase.
