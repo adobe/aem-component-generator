@@ -24,7 +24,6 @@ Step 2: Copy the `data-config.json` file from this project to the same folder an
 - `project-settings.bundle-path`: path to the code bundle's root of Java packages
 - `project-settings.apps-path`: path to the apps root
 - `project-settings.component-path`: path to the project's components directory
-- `project-settings.model-adaptables`: array of adaptables to include in the Sling Model ('request' and/or 'resource')
 - `project-settings.model-interface-pkg`: Java package for the interface model objects
 - `project-settings.model-impl-pkg`: Java package for the implementation model objects
 - `name`: folder name for the component
@@ -38,6 +37,7 @@ Step 2: Copy the `data-config.json` file from this project to the same folder an
     - Class name is derived from converting "name" prop above to camel case (e.g. "google-maps" -> `GoogleMaps`/`GoogleMapsImpl`)
     - Fields are derived from dialog properties (see below)
 - `options.content-exporter`: whether to configure sling model for content export
+- `options.model-adaptables`: array of adaptables to include in the Sling Model ('request' and/or 'resource')
 - `options.generic-javadoc`: whether to create generic javadoc for the getters in the model interface
 - `options.properties`: properties to create in standard dialog for this component. If empty, no standard dialog will be created. This sample includes one of every possible sling:resourceType
     - `options.properties[].field`: the property "name" and java variable name.

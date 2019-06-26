@@ -3,7 +3,6 @@
         "bundle-path": "core/src/main/java",
         "apps-path": "ui.apps/src/main/content/jcr_root/apps",
         "component-path": "hs2-aem-base/components",
-        "model-adaptables": ["request", "resource"],
         "model-interface-pkg": "com.hs2solutions.aem.base.core.models",
         "model-impl-pkg": "com.hs2solutions.aem.base.core.models.impl"
     },
@@ -17,6 +16,7 @@
         "html": true,
         "slingmodel": true,
         "content-exporter": true,
+        "model-adaptables": ["request", "resource"],
         "generic-javadoc": false,
         "properties": [
             {

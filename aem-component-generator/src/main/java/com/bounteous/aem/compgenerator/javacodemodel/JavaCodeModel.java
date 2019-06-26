@@ -19,37 +19,24 @@
  */
 package com.bounteous.aem.compgenerator.javacodemodel;
 
-import com.adobe.acs.commons.models.injectors.annotation.SharedValueMapValue;
 import com.bounteous.aem.compgenerator.Constants;
 import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.models.Property;
 import com.bounteous.aem.compgenerator.utils.CommonUtils;
-import com.fasterxml.jackson.databind.cfg.ContextAttributes;
-import com.hs2solutions.aem.base.core.models.annotations.injectorspecific.ChildRequest;
-import com.sun.codemodel.*;
+import com.sun.codemodel.CodeWriter;
+import com.sun.codemodel.JClassAlreadyExistsException;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.Resource;
-import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
-import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.bounteous.aem.compgenerator.utils.CommonUtils.getResourceContentAsString;
-import static com.sun.codemodel.JMod.NONE;
-import static com.sun.codemodel.JMod.PRIVATE;
 
 
 /**

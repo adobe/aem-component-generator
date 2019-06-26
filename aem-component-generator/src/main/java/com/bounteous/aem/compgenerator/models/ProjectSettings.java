@@ -24,9 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 
 public class ProjectSettings implements BaseModel {
 
-    @JsonProperty("model-adaptables")
-    private String[] modelAdaptables;
-
     @JsonProperty("model-interface-pkg")
     private String modelInterfacePackage;
 
@@ -41,14 +38,6 @@ public class ProjectSettings implements BaseModel {
 
     @JsonProperty("apps-path")
     private String appsPath;
-
-    public String[] getModelAdaptables() {
-        return modelAdaptables;
-    }
-
-    public void setModelAdaptables(final String[] modelAdaptables) {
-        this.modelAdaptables = modelAdaptables;
-    }
 
     public String getModelInterfacePackage() {
         return modelInterfacePackage;

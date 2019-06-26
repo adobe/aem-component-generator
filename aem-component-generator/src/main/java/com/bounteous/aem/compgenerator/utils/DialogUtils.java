@@ -24,8 +24,6 @@ import com.bounteous.aem.compgenerator.exceptions.GeneratorException;
 import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.models.Property;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -35,7 +33,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class DialogUtils {
-    private static final Logger LOG = LogManager.getLogger(DialogUtils.class);
 
     /**
      * creates dialog xml by adding the properties in data-config json file.

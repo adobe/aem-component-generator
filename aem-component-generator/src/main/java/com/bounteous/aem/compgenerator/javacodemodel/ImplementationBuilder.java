@@ -9,7 +9,16 @@ import com.bounteous.aem.compgenerator.models.Property;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hs2solutions.aem.base.core.models.annotations.injectorspecific.ChildRequest;
-import com.sun.codemodel.*;
+import com.sun.codemodel.JAnnotationArrayMember;
+import com.sun.codemodel.JAnnotationUse;
+import com.sun.codemodel.JClass;
+import com.sun.codemodel.JClassAlreadyExistsException;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JFieldVar;
+import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JMod;
+import com.sun.codemodel.JPackage;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,7 +65,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
         this.className = className;
         this.interfaceClass = interfaceClass;
         this.implPackage = codeModel._package(generationConfig.getProjectSettings().getModelImplPackage());
-        this.adaptables = generationConfig.getProjectSettings().getModelAdaptables();
+        this.adaptables = generationConfig.getOptions().getModelAdaptables();
     }
 
     public void build(String resourceType) throws JClassAlreadyExistsException {
