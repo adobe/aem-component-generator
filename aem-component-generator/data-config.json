@@ -185,14 +185,16 @@
             {
                 "field": "sharedTextfieldTest",
                 "type": "textfield",
-                "label": "Shared Textfield Test"
+                "label": "Shared Textfield Test",
+                "json-expose": true
             }
         ],
         "properties-global": [
             {
                 "field": "globalTextfieldTest",
                 "type": "textfield",
-                "label": "Global Textfield Test"
+                "label": "Global Textfield Test",
+                "json-expose": true
             }
         ]
     }
