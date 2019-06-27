@@ -15,7 +15,7 @@
         "css": true,
         "html": true,
         "slingmodel": true,
-        "content-exporter": true,
+        "content-exporter": false,
         "model-adaptables": ["request", "resource"],
         "generic-javadoc": false,
         "properties": [
@@ -57,6 +57,7 @@
                 "field": "dateTest",
                 "description": "Context tooltip for authors.",
                 "type": "datepicker",
+                "json-expose": true,
                 "label": "Select Date",
                 "attributes": {
                     "displayedFormat": "MM/DD/YYYY"

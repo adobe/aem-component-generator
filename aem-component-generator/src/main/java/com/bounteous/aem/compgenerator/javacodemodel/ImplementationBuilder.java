@@ -19,6 +19,7 @@ import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JPackage;
+import java.util.HashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,6 +49,9 @@ public class ImplementationBuilder extends JavaCodeBuilder {
     private final JClass interfaceClass;
     private final JPackage implPackage;
     private final String[] adaptables;
+    private final boolean isAllowExporting;
+
+    private Map<String, Boolean> fieldJsonExposeMap = new HashMap<>();
 
     /**
      * Construct a new Sling Model implementation class.
@@ -66,6 +70,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
         this.interfaceClass = interfaceClass;
         this.implPackage = codeModel._package(generationConfig.getProjectSettings().getModelImplPackage());
         this.adaptables = generationConfig.getOptions().getModelAdaptables();
+        this.isAllowExporting = generationConfig.getOptions().isAllowExporting();
     }
 
     public void build(String resourceType) throws JClassAlreadyExistsException {
@@ -91,7 +96,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
                 adaptablesArray.param(codeModel.ref(SlingHttpServletRequest.class));
             }
         }
-        if (generationConfig.getOptions().isAllowExporting()) {
+        if (this.isAllowExporting) {
             jAUse.paramArray("adapters").param(adapterClass).param(codeModel.ref(ComponentExporter.class));
         } else {
             jAUse.param("adapters", adapterClass);
@@ -99,7 +104,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
         if (StringUtils.isNotBlank(resourceType)) {
             jAUse.param("resourceType", resourceType);
         }
-        if (generationConfig.getOptions().isAllowExporting()) {
+        if (this.isAllowExporting) {
             jAUse = jDefinedClass.annotate(codeModel.ref(Exporter.class));
             jAUse.param("name", codeModel.ref(ExporterConstants.class).staticRef(SLING_MODEL_EXPORTER_NAME));
             jAUse.param("extensions", codeModel.ref(ExporterConstants.class).staticRef(SLING_MODEL_EXTENSION));
@@ -213,11 +218,9 @@ public class ImplementationBuilder extends JavaCodeBuilder {
     private void addGetter(JDefinedClass jc, JFieldVar jFieldVar) {
         JMethod getMethod = jc.method(JMod.PUBLIC, jFieldVar.type(), getMethodFormattedString(jFieldVar.name()));
         getMethod.annotate(codeModel.ref(Override.class));
-        jFieldVar.annotations().forEach(a -> {
-            if (a.getAnnotationClass().fullName().equals(JsonIgnore.class.getName())) {
-                getMethod.annotate(codeModel.ref(JsonIgnore.class));
-            }
-        });
+        if (this.isAllowExporting && !this.fieldJsonExposeMap.get(jFieldVar.name())) {
+            getMethod.annotate(codeModel.ref(JsonIgnore.class));
+        }
         getMethod.body()._return(jFieldVar);
     }
 
@@ -248,18 +251,18 @@ public class ImplementationBuilder extends JavaCodeBuilder {
     }
 
     private void annotatedFieldForComponentExport(JFieldVar jFieldVar, Property property) {
-        if (generationConfig.getOptions().isAllowExporting()) {
+        boolean isFieldJsonExpose = false;
+        if (this.isAllowExporting) {
             if (StringUtils.isNotBlank(property.getJsonProperty())) {
                 jFieldVar.annotate(codeModel.ref(JsonProperty.class)).param("value", property.getJsonProperty());
             }
-            if (!property.isShouldExporterExpose()) {
-                jFieldVar.annotate(codeModel.ref(JsonIgnore.class));
-            }
+            isFieldJsonExpose = property.isShouldExporterExpose();
         }
+        this.fieldJsonExposeMap.put(jFieldVar.name(), isFieldJsonExpose);
     }
 
     private void addExportedTypeMethod(JDefinedClass jc) {
-        if (generationConfig.getOptions().isAllowExporting()) {
+        if (this.isAllowExporting) {
             JFieldVar jFieldVar = jc.field(PRIVATE, codeModel.ref(Resource.class), "resource");
             jFieldVar.annotate(codeModel.ref(Inject.class));
             JMethod method = jc.method(JMod.PUBLIC, codeModel.ref(String.class), "getExportedType");
