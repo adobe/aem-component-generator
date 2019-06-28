@@ -32,6 +32,7 @@ import static com.bounteous.aem.compgenerator.javacodemodel.JavaCodeModel.getFie
 public class InterfaceBuilder extends JavaCodeBuilder {
     private static final Logger LOG = LogManager.getLogger(InterfaceBuilder.class);
 
+    private final boolean isAllowExporting;
     private String interfaceClassName;
 
     /**
@@ -44,6 +45,7 @@ public class InterfaceBuilder extends JavaCodeBuilder {
     public InterfaceBuilder(JCodeModel codeModel, GenerationConfig generationConfig, String interfaceName) {
         super(codeModel, generationConfig);
         this.interfaceClassName = interfaceName;
+        this.isAllowExporting = generationConfig.getOptions().isAllowExporting();
     }
 
     /**
@@ -74,7 +76,7 @@ public class InterfaceBuilder extends JavaCodeBuilder {
                     .forEach(property -> {
                         JMethod method = jc.method(NONE, getGetterMethodReturnType(property), Constants.STRING_GET + property.getFieldGetterName());
                         addJavadocToMethod(method, property);
-                        if (!property.isShouldExporterExpose()) {
+                        if (this.isAllowExporting && !property.isShouldExporterExpose()) {
                             method.annotate(codeModel.ref(JsonIgnore.class));
                         }
                         if (property.getType().equalsIgnoreCase("multifield")
@@ -106,7 +108,7 @@ public class InterfaceBuilder extends JavaCodeBuilder {
             interfaceClass.javadoc().append(comment);
             interfaceClass.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
 
-            if (generationConfig.getOptions().isAllowExporting()) {
+            if (this.isAllowExporting) {
                 interfaceClass._extends(codeModel.ref(ComponentExporter.class));
             }
             if (propertiesLists != null) {
