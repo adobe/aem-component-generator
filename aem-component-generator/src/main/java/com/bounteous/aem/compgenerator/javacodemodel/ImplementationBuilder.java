@@ -19,7 +19,6 @@ import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JPackage;
-import java.util.HashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,15 +27,16 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 
-import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.sun.codemodel.JMod.PRIVATE;
 import static com.bounteous.aem.compgenerator.javacodemodel.JavaCodeModel.getFieldType;
+import static com.sun.codemodel.JMod.PRIVATE;
 
 public class ImplementationBuilder extends JavaCodeBuilder {
     private static final Logger LOG = LogManager.getLogger(ImplementationBuilder.class);
@@ -264,7 +264,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
     private void addExportedTypeMethod(JDefinedClass jc) {
         if (this.isAllowExporting) {
             JFieldVar jFieldVar = jc.field(PRIVATE, codeModel.ref(Resource.class), "resource");
-            jFieldVar.annotate(codeModel.ref(Inject.class));
+            jFieldVar.annotate(codeModel.ref(SlingObject.class));
             JMethod method = jc.method(JMod.PUBLIC, codeModel.ref(String.class), "getExportedType");
             method.annotate(codeModel.ref(Override.class));
             method.body()._return(jFieldVar.invoke("getResourceType"));
