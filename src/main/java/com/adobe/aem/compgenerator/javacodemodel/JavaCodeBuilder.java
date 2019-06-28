@@ -22,16 +22,16 @@ package com.adobe.aem.compgenerator.javacodemodel;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.adobe.aem.compgenerator.models.Property;
 import com.sun.codemodel.JCodeModel;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
 import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 public abstract class JavaCodeBuilder {
-    private static final Logger LOG = LogManager.getLogger(JavaCodeBuilder.class);
 
     protected final JCodeModel codeModel;
     protected final GenerationConfig generationConfig;

@@ -21,9 +21,12 @@ package com.adobe.aem.compgenerator.javacodemodel;
 
 import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
-import com.adobe.aem.compgenerator.utils.CommonUtils;
 import com.adobe.aem.compgenerator.models.Property;
-import com.sun.codemodel.*;
+import com.adobe.aem.compgenerator.utils.CommonUtils;
+import com.sun.codemodel.CodeWriter;
+import com.sun.codemodel.JClassAlreadyExistsException;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
 import org.apache.logging.log4j.LogManager;
@@ -32,7 +35,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
 
 /**
  * Root of the code.
