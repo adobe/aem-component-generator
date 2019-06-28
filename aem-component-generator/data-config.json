@@ -170,13 +170,15 @@
                         "field": "path",
                         "type": "pathfield",
                         "label": "Path",
-                        "description": "Path to the page"
+                        "description": "Path to the page",
+                        "json-expose": true
                     },
                     {
                         "field": "label",
                         "type": "textfield",
                         "label": "Label",
-                        "description": "Label to display on the link"
+                        "description": "Label to display on the link",
+                        "json-expose": true
                     }
                 ]
             }
