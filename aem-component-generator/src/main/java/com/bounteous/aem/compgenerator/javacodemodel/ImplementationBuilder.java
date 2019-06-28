@@ -52,6 +52,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
     private final boolean isAllowExporting;
 
     private Map<String, Boolean> fieldJsonExposeMap = new HashMap<>();
+    private Map<String, String> fieldJsonPropertyMap = new HashMap<>();
 
     /**
      * Construct a new Sling Model implementation class.
@@ -168,7 +169,8 @@ public class ImplementationBuilder extends JavaCodeBuilder {
                     .param(INJECTION_STRATEGY,
                             codeModel.ref(InjectionStrategy.class).staticRef(OPTIONAL_INJECTION_STRATEGY));
         }
-        annotatedFieldForComponentExport(jFieldVar, property);
+
+        setupFieldGetterAnnotations(jFieldVar, property);
     }
 
     /**
@@ -190,7 +192,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
                 .param(INJECTION_STRATEGY,
                         codeModel.ref(InjectionStrategy.class).staticRef(OPTIONAL_INJECTION_STRATEGY));
 
-        annotatedFieldForComponentExport(jFieldVar, property);
+        setupFieldGetterAnnotations(jFieldVar, property);
     }
 
     /**
@@ -218,9 +220,18 @@ public class ImplementationBuilder extends JavaCodeBuilder {
     private void addGetter(JDefinedClass jc, JFieldVar jFieldVar) {
         JMethod getMethod = jc.method(JMod.PUBLIC, jFieldVar.type(), getMethodFormattedString(jFieldVar.name()));
         getMethod.annotate(codeModel.ref(Override.class));
-        if (this.isAllowExporting && !this.fieldJsonExposeMap.get(jFieldVar.name())) {
-            getMethod.annotate(codeModel.ref(JsonIgnore.class));
+
+        if (this.isAllowExporting) {
+            if (!this.fieldJsonExposeMap.get(jFieldVar.name())) {
+                getMethod.annotate(codeModel.ref(JsonIgnore.class));
+            }
+
+            if (StringUtils.isNotBlank(this.fieldJsonPropertyMap.get(jFieldVar.name()))) {
+                getMethod.annotate(codeModel.ref(JsonProperty.class))
+                        .param("value", this.fieldJsonPropertyMap.get(jFieldVar.name()));
+            }
         }
+
         getMethod.body()._return(jFieldVar);
     }
 
@@ -250,15 +261,17 @@ public class ImplementationBuilder extends JavaCodeBuilder {
         }
     }
 
-    private void annotatedFieldForComponentExport(JFieldVar jFieldVar, Property property) {
+    private void setupFieldGetterAnnotations(JFieldVar jFieldVar, Property property) {
         boolean isFieldJsonExpose = false;
+        String fieldJsonPropertyValue = "";
+
         if (this.isAllowExporting) {
-            if (StringUtils.isNotBlank(property.getJsonProperty())) {
-                jFieldVar.annotate(codeModel.ref(JsonProperty.class)).param("value", property.getJsonProperty());
-            }
             isFieldJsonExpose = property.isShouldExporterExpose();
+            fieldJsonPropertyValue = property.getJsonProperty();
         }
+
         this.fieldJsonExposeMap.put(jFieldVar.name(), isFieldJsonExpose);
+        this.fieldJsonPropertyMap.put(jFieldVar.name(), fieldJsonPropertyValue);
     }
 
     private void addExportedTypeMethod(JDefinedClass jc) {
