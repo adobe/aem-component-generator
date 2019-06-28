@@ -38,7 +38,6 @@ public class RenameFileCodeWriter extends FileCodeWriter {
     @Override
     protected File getFile(JPackage pkg, String fileName) throws IOException {
         File dir;
-
         if (pkg.isUnnamed()) {
             dir = target;
         } else {
@@ -50,9 +49,7 @@ public class RenameFileCodeWriter extends FileCodeWriter {
         }
 
         String filePath = new File(dir, fileName).getPath();
-
         File codeFile = CommonUtils.getNewFileAtPathAndRenameExisting(filePath);
-
         return codeFile;
     }
 }

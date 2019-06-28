@@ -43,6 +43,12 @@ public class Property implements BaseModel {
     @JsonProperty("javadoc")
     private String javadoc;
 
+    @JsonProperty("json-property")
+    private String jsonProperty;
+
+    @JsonProperty("json-expose")
+    private boolean shouldExporterExpose;
+
     @JsonProperty("attributes")
     private Map<String, String> attributes;
 
@@ -125,13 +131,37 @@ public class Property implements BaseModel {
         this.items = items;
     }
 
-    public String getModelName() { return modelName; }
+    public String getModelName() {
+        return modelName;
+    }
 
-    public void setModelName(String modelName) { this.modelName = modelName; }
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
+    }
 
-    public boolean getUseExistingModel() { return useExistingModel; }
+    public boolean getUseExistingModel() {
+        return useExistingModel;
+    }
 
-    public void setUseExistingModel(boolean useExistingModel) { this.useExistingModel = useExistingModel; }
+    public void setUseExistingModel(boolean useExistingModel) {
+        this.useExistingModel = useExistingModel;
+    }
+
+    public boolean isShouldExporterExpose() {
+        return shouldExporterExpose;
+    }
+
+    public void setShouldExporterExpose(boolean shouldExporterExpose) {
+        this.shouldExporterExpose = shouldExporterExpose;
+    }
+
+    public String getJsonProperty() {
+        return jsonProperty;
+    }
+
+    public void setJsonProperty(String jsonProperty) {
+        this.jsonProperty = jsonProperty;
+    }
 
     @Override
     public boolean isValid() {

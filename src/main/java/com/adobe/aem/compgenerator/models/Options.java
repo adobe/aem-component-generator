@@ -22,8 +22,11 @@ package com.adobe.aem.compgenerator.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
+import org.apache.commons.lang3.ArrayUtils;
 
 public class Options implements BaseModel {
+
+    private final static String[] DEFAULT_ADAPTABLES = new String[]{"request"};
 
     @JsonProperty("generic-javadoc")
     private boolean hasGenericJavadoc;
@@ -39,6 +42,12 @@ public class Options implements BaseModel {
 
     @JsonProperty("slingmodel")
     private boolean hasSlingModel;
+
+    @JsonProperty("content-exporter")
+    private boolean allowExporting;
+
+    @JsonProperty("model-adaptables")
+    private String[] modelAdaptables;
 
     @JsonProperty("properties")
     private List<Property> properties;
@@ -87,6 +96,25 @@ public class Options implements BaseModel {
 
     public void setHasSlingModel(boolean hasSlingModel) {
         this.hasSlingModel = hasSlingModel;
+    }
+
+    public boolean isAllowExporting() {
+        return this.allowExporting;
+    }
+
+    public void setAllowExporting(boolean allowExporting) {
+        this.allowExporting = allowExporting;
+    }
+
+    public String[] getModelAdaptables() {
+        if (ArrayUtils.isEmpty(modelAdaptables)) {
+            return DEFAULT_ADAPTABLES;
+        }
+        return modelAdaptables;
+    }
+
+    public void setModelAdaptables(final String[] modelAdaptables) {
+        this.modelAdaptables = modelAdaptables;
     }
 
     public List<Property> getProperties() {
