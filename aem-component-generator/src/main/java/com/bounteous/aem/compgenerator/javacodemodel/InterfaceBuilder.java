@@ -6,6 +6,7 @@ import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.models.Property;
 import com.bounteous.aem.compgenerator.utils.CommonUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
@@ -76,9 +77,18 @@ public class InterfaceBuilder extends JavaCodeBuilder {
                     .forEach(property -> {
                         JMethod method = jc.method(NONE, getGetterMethodReturnType(property), Constants.STRING_GET + property.getFieldGetterName());
                         addJavadocToMethod(method, property);
-                        if (this.isAllowExporting && !property.isShouldExporterExpose()) {
-                            method.annotate(codeModel.ref(JsonIgnore.class));
+
+                        if (this.isAllowExporting) {
+                            if (!property.isShouldExporterExpose()) {
+                                method.annotate(codeModel.ref(JsonIgnore.class));
+                            }
+
+                            if (StringUtils.isNotBlank(property.getJsonProperty())) {
+                                method.annotate(codeModel.ref(JsonProperty.class))
+                                        .param("value", property.getJsonProperty());
+                            }
                         }
+
                         if (property.getType().equalsIgnoreCase("multifield")
                                 && property.getItems().size() > 1) {
                             buildMultifieldInterface(property);
