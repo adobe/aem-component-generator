@@ -16,7 +16,7 @@
         "html": true,
         "slingmodel": true,
         "content-exporter": false,
-        "model-adaptables": ["request", "resource"],
+        "model-adaptables": ["request"],
         "generic-javadoc": false,
         "properties": [
             {
