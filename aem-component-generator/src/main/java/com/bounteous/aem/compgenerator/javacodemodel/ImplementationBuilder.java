@@ -9,7 +9,16 @@ import com.bounteous.aem.compgenerator.models.Property;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hs2solutions.aem.base.core.models.annotations.injectorspecific.ChildRequest;
-import com.sun.codemodel.*;
+import com.sun.codemodel.JAnnotationArrayMember;
+import com.sun.codemodel.JAnnotationUse;
+import com.sun.codemodel.JClass;
+import com.sun.codemodel.JClassAlreadyExistsException;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JFieldVar;
+import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JMod;
+import com.sun.codemodel.JPackage;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,15 +27,16 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 
-import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.sun.codemodel.JMod.PRIVATE;
 import static com.bounteous.aem.compgenerator.javacodemodel.JavaCodeModel.getFieldType;
+import static com.sun.codemodel.JMod.PRIVATE;
 
 public class ImplementationBuilder extends JavaCodeBuilder {
     private static final Logger LOG = LogManager.getLogger(ImplementationBuilder.class);
@@ -38,6 +48,11 @@ public class ImplementationBuilder extends JavaCodeBuilder {
     private final String className;
     private final JClass interfaceClass;
     private final JPackage implPackage;
+    private final String[] adaptables;
+    private final boolean isAllowExporting;
+
+    private Map<String, Boolean> fieldJsonExposeMap = new HashMap<>();
+    private Map<String, String> fieldJsonPropertyMap = new HashMap<>();
 
     /**
      * Construct a new Sling Model implementation class.
@@ -55,6 +70,8 @@ public class ImplementationBuilder extends JavaCodeBuilder {
         this.className = className;
         this.interfaceClass = interfaceClass;
         this.implPackage = codeModel._package(generationConfig.getProjectSettings().getModelImplPackage());
+        this.adaptables = generationConfig.getOptions().getModelAdaptables();
+        this.isAllowExporting = generationConfig.getOptions().isAllowExporting();
     }
 
     public void build(String resourceType) throws JClassAlreadyExistsException {
@@ -71,10 +88,16 @@ public class ImplementationBuilder extends JavaCodeBuilder {
 
     private void addSlingAnnotations(JDefinedClass jDefinedClass, JClass adapterClass, String resourceType) {
         JAnnotationUse jAUse = jDefinedClass.annotate(codeModel.ref(Model.class));
-        jAUse.paramArray("adaptables")
-                .param(codeModel.ref(Resource.class))
-                .param(codeModel.ref(SlingHttpServletRequest.class));
-        if (generationConfig.getOptions().isAllowExporting()) {
+        JAnnotationArrayMember adaptablesArray = jAUse.paramArray("adaptables");
+        for (String adaptable : adaptables) {
+            if ("resource".equalsIgnoreCase(adaptable)) {
+                adaptablesArray.param(codeModel.ref(Resource.class));
+            }
+            if ("request".equalsIgnoreCase(adaptable)) {
+                adaptablesArray.param(codeModel.ref(SlingHttpServletRequest.class));
+            }
+        }
+        if (this.isAllowExporting) {
             jAUse.paramArray("adapters").param(adapterClass).param(codeModel.ref(ComponentExporter.class));
         } else {
             jAUse.param("adapters", adapterClass);
@@ -82,7 +105,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
         if (StringUtils.isNotBlank(resourceType)) {
             jAUse.param("resourceType", resourceType);
         }
-        if (generationConfig.getOptions().isAllowExporting()) {
+        if (this.isAllowExporting) {
             jAUse = jDefinedClass.annotate(codeModel.ref(Exporter.class));
             jAUse.param("name", codeModel.ref(ExporterConstants.class).staticRef(SLING_MODEL_EXPORTER_NAME));
             jAUse.param("extensions", codeModel.ref(ExporterConstants.class).staticRef(SLING_MODEL_EXTENSION));
@@ -146,7 +169,8 @@ public class ImplementationBuilder extends JavaCodeBuilder {
                     .param(INJECTION_STRATEGY,
                             codeModel.ref(InjectionStrategy.class).staticRef(OPTIONAL_INJECTION_STRATEGY));
         }
-        annotatedFieldForComponentExport(jFieldVar, property);
+
+        setupFieldGetterAnnotations(jFieldVar, property);
     }
 
     /**
@@ -168,7 +192,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
                 .param(INJECTION_STRATEGY,
                         codeModel.ref(InjectionStrategy.class).staticRef(OPTIONAL_INJECTION_STRATEGY));
 
-        annotatedFieldForComponentExport(jFieldVar, property);
+        setupFieldGetterAnnotations(jFieldVar, property);
     }
 
     /**
@@ -196,11 +220,18 @@ public class ImplementationBuilder extends JavaCodeBuilder {
     private void addGetter(JDefinedClass jc, JFieldVar jFieldVar) {
         JMethod getMethod = jc.method(JMod.PUBLIC, jFieldVar.type(), getMethodFormattedString(jFieldVar.name()));
         getMethod.annotate(codeModel.ref(Override.class));
-        jFieldVar.annotations().forEach(a -> {
-            if (a.getAnnotationClass().fullName().equals(JsonIgnore.class.getName())) {
+
+        if (this.isAllowExporting) {
+            if (!this.fieldJsonExposeMap.get(jFieldVar.name())) {
                 getMethod.annotate(codeModel.ref(JsonIgnore.class));
             }
-        });
+
+            if (StringUtils.isNotBlank(this.fieldJsonPropertyMap.get(jFieldVar.name()))) {
+                getMethod.annotate(codeModel.ref(JsonProperty.class))
+                        .param("value", this.fieldJsonPropertyMap.get(jFieldVar.name()));
+            }
+        }
+
         getMethod.body()._return(jFieldVar);
     }
 
@@ -230,21 +261,23 @@ public class ImplementationBuilder extends JavaCodeBuilder {
         }
     }
 
-    private void annotatedFieldForComponentExport(JFieldVar jFieldVar, Property property) {
-        if (generationConfig.getOptions().isAllowExporting()) {
-            if (StringUtils.isNotBlank(property.getJsonProperty())) {
-                jFieldVar.annotate(codeModel.ref(JsonProperty.class)).param("value", property.getJsonProperty());
-            }
-            if (property.isShouldExporterIgnore()) {
-                jFieldVar.annotate(codeModel.ref(JsonIgnore.class));
-            }
+    private void setupFieldGetterAnnotations(JFieldVar jFieldVar, Property property) {
+        boolean isFieldJsonExpose = false;
+        String fieldJsonPropertyValue = "";
+
+        if (this.isAllowExporting) {
+            isFieldJsonExpose = property.isShouldExporterExpose();
+            fieldJsonPropertyValue = property.getJsonProperty();
         }
+
+        this.fieldJsonExposeMap.put(jFieldVar.name(), isFieldJsonExpose);
+        this.fieldJsonPropertyMap.put(jFieldVar.name(), fieldJsonPropertyValue);
     }
 
     private void addExportedTypeMethod(JDefinedClass jc) {
-        if (generationConfig.getOptions().isAllowExporting()) {
+        if (this.isAllowExporting) {
             JFieldVar jFieldVar = jc.field(PRIVATE, codeModel.ref(Resource.class), "resource");
-            jFieldVar.annotate(codeModel.ref(Inject.class));
+            jFieldVar.annotate(codeModel.ref(SlingObject.class));
             JMethod method = jc.method(JMod.PUBLIC, codeModel.ref(String.class), "getExportedType");
             method.annotate(codeModel.ref(Override.class));
             method.body()._return(jFieldVar.invoke("getResourceType"));

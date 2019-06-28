@@ -6,7 +6,14 @@ import com.bounteous.aem.compgenerator.models.GenerationConfig;
 import com.bounteous.aem.compgenerator.models.Property;
 import com.bounteous.aem.compgenerator.utils.CommonUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sun.codemodel.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sun.codemodel.JClassAlreadyExistsException;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JDocComment;
+import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JPackage;
+import com.sun.codemodel.JType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
 import org.apache.logging.log4j.LogManager;
@@ -22,11 +29,11 @@ import static com.bounteous.aem.compgenerator.javacodemodel.JavaCodeModel.getFie
  * <p>
  * Manages generating the necessary details to create the sling model interface.
  * </p>
- * {@author Aditya Vennelakanti}
  */
 public class InterfaceBuilder extends JavaCodeBuilder {
     private static final Logger LOG = LogManager.getLogger(InterfaceBuilder.class);
 
+    private final boolean isAllowExporting;
     private String interfaceClassName;
 
     /**
@@ -39,6 +46,7 @@ public class InterfaceBuilder extends JavaCodeBuilder {
     public InterfaceBuilder(JCodeModel codeModel, GenerationConfig generationConfig, String interfaceName) {
         super(codeModel, generationConfig);
         this.interfaceClassName = interfaceName;
+        this.isAllowExporting = generationConfig.getOptions().isAllowExporting();
     }
 
     /**
@@ -69,9 +77,18 @@ public class InterfaceBuilder extends JavaCodeBuilder {
                     .forEach(property -> {
                         JMethod method = jc.method(NONE, getGetterMethodReturnType(property), Constants.STRING_GET + property.getFieldGetterName());
                         addJavadocToMethod(method, property);
-                        if (property.isShouldExporterIgnore()) {
-                            method.annotate(codeModel.ref(JsonIgnore.class));
+
+                        if (this.isAllowExporting) {
+                            if (!property.isShouldExporterExpose()) {
+                                method.annotate(codeModel.ref(JsonIgnore.class));
+                            }
+
+                            if (StringUtils.isNotBlank(property.getJsonProperty())) {
+                                method.annotate(codeModel.ref(JsonProperty.class))
+                                        .param("value", property.getJsonProperty());
+                            }
                         }
+
                         if (property.getType().equalsIgnoreCase("multifield")
                                 && property.getItems().size() > 1) {
                             buildMultifieldInterface(property);
@@ -101,7 +118,7 @@ public class InterfaceBuilder extends JavaCodeBuilder {
             interfaceClass.javadoc().append(comment);
             interfaceClass.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
 
-            if (generationConfig.getOptions().isAllowExporting()) {
+            if (this.isAllowExporting) {
                 interfaceClass._extends(codeModel.ref(ComponentExporter.class));
             }
             if (propertiesLists != null) {
