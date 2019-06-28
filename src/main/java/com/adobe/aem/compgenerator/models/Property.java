@@ -46,8 +46,8 @@ public class Property implements BaseModel {
     @JsonProperty("json-property")
     private String jsonProperty;
 
-    @JsonProperty("json-ignore")
-    private boolean shouldExporterIgnore;
+    @JsonProperty("json-expose")
+    private boolean shouldExporterExpose;
 
     @JsonProperty("attributes")
     private Map<String, String> attributes;
@@ -147,12 +147,12 @@ public class Property implements BaseModel {
         this.useExistingModel = useExistingModel;
     }
 
-    public boolean isShouldExporterIgnore() {
-        return shouldExporterIgnore;
+    public boolean isShouldExporterExpose() {
+        return shouldExporterExpose;
     }
 
-    public void setShouldExporterIgnore(boolean shouldExporterIgnore) {
-        this.shouldExporterIgnore = shouldExporterIgnore;
+    public void setShouldExporterExpose(boolean shouldExporterExpose) {
+        this.shouldExporterExpose = shouldExporterExpose;
     }
 
     public String getJsonProperty() {
