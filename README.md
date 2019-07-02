@@ -55,8 +55,7 @@ your component.
 - `options.js`: whether to create an empty JS lib for the component (shared with CSS lib)
 - `options.css`: whether to create an empty CSS lib for the component (shared with JS lib)
 - `options.html`: whether to create a default HTML file for the component
-- `options.generate-clientlib-textfiles`: whether to create the css/js text files within the clientlib. Set to `false` when these files are not 
-needed within your clientlib.
+- `options.generate-clientlib-textfiles`: whether to create the css/js text files within the clientlib. Set to `false` when these files are not needed within your clientlib.
 - `options.slingmodel`: whether to create a sling model for the component
     - Class name is derived from converting "name" prop above to camel case (e.g. "google-maps" -> `GoogleMaps`/`GoogleMapsImpl`)
     - Fields are derived from dialog properties (see below)
