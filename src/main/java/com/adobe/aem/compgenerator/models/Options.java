@@ -40,6 +40,9 @@ public class Options implements BaseModel {
     @JsonProperty("html")
     private boolean hasHtml;
 
+    @JsonProperty("generate-clientlib-textfiles")
+    private Boolean hasClientlibTextfiles;
+
     @JsonProperty("slingmodel")
     private boolean hasSlingModel;
 
@@ -88,6 +91,14 @@ public class Options implements BaseModel {
 
     public void setHasHtml(boolean hasHtml) {
         this.hasHtml = hasHtml;
+    }
+
+    public boolean isHasClientlibTextfiles() {
+        return hasClientlibTextfiles;
+    }
+
+    public void setHasClientlibTextfiles(final boolean hasClientlibTextfiles) {
+        this.hasClientlibTextfiles = hasClientlibTextfiles;
     }
 
     public boolean isHasSlingModel() {
