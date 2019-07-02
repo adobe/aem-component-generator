@@ -38,6 +38,7 @@ import java.util.Map;
  */
 
 public class ComponentUtils {
+
     private static final Logger LOG = LogManager.getLogger(ComponentUtils.class);
 
     private GenerationConfig generationConfig;
@@ -94,13 +95,32 @@ public class ComponentUtils {
         try {
             if (generationConfig.getOptions().isHasJs() || generationConfig.getOptions().isHasCss()) {
                 createFolderWithContentXML(clientLibDirPath, Constants.TYPE_SLING_FOLDER);
+
+                String clientLibSiteDirPath = clientLibDirPath + "/site";
+                createFolderWithContentXML(clientLibSiteDirPath, Constants.TYPE_CLIENTLIB_FOLDER);
+
                 if (generationConfig.getOptions().isHasCss()) {
-                    CommonUtils.createFolder(clientLibDirPath + "/site/css");
-                    CommonUtils.createFileWithCopyRight(clientLibDirPath + "/site/css/" + generationConfig.getName() + ".less", templateValueMap);
+                    String clientLibCssFolder = clientLibSiteDirPath + "/css";
+                    CommonUtils.createFolder(clientLibCssFolder);
+
+                    String clientLibCssFileName = generationConfig.getName() + ".less";
+                    String clientLibCssFilePath = clientLibCssFolder + "/" + clientLibCssFileName;
+                    CommonUtils.createFileWithCopyRight(clientLibCssFilePath, templateValueMap);
+
+                    String clientLibCssTextFile = clientLibSiteDirPath + "/css.txt";
+                    CommonUtils.createClientlibTextFiles(clientLibCssTextFile, clientLibCssFileName);
                 }
+
                 if (generationConfig.getOptions().isHasJs()) {
-                    CommonUtils.createFolder(clientLibDirPath + "/site/js");
-                    CommonUtils.createFileWithCopyRight(clientLibDirPath + "/site/js/" + generationConfig.getName() + ".js", templateValueMap);
+                    String clientLibJsFolder = clientLibSiteDirPath + "/js";
+                    CommonUtils.createFolder(clientLibJsFolder);
+
+                    String clientLibJsFileName = generationConfig.getName() + ".js";
+                    String clientLibJsFilePath = clientLibJsFolder + "/" + clientLibJsFileName;
+                    CommonUtils.createFileWithCopyRight(clientLibJsFilePath, templateValueMap);
+
+                    String clientLibJsTextFile = clientLibSiteDirPath + "/js.txt";
+                    CommonUtils.createClientlibTextFiles(clientLibJsTextFile, clientLibJsFileName);
                 }
             }
         } catch (Exception e) {
@@ -110,14 +130,13 @@ public class ComponentUtils {
     }
 
     /**
-     * creates a folder on given path and adds content.xml file based on the folderType.
+     * Creates a folder on given path and adds content.xml file based on the folderType.
      *
-     * @param path
-     * @param folderType
-     * @throws Exception
+     * @param path Full path including the new file name
+     * @param folderType The 'jcr:primaryType' of the folder
+     * @throws Exception exception
      */
-    private void createFolderWithContentXML(String path, String folderType)
-            throws Exception {
+    private void createFolderWithContentXML(String path, String folderType) throws Exception {
         Path folderPath = CommonUtils.createFolder(path);
         try {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
@@ -130,7 +149,12 @@ public class ComponentUtils {
                 rootElement.setAttribute("componentGroup", generationConfig.getGroup());
             } else if (folderType.equalsIgnoreCase(Constants.TYPE_SLING_FOLDER)) {
                 rootElement.setAttribute(Constants.JCR_PRIMARY_TYPE, folderType);
+            } else if (folderType.equalsIgnoreCase(Constants.TYPE_CLIENTLIB_FOLDER)) {
+                rootElement.setAttribute(Constants.JCR_PRIMARY_TYPE, folderType);
+                rootElement.setAttribute("categories", "[components." + generationConfig.getName() + "]");
+                rootElement.setAttribute("allowProxy", "{Boolean}true");
             }
+
             doc.appendChild(rootElement);
             XMLUtils.transformDomToFile(doc, folderPath + "/" + Constants.FILENAME_CONTENT_XML);
         } catch (Exception e) {
@@ -139,13 +163,12 @@ public class ComponentUtils {
     }
 
     /**
-     * create default HTML file based the provided template.
+     * Create default HTML file based the provided template.
      */
     private void createHtl() {
         try {
-            CommonUtils.createFileWithCopyRight(generationConfig.getCompDir() +
-                    "/" + generationConfig.getName() + ".html",
-                    templateValueMap);
+            CommonUtils.createFileWithCopyRight(generationConfig.getCompDir()
+                    + "/" + generationConfig.getName() + ".html", templateValueMap);
         } catch (Exception e) {
             throw new GeneratorException("Exception while creating HTML : " + generationConfig.getCompDir());
         }
