@@ -21,6 +21,7 @@ package com.adobe.aem.compgenerator.utils;
 
 import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.exceptions.GeneratorException;
+import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -36,15 +37,17 @@ public class XMLUtils {
     /**
      * creates root node with of dialog xml with required name spaces as attr.
      *
-     * @param document
-     * @return
+     * @param document The {@link Document} object
+     * @param stringsToReplaceValueMap The string values to replace in the template string
+     * @return Element
      */
-    public static Element createRootElement(Document document) {
+    public static Element createRootElement(Document document, Map<String, String> stringsToReplaceValueMap) {
         if (document == null) {
             return null;
         }
 
-        document.appendChild(document.createComment(CommonUtils.getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_XML)));
+        String templateString = CommonUtils.getTemplateFileAsString(Constants.TEMPLATE_COPYRIGHT_XML, stringsToReplaceValueMap);
+        document.appendChild(document.createComment(templateString));
         Element rootElement = document.createElement(Constants.JCR_ROOT_NODE);
         rootElement.setAttribute("xmlns:sling", "http://sling.apache.org/jcr/sling/1.0");
         rootElement.setAttribute("xmlns:cq", "http://www.day.com/jcr/cq/1.0");

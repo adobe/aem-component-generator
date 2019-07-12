@@ -23,6 +23,7 @@ import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.exceptions.GeneratorException;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.adobe.aem.compgenerator.models.Property;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -78,9 +79,12 @@ public class DialogUtils {
      * @return
      */
     private static Element createDialogRoot(Document document, GenerationConfig generationConfig, String dialogType) {
-        Element rootElement = XMLUtils.createRootElement(document);
+        Map<String, String> stringsToReplaceValueMap = CommonUtils.getStringsToReplaceValueMap(generationConfig);
+        Element rootElement = XMLUtils.createRootElement(document, stringsToReplaceValueMap);
+
         rootElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         rootElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_DIALOG);
+
         if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_GLOBAL)) {
             rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE,
                     generationConfig.getTitle() + " (Global Properties)");
@@ -90,6 +94,7 @@ public class DialogUtils {
         } else {
             rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getTitle());
         }
+
         return rootElement;
     }
 

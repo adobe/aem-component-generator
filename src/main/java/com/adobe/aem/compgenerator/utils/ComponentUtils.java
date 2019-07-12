@@ -42,11 +42,11 @@ public class ComponentUtils {
     private static final Logger LOG = LogManager.getLogger(ComponentUtils.class);
 
     private GenerationConfig generationConfig;
-    private Map<String, String> templateValueMap;
+    private Map<String, String> stringsToReplaceValueMap;
 
     public ComponentUtils(GenerationConfig config) {
         this.generationConfig = config;
-        this.templateValueMap = CommonUtils.getTemplateValueMap(generationConfig);
+        this.stringsToReplaceValueMap = CommonUtils.getStringsToReplaceValueMap(generationConfig);
     }
 
     /**
@@ -105,11 +105,11 @@ public class ComponentUtils {
 
                     String clientLibCssFileName = generationConfig.getName() + ".less";
                     String clientLibCssFilePath = clientLibCssFolder + "/" + clientLibCssFileName;
-                    CommonUtils.createFileWithCopyRight(clientLibCssFilePath, templateValueMap);
+                    CommonUtils.createFileWithCopyRight(clientLibCssFilePath, stringsToReplaceValueMap);
 
                     if (generationConfig.getOptions().isHasCssTxt()) {
                         String clientLibCssTextFile = clientLibSiteDirPath + "/css.txt";
-                        CommonUtils.createClientlibTextFile(clientLibCssTextFile, clientLibCssFileName);
+                        CommonUtils.createClientlibTextFile(clientLibCssTextFile, stringsToReplaceValueMap, clientLibCssFileName);
                     }
                 }
 
@@ -119,11 +119,11 @@ public class ComponentUtils {
 
                     String clientLibJsFileName = generationConfig.getName() + ".js";
                     String clientLibJsFilePath = clientLibJsFolder + "/" + clientLibJsFileName;
-                    CommonUtils.createFileWithCopyRight(clientLibJsFilePath, templateValueMap);
+                    CommonUtils.createFileWithCopyRight(clientLibJsFilePath, stringsToReplaceValueMap);
 
                     if (generationConfig.getOptions().isHasJsTxt()) {
                         String clientLibJsTextFile = clientLibSiteDirPath + "/js.txt";
-                        CommonUtils.createClientlibTextFile(clientLibJsTextFile, clientLibJsFileName);
+                        CommonUtils.createClientlibTextFile(clientLibJsTextFile, stringsToReplaceValueMap, clientLibJsFileName);
                     }
                 }
             }
@@ -144,7 +144,7 @@ public class ComponentUtils {
         Path folderPath = CommonUtils.createFolder(path);
         try {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-            Element rootElement = XMLUtils.createRootElement(doc);
+            Element rootElement = XMLUtils.createRootElement(doc, stringsToReplaceValueMap);
 
             //set attributes based on folderType.
             if (folderType.equalsIgnoreCase(Constants.TYPE_COMPONENT)) {
@@ -173,7 +173,7 @@ public class ComponentUtils {
     private void createHtl() {
         try {
             CommonUtils.createFileWithCopyRight(generationConfig.getCompDir()
-                    + "/" + generationConfig.getName() + ".html", templateValueMap);
+                    + "/" + generationConfig.getName() + ".html", stringsToReplaceValueMap);
         } catch (Exception e) {
             throw new GeneratorException("Exception while creating HTML : " + generationConfig.getCompDir());
         }
