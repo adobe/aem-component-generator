@@ -135,7 +135,7 @@ public class InterfaceBuilder extends JavaCodeBuilder {
             JPackage jPackage = codeModel._package(generationConfig.getProjectSettings().getModelInterfacePackage());
             JDefinedClass interfaceClass = jPackage._interface(interfaceName);
             interfaceClass.javadoc().append(comment);
-            interfaceClass.annotate(codeModel.ref("aQute.bnd.annotation.ConsumerType"));
+            interfaceClass.annotate(codeModel.ref("org.osgi.annotation.versioning.ConsumerType"));
 
             if (this.isAllowExporting) {
                 interfaceClass._extends(codeModel.ref(ComponentExporter.class));
