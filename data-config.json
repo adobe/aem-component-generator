@@ -12,7 +12,7 @@
     "type": "content",
     "options": {
         "js": true,
-        "jstxt":true,
+        "jstxt": true,
         "css": true,
         "csstxt": true,
         "html": true,

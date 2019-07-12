@@ -155,8 +155,9 @@ public class ComponentUtils {
                 rootElement.setAttribute(Constants.JCR_PRIMARY_TYPE, folderType);
             } else if (folderType.equalsIgnoreCase(Constants.TYPE_CLIENTLIB_FOLDER)) {
                 rootElement.setAttribute(Constants.JCR_PRIMARY_TYPE, folderType);
-                rootElement.setAttribute("categories", "[components." + generationConfig.getName() + "]");
                 rootElement.setAttribute("allowProxy", "{Boolean}true");
+                String dotReplacedComponentPath = generationConfig.getProjectSettings().getComponentPath().replace("/", ".");
+                rootElement.setAttribute("categories", "[" + dotReplacedComponentPath + "." + generationConfig.getName() + "]");
             }
 
             doc.appendChild(rootElement);
