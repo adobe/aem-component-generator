@@ -34,14 +34,14 @@ public class Options implements BaseModel {
     @JsonProperty("js")
     private boolean hasJs;
 
-    @JsonProperty("jstext")
-    private boolean hasJsText;
+    @JsonProperty("jstxt")
+    private boolean hasJsTxt;
 
     @JsonProperty("css")
     private boolean hasCss;
 
-    @JsonProperty("csstext")
-    private boolean hasCssText;
+    @JsonProperty("csstxt")
+    private boolean hasCssTxt;
 
     @JsonProperty("html")
     private boolean hasHtml;
@@ -80,12 +80,12 @@ public class Options implements BaseModel {
         this.hasJs = hasJs;
     }
 
-    public boolean isHasJsText() {
-        return hasJsText;
+    public boolean isHasJsTxt() {
+        return hasJsTxt;
     }
 
-    public void setHasJsText(final boolean hasJsText) {
-        this.hasJsText = hasJsText;
+    public void setHasJsTxt(final boolean hasJsTxt) {
+        this.hasJsTxt = hasJsTxt;
     }
 
     public boolean isHasCss() {
@@ -96,12 +96,12 @@ public class Options implements BaseModel {
         this.hasCss = hasCss;
     }
 
-    public boolean isHasCssText() {
-        return hasCssText;
+    public boolean isHasCssTxt() {
+        return hasCssTxt;
     }
 
-    public void setHasCssText(final boolean hasCssText) {
-        this.hasCssText = hasCssText;
+    public void setHasCssTxt(final boolean hasCssTxt) {
+        this.hasCssTxt = hasCssTxt;
     }
 
     public boolean isHasHtml() {

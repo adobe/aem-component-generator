@@ -177,7 +177,7 @@ public class CommonUtils {
     }
 
     /**
-     * Creates the css/js text file for a clientLib.
+     * Creates the css.txt or js.txt file for a clientLib.
      *
      * @param path Full path including the new file name
      * @param clientLibFileName The less/js file's name

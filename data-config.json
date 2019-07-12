@@ -12,9 +12,9 @@
     "type": "content",
     "options": {
         "js": true,
-        "jstext":true,
+        "jstxt":true,
         "css": true,
-        "csstext": true,
+        "csstxt": true,
         "html": true,
         "slingmodel": true,
         "content-exporter": false,
