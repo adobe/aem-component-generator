@@ -34,14 +34,17 @@ public class Options implements BaseModel {
     @JsonProperty("js")
     private boolean hasJs;
 
+    @JsonProperty("jstext")
+    private boolean hasJsText;
+
     @JsonProperty("css")
     private boolean hasCss;
 
+    @JsonProperty("csstext")
+    private boolean hasCssText;
+
     @JsonProperty("html")
     private boolean hasHtml;
-
-    @JsonProperty("generate-clientlib-textfiles")
-    private Boolean hasClientlibTextfiles;
 
     @JsonProperty("slingmodel")
     private boolean hasSlingModel;
@@ -77,6 +80,14 @@ public class Options implements BaseModel {
         this.hasJs = hasJs;
     }
 
+    public boolean isHasJsText() {
+        return hasJsText;
+    }
+
+    public void setHasJsText(final boolean hasJsText) {
+        this.hasJsText = hasJsText;
+    }
+
     public boolean isHasCss() {
         return hasCss;
     }
@@ -85,20 +96,20 @@ public class Options implements BaseModel {
         this.hasCss = hasCss;
     }
 
+    public boolean isHasCssText() {
+        return hasCssText;
+    }
+
+    public void setHasCssText(final boolean hasCssText) {
+        this.hasCssText = hasCssText;
+    }
+
     public boolean isHasHtml() {
         return hasHtml;
     }
 
     public void setHasHtml(boolean hasHtml) {
         this.hasHtml = hasHtml;
-    }
-
-    public boolean isHasClientlibTextfiles() {
-        return hasClientlibTextfiles;
-    }
-
-    public void setHasClientlibTextfiles(final boolean hasClientlibTextfiles) {
-        this.hasClientlibTextfiles = hasClientlibTextfiles;
     }
 
     public boolean isHasSlingModel() {

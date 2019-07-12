@@ -107,9 +107,9 @@ public class ComponentUtils {
                     String clientLibCssFilePath = clientLibCssFolder + "/" + clientLibCssFileName;
                     CommonUtils.createFileWithCopyRight(clientLibCssFilePath, templateValueMap);
 
-                    if (generationConfig.getOptions().isHasClientlibTextfiles()) {
+                    if (generationConfig.getOptions().isHasCssText()) {
                         String clientLibCssTextFile = clientLibSiteDirPath + "/css.txt";
-                        CommonUtils.createClientlibTextFiles(clientLibCssTextFile, clientLibCssFileName);
+                        CommonUtils.createClientlibTextFile(clientLibCssTextFile, clientLibCssFileName);
                     }
                 }
 
@@ -121,9 +121,9 @@ public class ComponentUtils {
                     String clientLibJsFilePath = clientLibJsFolder + "/" + clientLibJsFileName;
                     CommonUtils.createFileWithCopyRight(clientLibJsFilePath, templateValueMap);
 
-                    if (generationConfig.getOptions().isHasClientlibTextfiles()) {
+                    if (generationConfig.getOptions().isHasJsText()) {
                         String clientLibJsTextFile = clientLibSiteDirPath + "/js.txt";
-                        CommonUtils.createClientlibTextFiles(clientLibJsTextFile, clientLibJsFileName);
+                        CommonUtils.createClientlibTextFile(clientLibJsTextFile, clientLibJsFileName);
                     }
                 }
             }

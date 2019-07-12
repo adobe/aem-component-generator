@@ -12,9 +12,10 @@
     "type": "content",
     "options": {
         "js": true,
+        "jstext":true,
         "css": true,
+        "csstext": true,
         "html": true,
-        "generate-clientlib-textfiles": true,
         "slingmodel": true,
         "content-exporter": false,
         "model-adaptables": ["request"],

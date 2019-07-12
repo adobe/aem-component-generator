@@ -177,13 +177,13 @@ public class CommonUtils {
     }
 
     /**
-     * Creates the new css/js text files for a clientLib.
+     * Creates the css/js text file for a clientLib.
      *
      * @param path Full path including the new file name
      * @param clientLibFileName The less/js file's name
      * @throws IOException exception
      */
-    public static void createClientlibTextFiles(String path, String clientLibFileName) throws IOException {
+    public static void createClientlibTextFile(String path, String clientLibFileName) throws IOException {
         File file = getNewFileAtPathAndRenameExisting(path);
         String templateString = CommonUtils.getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_TEXT);
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
