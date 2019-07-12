@@ -47,14 +47,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CommonUtils {
+
     private static final Logger LOG = LogManager.getLogger(CommonUtils.class);
     private static final Date CURRENT_TIME = new Date(System.currentTimeMillis());
 
     /**
      * Method to map JSON content from given file into given GenerationConfig type.
      *
-     * @param jsonDataFile data-config file.
-     * @return GenerationConfig java class with the mapped content in json file.
+     * @param jsonDataFile data-config file
+     * @return GenerationConfig java class with the mapped content in json file
      */
     public static GenerationConfig getComponentData(File jsonDataFile) {
         if (jsonDataFile.exists()) {
@@ -74,7 +75,7 @@ public class CommonUtils {
      *
      * @param path file path
      * @return File with the given path
-     * @throws IOException
+     * @throws IOException exception
      */
     public static File getNewFileAtPathAndRenameExisting(String path) throws IOException{
         File file = new File(path);
@@ -82,6 +83,7 @@ public class CommonUtils {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Constants.RENAME_FILE_DATE_PATTERN);
             String date = simpleDateFormat.format(CURRENT_TIME);
             File oldFile = new File(path + ".sv." + date);
+
             boolean isSuccess = file.renameTo(oldFile);
             if (isSuccess) {
                 LOG.info("Replaced: " + path + " (Old file: " + oldFile.getName() + ")");
@@ -90,12 +92,13 @@ public class CommonUtils {
                 throw new IOException();
             }
         }
+
         LOG.info("Created: " + path);
         return file;
     }
 
     /**
-     * method checks if the file exists and not empty.
+     * Method checks if the file exists and not empty.
      *
      * @param file file to check.
      * @return boolean return true when file not exists or length is zero.
@@ -105,7 +108,7 @@ public class CommonUtils {
     }
 
     /**
-     * method to read the content of any resource file in the project as string.
+     * Method to read the content of any resource file in the project as string.
      *
      * @param filePath path to the resource file in project.
      * @return string return content of the resource file as string or null when file not exists.
@@ -120,10 +123,11 @@ public class CommonUtils {
         return null;
     }
     /**
-     * Creates a new folder
-     * @param folderPath
-     * @return
-     * @throws Exception
+     * Creates a new folder.
+     *
+     * @param folderPath The path where the folder gets created
+     * @return Path
+     * @throws Exception exception
      */
     public static Path createFolder(String folderPath) throws Exception {
         Path path = Paths.get(folderPath);
@@ -135,8 +139,9 @@ public class CommonUtils {
 
     /**
      * Determines if the model included is valid and not null.
-     * @param model
-     * @return
+     *
+     * @param model The {@link BaseModel} object
+     * @return boolean
      */
     public static boolean isModelValid(BaseModel model) {
         return model != null && model.isValid();
@@ -144,9 +149,10 @@ public class CommonUtils {
 
     /**
      * Creates a new file with the correct copyright text appearing at the top.
-     * @param path
-     * @param templateValueMap
-     * @throws IOException
+     *
+     * @param path Full path including the new file name
+     * @param templateValueMap The template {@link Map} object
+     * @throws IOException exception
      */
     public static void createFileWithCopyRight(String path, Map<String, String> templateValueMap) throws IOException {
         File file = getNewFileAtPathAndRenameExisting(path);
@@ -171,9 +177,40 @@ public class CommonUtils {
     }
 
     /**
-     * creates a map of values required for any template. Let's say htl template and others if any.
+     * Creates the css.txt or js.txt file for a clientLib.
      *
-     * @return map
+     * @param path Full path including the new file name
+     * @param clientLibFileName The less/js file's name
+     * @throws IOException exception
+     */
+    public static void createClientlibTextFile(String path, String clientLibFileName) throws IOException {
+        File file = getNewFileAtPathAndRenameExisting(path);
+        String templateString = CommonUtils.getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_TEXT);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+
+        writer.write(templateString);
+        writer.newLine();
+
+        if (path.endsWith("js.txt")) {
+            writer.write("#base=js");
+        }
+
+        if (path.endsWith("css.txt")) {
+            writer.write("#base=css");
+        }
+
+        writer.newLine();
+        writer.newLine();
+        writer.write(clientLibFileName);
+
+        writer.close();
+    }
+
+    /**
+     * Creates a map of values required for any template. Let's say htl template and others if any.
+     *
+     * @param generationConfig The {@link GenerationConfig} object with all the populated values
+     * @return Map<String, String>
      */
     public static Map<String, String> getTemplateValueMap(GenerationConfig generationConfig) {
         if (generationConfig != null) {
@@ -187,6 +224,12 @@ public class CommonUtils {
         return null;
     }
 
+    /**
+     * Construct a resource type from the {@link GenerationConfig} object.
+     *
+     * @param generationConfig The {@link GenerationConfig} object with all the populated values
+     * @return String
+     */
     public static String getResourceType(GenerationConfig generationConfig) {
         return generationConfig.getProjectSettings().getComponentPath() + "/"
                 + generationConfig.getType() + "/" + generationConfig.getName();

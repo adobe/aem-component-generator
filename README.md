@@ -53,7 +53,9 @@ your component.
 - `group`: component group
 - `type`: component folder type - content, form, structure
 - `options.js`: whether to create an empty JS lib for the component (shared with CSS lib)
+- `options.jstxt`: whether to create the js.txt mapping file within the clientlib. Set to `false` when this file is not needed within your clientlib
 - `options.css`: whether to create an empty CSS lib for the component (shared with JS lib)
+- `options.csstxt`: whether to create the css.txt mapping file within the clientlib. Set to `false` when this file is not needed within your clientlib
 - `options.html`: whether to create a default HTML file for the component
 - `options.slingmodel`: whether to create a sling model for the component
     - Class name is derived from converting "name" prop above to camel case (e.g. "google-maps" -> `GoogleMaps`/`GoogleMapsImpl`)
