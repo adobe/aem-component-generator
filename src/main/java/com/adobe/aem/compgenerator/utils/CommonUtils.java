@@ -26,7 +26,7 @@ import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.StrSubstitutor;
+import org.apache.commons.text.StringSubstitutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -117,9 +117,9 @@ public class CommonUtils {
     public static String getTemplateFileAsString(String filePath, Map<String, String> stringsToReplaceValueMap) {
         try (InputStream inputStream = CommonUtils.class.getClassLoader().getResourceAsStream(filePath)) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            StrSubstitutor strSubstitutor = new StrSubstitutor(stringsToReplaceValueMap);
+            StringSubstitutor stringSubstitutor = new StringSubstitutor(stringsToReplaceValueMap);
             String content = reader.lines().collect(Collectors.joining(System.lineSeparator()));
-            return strSubstitutor.replace(content);
+            return stringSubstitutor.replace(content);
         } catch (IOException e) {
             LOG.error("Failed to read " + filePath + " from the classpath.", e);
         }
