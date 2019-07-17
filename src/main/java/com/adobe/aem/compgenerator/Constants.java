@@ -61,8 +61,9 @@ public class Constants {
     public static final String JCR_ROOT_NODE = "jcr:root";
     public static final String JCR_PRIMARY_TYPE = "jcr:primaryType";
     public static final String NT_UNSTRUCTURED = "nt:unstructured";
-    public static final String TYPE_CLIENTLIB_FOLDER = "cq:ClientLibraryFolder";
-    public static final String TYPE_COMPONENT = "cq:Component";
+    
+    public static final String TYPE_CQ_CLIENTLIB_FOLDER = "cq:ClientLibraryFolder";
+    public static final String TYPE_CQ_COMPONENT = "cq:Component";
     public static final String TYPE_SLING_FOLDER = "sling:Folder";
 
     public static final String TEMPLATE_COPYRIGHT_CSS = "template-copyright-css.txt";

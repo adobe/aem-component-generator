@@ -29,7 +29,6 @@ import org.w3c.dom.Element;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.nio.file.Path;
-import java.util.Map;
 
 /**
  * <p>
@@ -42,15 +41,13 @@ public class ComponentUtils {
     private static final Logger LOG = LogManager.getLogger(ComponentUtils.class);
 
     private GenerationConfig generationConfig;
-    private Map<String, String> stringsToReplaceValueMap;
 
     public ComponentUtils(GenerationConfig config) {
         this.generationConfig = config;
-        this.stringsToReplaceValueMap = CommonUtils.getStringsToReplaceValueMap(generationConfig);
     }
 
     /**
-     * builds your base folder structure of a component includes component folder
+     * Builds your base folder structure of a component includes component folder
      * itself, _cq_dialog with field properties, dialogglobal with properties-global,
      * HTML, clientlibs folder.
      */
@@ -60,7 +57,7 @@ public class ComponentUtils {
         }
 
         //creates base component folder.
-        createFolderWithContentXML(generationConfig.getCompDir(), Constants.TYPE_COMPONENT);
+        createFolderWithContentXML(generationConfig.getCompDir(), Constants.TYPE_CQ_COMPONENT);
 
         //create _cq_dialog xml with user input properties in json.
         DialogUtils.createDialogXml(generationConfig, Constants.DIALOG_TYPE_DIALOG);
@@ -88,7 +85,7 @@ public class ComponentUtils {
     }
 
     /**
-     * builds default clientlib structure with js and css file under folder.
+     * Builds default clientlib structure with js and css file under folder.
      */
     private void createClientLibs() {
         String clientLibDirPath = generationConfig.getCompDir() + "/clientlibs";
@@ -97,7 +94,7 @@ public class ComponentUtils {
                 createFolderWithContentXML(clientLibDirPath, Constants.TYPE_SLING_FOLDER);
 
                 String clientLibSiteDirPath = clientLibDirPath + "/site";
-                createFolderWithContentXML(clientLibSiteDirPath, Constants.TYPE_CLIENTLIB_FOLDER);
+                createFolderWithContentXML(clientLibSiteDirPath, Constants.TYPE_CQ_CLIENTLIB_FOLDER);
 
                 if (generationConfig.getOptions().isHasCss()) {
                     String clientLibCssFolder = clientLibSiteDirPath + "/css";
@@ -105,11 +102,11 @@ public class ComponentUtils {
 
                     String clientLibCssFileName = generationConfig.getName() + ".less";
                     String clientLibCssFilePath = clientLibCssFolder + "/" + clientLibCssFileName;
-                    CommonUtils.createFileWithCopyRight(clientLibCssFilePath, stringsToReplaceValueMap);
+                    CommonUtils.createFileWithCopyRight(clientLibCssFilePath, generationConfig);
 
                     if (generationConfig.getOptions().isHasCssTxt()) {
                         String clientLibCssTextFile = clientLibSiteDirPath + "/css.txt";
-                        CommonUtils.createClientlibTextFile(clientLibCssTextFile, stringsToReplaceValueMap, clientLibCssFileName);
+                        CommonUtils.createClientlibTextFile(clientLibCssTextFile, generationConfig, clientLibCssFileName);
                     }
                 }
 
@@ -119,11 +116,11 @@ public class ComponentUtils {
 
                     String clientLibJsFileName = generationConfig.getName() + ".js";
                     String clientLibJsFilePath = clientLibJsFolder + "/" + clientLibJsFileName;
-                    CommonUtils.createFileWithCopyRight(clientLibJsFilePath, stringsToReplaceValueMap);
+                    CommonUtils.createFileWithCopyRight(clientLibJsFilePath, generationConfig);
 
                     if (generationConfig.getOptions().isHasJsTxt()) {
                         String clientLibJsTextFile = clientLibSiteDirPath + "/js.txt";
-                        CommonUtils.createClientlibTextFile(clientLibJsTextFile, stringsToReplaceValueMap, clientLibJsFileName);
+                        CommonUtils.createClientlibTextFile(clientLibJsTextFile, generationConfig, clientLibJsFileName);
                     }
                 }
             }
@@ -144,16 +141,16 @@ public class ComponentUtils {
         Path folderPath = CommonUtils.createFolder(path);
         try {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-            Element rootElement = XMLUtils.createRootElement(doc, stringsToReplaceValueMap);
+            Element rootElement = XMLUtils.createRootElement(doc, generationConfig);
 
             //set attributes based on folderType.
-            if (folderType.equalsIgnoreCase(Constants.TYPE_COMPONENT)) {
+            if (folderType.equalsIgnoreCase(Constants.TYPE_CQ_COMPONENT)) {
                 rootElement.setAttribute(Constants.JCR_PRIMARY_TYPE, folderType);
                 rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getTitle());
                 rootElement.setAttribute("componentGroup", generationConfig.getGroup());
             } else if (folderType.equalsIgnoreCase(Constants.TYPE_SLING_FOLDER)) {
                 rootElement.setAttribute(Constants.JCR_PRIMARY_TYPE, folderType);
-            } else if (folderType.equalsIgnoreCase(Constants.TYPE_CLIENTLIB_FOLDER)) {
+            } else if (folderType.equalsIgnoreCase(Constants.TYPE_CQ_CLIENTLIB_FOLDER)) {
                 rootElement.setAttribute(Constants.JCR_PRIMARY_TYPE, folderType);
                 rootElement.setAttribute("allowProxy", "{Boolean}true");
                 String dotReplacedComponentPath = generationConfig.getProjectSettings().getComponentPath().replace("/", ".");
@@ -173,7 +170,7 @@ public class ComponentUtils {
     private void createHtl() {
         try {
             CommonUtils.createFileWithCopyRight(generationConfig.getCompDir()
-                    + "/" + generationConfig.getName() + ".html", stringsToReplaceValueMap);
+                    + "/" + generationConfig.getName() + ".html", generationConfig);
         } catch (Exception e) {
             throw new GeneratorException("Exception while creating HTML : " + generationConfig.getCompDir());
         }

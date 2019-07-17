@@ -27,7 +27,6 @@ import com.sun.codemodel.CodeWriter;
 import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
 import org.apache.logging.log4j.LogManager;
@@ -114,8 +113,7 @@ public class JavaCodeModel {
         CodeWriter codeWriter = new RenameFileCodeWriter(new File(generationConfig.getProjectSettings().getBundlePath()));
 
         // PrologCodeWriter to prepend the copyright template in each file
-        Map<String, String> stringsToReplaceValueMap = CommonUtils.getStringsToReplaceValueMap(generationConfig);
-        String templateString = CommonUtils.getTemplateFileAsString(Constants.TEMPLATE_COPYRIGHT_JAVA, stringsToReplaceValueMap);
+        String templateString = CommonUtils.getTemplateFileAsString(Constants.TEMPLATE_COPYRIGHT_JAVA, generationConfig);
         PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter, templateString);
 
         codeModel.build(prologCodeWriter);

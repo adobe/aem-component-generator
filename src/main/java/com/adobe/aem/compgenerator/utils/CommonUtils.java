@@ -111,12 +111,13 @@ public class CommonUtils {
      * Method to read the content of the provided template file as string.
      *
      * @param filePath Path to the template file in the project
-     * @param stringsToReplaceValueMap The string values to replace in the template string
+     * @param generationConfig The {@link GenerationConfig} object with all the populated values
      * @return String return content of the resource file as string or null when file not exists
      */
-    public static String getTemplateFileAsString(String filePath, Map<String, String> stringsToReplaceValueMap) {
+    public static String getTemplateFileAsString(String filePath, GenerationConfig generationConfig) {
         try (InputStream inputStream = CommonUtils.class.getClassLoader().getResourceAsStream(filePath)) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            Map<String, String> stringsToReplaceValueMap = getStringsToReplaceValueMap(generationConfig);
             StringSubstitutor stringSubstitutor = new StringSubstitutor(stringsToReplaceValueMap);
             String content = reader.lines().collect(Collectors.joining(System.lineSeparator()));
             return stringSubstitutor.replace(content);
@@ -154,10 +155,10 @@ public class CommonUtils {
      * Creates a new file with the correct copyright text appearing at the top.
      *
      * @param path Full path including the new file name
-     * @param stringsToReplaceValueMap The string values to replace in the template string
+     * @param generationConfig The {@link GenerationConfig} object with all the populated values
      * @throws IOException exception
      */
-    public static void createFileWithCopyRight(String path, Map<String, String> stringsToReplaceValueMap) throws IOException {
+    public static void createFileWithCopyRight(String path, GenerationConfig generationConfig) throws IOException {
         String template = Constants.TEMPLATE_COPYRIGHT_JAVA;
         if (path.endsWith("js") || path.endsWith("java")) {
             template = Constants.TEMPLATE_COPYRIGHT_JAVA;
@@ -169,7 +170,7 @@ public class CommonUtils {
             template = Constants.TEMPLATE_COPYRIGHT_HTL;
         }
 
-        BufferedWriter writer = getFileWriterFromTemplate(path, template, stringsToReplaceValueMap);
+        BufferedWriter writer = getFileWriterFromTemplate(path, template, generationConfig);
         writer.close();
     }
 
@@ -177,14 +178,14 @@ public class CommonUtils {
      * Creates the css.txt or js.txt file for a clientLib.
      *
      * @param path Full path including the new file name
-     * @param stringsToReplaceValueMap The string values to replace in the template string
+     * @param generationConfig The {@link GenerationConfig} object with all the populated values
      * @param clientLibFileName The less/js file's name
      * @throws IOException exception
      */
     public static void createClientlibTextFile(String path,
-            Map<String, String> stringsToReplaceValueMap, String clientLibFileName) throws IOException {
+            GenerationConfig generationConfig, String clientLibFileName) throws IOException {
 
-        BufferedWriter writer = getFileWriterFromTemplate(path, Constants.TEMPLATE_COPYRIGHT_TEXT, stringsToReplaceValueMap);
+        BufferedWriter writer = getFileWriterFromTemplate(path, Constants.TEMPLATE_COPYRIGHT_TEXT, generationConfig);
         writer.newLine();
 
         if (path.endsWith("js.txt")) {
@@ -199,25 +200,6 @@ public class CommonUtils {
         writer.newLine();
         writer.write(clientLibFileName);
         writer.close();
-    }
-
-    /**
-     * Creates a map of strings to replace placeholder values on template files.
-     *
-     * @param generationConfig The {@link GenerationConfig} object with all the populated values
-     * @return Map<String, String>
-     */
-    public static Map<String, String> getStringsToReplaceValueMap(GenerationConfig generationConfig) {
-        if (generationConfig != null) {
-            Map<String, String> map = new HashMap<>();
-            map.put("name", generationConfig.getName());
-            map.put("title", generationConfig.getTitle());
-            map.put("sightly", StringUtils.uncapitalize(generationConfig.getJavaFormatedName()));
-            map.put("slingModel", generationConfig.getProjectSettings().getModelInterfacePackage() + "." + generationConfig.getJavaFormatedName());
-            map.put("CODEOWNER", generationConfig.getProjectSettings().getCodeOwner());
-            return map;
-        }
-        return null;
     }
 
     /**
@@ -236,16 +218,35 @@ public class CommonUtils {
      *
      * @param path Full path including the new file name
      * @param template The template to use when creating the {@link BufferedWriter}
-     * @param stringsToReplaceValueMap The string values to replace in the template string
+     * @param generationConfig The {@link GenerationConfig} object with all the populated values
      * @throws IOException exception
      */
     private static BufferedWriter getFileWriterFromTemplate(String path,
-            String template, Map<String, String> stringsToReplaceValueMap) throws IOException {
+            String template, GenerationConfig generationConfig) throws IOException {
 
         File file = getNewFileAtPathAndRenameExisting(path);
-        String templateString = getTemplateFileAsString(template, stringsToReplaceValueMap);
+        String templateString = getTemplateFileAsString(template, generationConfig);
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
         writer.write(templateString);
         return writer;
+    }
+
+    /**
+     * Creates a map of strings to replace placeholder values on template files.
+     *
+     * @param generationConfig The {@link GenerationConfig} object with all the populated values
+     * @return Map<String, String>
+     */
+    private static Map<String, String> getStringsToReplaceValueMap(GenerationConfig generationConfig) {
+        if (generationConfig != null) {
+            Map<String, String> map = new HashMap<>();
+            map.put("name", generationConfig.getName());
+            map.put("title", generationConfig.getTitle());
+            map.put("sightly", StringUtils.uncapitalize(generationConfig.getJavaFormatedName()));
+            map.put("slingModel", generationConfig.getProjectSettings().getModelInterfacePackage() + "." + generationConfig.getJavaFormatedName());
+            map.put("CODEOWNER", generationConfig.getProjectSettings().getCodeOwner());
+            return map;
+        }
+        return null;
     }
 }

@@ -23,7 +23,6 @@ import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.exceptions.GeneratorException;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.adobe.aem.compgenerator.models.Property;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -36,9 +35,10 @@ import java.util.Objects;
 public class DialogUtils {
 
     /**
-     * creates dialog xml by adding the properties in data-config json file.
+     * Creates dialog xml by adding the properties in data-config json file.
      *
-     * @param dialogType dialogType to dialog xml structure.
+     * @param generationConfig The {@link GenerationConfig} object with all the populated values
+     * @param dialogType The type of dialog to create (regular, shared or global)
      */
     public static void createDialogXml(final GenerationConfig generationConfig, final String dialogType) {
         String dialogPath = generationConfig.getCompDir() + "/" + dialogType;
@@ -46,10 +46,9 @@ public class DialogUtils {
             CommonUtils.createFolder(dialogPath);
 
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-
             Element rootElement = createDialogRoot(doc, generationConfig, dialogType);
-
             List<Property> properties = generationConfig.getOptions().getProperties();
+
             if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_GLOBAL)) {
                 properties = generationConfig.getOptions().getGlobalProperties();
             } else if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_SHARED)) {
@@ -57,12 +56,12 @@ public class DialogUtils {
             }
 
             if (properties != null && properties.size() > 0) {
-                Node currentNode = updateDefaultNodeStructure(doc, rootElement, dialogType);
-
+                Node currentNode = updateDefaultNodeStructure(doc, rootElement);
                 properties.stream().filter(Objects::nonNull)
                         .map(property -> createPropertyNode(doc, currentNode, property)).filter(Objects::nonNull)
                         .forEach(a -> currentNode.appendChild(a));
             }
+
             doc.appendChild(rootElement);
             XMLUtils.transformDomToFile(doc, dialogPath + "/" + Constants.FILENAME_CONTENT_XML);
         } catch (Exception e) {
@@ -71,16 +70,15 @@ public class DialogUtils {
     }
 
     /**
-     * Generates the root elements of what will be the _cq_dialog/.content.xml
+     * Generates the root elements of what will be the _cq_dialog/.content.xml.
      * 
-     * @param document
-     * @param generationConfig
-     * @param dialogType
-     * @return
+     * @param document The {@link Document} object
+     * @param generationConfig The {@link GenerationConfig} object with all the populated values
+     * @param dialogType The type of dialog to create (regular, shared or global)
+     * @return Element
      */
     private static Element createDialogRoot(Document document, GenerationConfig generationConfig, String dialogType) {
-        Map<String, String> stringsToReplaceValueMap = CommonUtils.getStringsToReplaceValueMap(generationConfig);
-        Element rootElement = XMLUtils.createRootElement(document, stringsToReplaceValueMap);
+        Element rootElement = XMLUtils.createRootElement(document, generationConfig);
 
         rootElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         rootElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_DIALOG);
@@ -99,14 +97,13 @@ public class DialogUtils {
     }
 
     /**
-     * adds a dialog property xml node with all input attr under the document.
+     * Adds a dialog property xml node with all input attr under the document.
      *
-     * @param document
-     * @param property project object contains attributes.
-     * @return
+     * @param document The {@link Document} object
+     * @param property The {@link Property} object contains attributes
+     * @return Element
      */
     private static Element createPropertyNode(Document document, Node currentNode, Property property) {
-
         Element propertyNode = document.createElement(property.getField());
 
         propertyNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
@@ -122,6 +119,7 @@ public class DialogUtils {
         }
 
         processAttributes(propertyNode, property);
+
         if (property.getItems() != null && !property.getItems().isEmpty()) {
             if (!property.getType().equalsIgnoreCase("multifield")) {
                 Node items = propertyNode.appendChild(createUnStructuredNode(document, "items"));
@@ -181,10 +179,10 @@ public class DialogUtils {
     }
 
     /**
-     * Processes the attributes for a propertyNode
+     * Processes the attributes for a propertyNode.
      * 
-     * @param propertyNode
-     * @param property
+     * @param propertyNode The node to add property attributes
+     * @param property The {@link Property} object contains attributes
      */
     private static void processAttributes(Element propertyNode, Property property) {
         if (property.getAttributes() != null && property.getAttributes().size() > 0) {
@@ -193,6 +191,13 @@ public class DialogUtils {
         }
     }
 
+    /**
+     * Process the dialog node item by setting property attributes on it.
+     *
+     * @param document The {@link Document} object
+     * @param itemsNode The {@link Node} object
+     * @param property The {@link Property} object contains attributes
+     */
     private static void processItems(Document document, Node itemsNode, Property property) {
         for (Property item : property.getItems()) {
             Element optionNode = document.createElement(item.getField());
@@ -215,9 +220,10 @@ public class DialogUtils {
     }
 
     /**
-     * Adds the field label and field description attributes to the node
-     * @param propertyNode
-     * @param property
+     * Adds the field label and field description attributes to the node.
+     *
+     * @param propertyNode The node to add property attributes
+     * @param property The {@link Property} object contains attributes
      */
     private static void addBasicProperties(Element propertyNode, Property property) {
         if (StringUtils.isNotEmpty(property.getLabel())) {
@@ -233,8 +239,8 @@ public class DialogUtils {
      * included as attributes in the configuration json file, but they never/rarely
      * change, so hardcoding them here seems safe to do.
      * 
-     * @param imageNode
-     * @param property
+     * @param imageNode The {@link Node} object
+     * @param property The {@link Property} object contains attributes
      */
     private static void addImagePropertyValues(Element imageNode, Property property) {
         imageNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField() + "/file");
@@ -254,8 +260,8 @@ public class DialogUtils {
      * Adds the properties specific to the hidden image node that allows the image
      * dropzone to operate properly on dialogs.
      * 
-     * @param hiddenImageNode
-     * @param property
+     * @param hiddenImageNode An {@link Element} object representing an image's hidden node
+     * @param property The {@link Property} object contains attributes
      */
     private static void addImageHiddenProperyValues(Element hiddenImageNode, Property property) {
         hiddenImageNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
@@ -265,15 +271,13 @@ public class DialogUtils {
     }
 
     /**
-     * builds default node structure of dialog xml in the document passed in based
-     * on dialogType.
+     * Builds default node structure of dialog xml in the document passed in based on dialogType.
      *
-     * @param document
-     * @param root
-     * @param dialogType
-     * @return
+     * @param document The {@link Document} object
+     * @param root The root node to append children nodes to
+     * @return Node
      */
-    private static Node updateDefaultNodeStructure(Document document, Element root, String dialogType) {
+    private static Node updateDefaultNodeStructure(Document document, Element root) {
         Element containerElement = document.createElement("content");
         containerElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         containerElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_CONTAINER);
@@ -295,11 +299,11 @@ public class DialogUtils {
     }
 
     /**
-     * Creates a node with the jcr:primaryType set to nt:unstructured
+     * Creates a node with the jcr:primaryType set to nt:unstructured.
      * 
-     * @param document
-     * @param nodeName
-     * @return
+     * @param document The {@link Document} object
+     * @param nodeName The name of the node being created
+     * @return Node
      */
     private static Node createUnStructuredNode(Document document, String nodeName) {
         Element element = document.createElement(nodeName);
@@ -308,10 +312,10 @@ public class DialogUtils {
     }
 
     /**
-     * Determine the proper sling:resourceType
+     * Determine the proper sling:resourceType.
      * 
-     * @param type
-     * @return
+     * @param type The sling:resourceType
+     * @return String
      */
     private static String getSlingResourceType(String type) {
         if (StringUtils.isNotBlank(type)) {
