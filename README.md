@@ -27,8 +27,7 @@ Detailed steps for using the generator are found below.
 
 Step 1: Clone the project from github.
 
-Step 2: Update placeholder references in the codebase.
-- Update the demo config file (`data-config.json`) to your company defaults, removing references to `NewCo`/`newco`
+Step 2: Update the demo config file (`data-config.json`) to your company defaults, removing references to `NewCo`/`newco`
 in the `project-settings` and `group` values.
 
 Step 3: Build the project by running `mvn clean install` from the main project folder.

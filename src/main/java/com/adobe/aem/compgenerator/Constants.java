@@ -61,14 +61,14 @@ public class Constants {
     public static final String JCR_ROOT_NODE = "jcr:root";
     public static final String JCR_PRIMARY_TYPE = "jcr:primaryType";
     public static final String NT_UNSTRUCTURED = "nt:unstructured";
-    
+
     public static final String TYPE_CQ_CLIENTLIB_FOLDER = "cq:ClientLibraryFolder";
     public static final String TYPE_CQ_COMPONENT = "cq:Component";
     public static final String TYPE_SLING_FOLDER = "sling:Folder";
 
     public static final String TEMPLATE_COPYRIGHT_CSS = "template-copyright-css.txt";
     public static final String TEMPLATE_COPYRIGHT_JAVA = "template-copyright.txt";
-    public static final String TEMPLATE_COPYRIGHT_HTL = "template-copyright-htl.txt";
+    public static final String TEMPLATE_COPYRIGHT_HTL = "template-htl.txt";
     public static final String TEMPLATE_COPYRIGHT_TEXT = "template-copyright-text.txt";
     public static final String TEMPLATE_COPYRIGHT_XML = "template-copyright-xml.txt";
 
