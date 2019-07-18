@@ -24,6 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 
 public class ProjectSettings implements BaseModel {
 
+    @JsonProperty("code-owner")
+    private String codeOwner;
+
     @JsonProperty("model-interface-pkg")
     private String modelInterfacePackage;
 
@@ -38,6 +41,14 @@ public class ProjectSettings implements BaseModel {
 
     @JsonProperty("apps-path")
     private String appsPath;
+
+    public String getCodeOwner() {
+        return codeOwner;
+    }
+
+    public void setCodeOwner(final String codeOwner) {
+        this.codeOwner = codeOwner;
+    }
 
     public String getModelInterfacePackage() {
         return modelInterfacePackage;

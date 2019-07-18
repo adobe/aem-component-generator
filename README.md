@@ -27,10 +27,7 @@ Detailed steps for using the generator are found below.
 
 Step 1: Clone the project from github.
 
-Step 2: Update placeholder references in the codebase.
-- Replace the `<CODEOWNER>` placeholder in resource files (`aem-component-generator/src/main/resources`) with
-the name of your company.
-- Update the demo config file (`data-config.json`) to your company defaults, removing references to `NewCo`/`newco`
+Step 2: Update the demo config file (`data-config.json`) to your company defaults, removing references to `NewCo`/`newco`
 in the `project-settings` and `group` values.
 
 Step 3: Build the project by running `mvn clean install` from the main project folder.
@@ -43,6 +40,7 @@ Step 5: Copy the `data-config.json` file from this project to the same location 
 your component.
 
 - `project-settings`: contains configuration options related to your AEM project
+- `project-settings.code-owner`: the name of the company/user this code belongs to - will replace `${CODEOWNER}` in the template files with this configured value
 - `project-settings.bundle-path`: path to the java code of your main bundle
 - `project-settings.apps-path`: path to the `/apps` root
 - `project-settings.component-path`: path to the project's components directory, relative to the `/apps` folder

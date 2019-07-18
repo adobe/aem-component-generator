@@ -1,5 +1,6 @@
 {
     "project-settings": {
+        "code-owner": "NewCo Incorporated",
         "bundle-path": "core/src/main/java",
         "apps-path": "ui.apps/src/main/content/jcr_root/apps",
         "component-path": "newco/components",

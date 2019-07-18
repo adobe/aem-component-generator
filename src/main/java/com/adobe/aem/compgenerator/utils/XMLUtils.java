@@ -21,6 +21,7 @@ package com.adobe.aem.compgenerator.utils;
 
 import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.exceptions.GeneratorException;
+import com.adobe.aem.compgenerator.models.GenerationConfig;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -34,17 +35,19 @@ import java.io.File;
 public class XMLUtils {
 
     /**
-     * creates root node with of dialog xml with required name spaces as attr.
+     * Creates root node with of dialog xml with required name spaces as attr.
      *
-     * @param document
-     * @return
+     * @param document The {@link Document} object
+     * @param generationConfig The {@link GenerationConfig} object with all the populated values
+     * @return Element
      */
-    public static Element createRootElement(Document document) {
+    public static Element createRootElement(Document document, GenerationConfig generationConfig) {
         if (document == null) {
             return null;
         }
 
-        document.appendChild(document.createComment(CommonUtils.getResourceContentAsString(Constants.TEMPLATE_COPYRIGHT_XML)));
+        String templateString = CommonUtils.getTemplateFileAsString(Constants.TEMPLATE_COPYRIGHT_XML, generationConfig);
+        document.appendChild(document.createComment(templateString));
         Element rootElement = document.createElement(Constants.JCR_ROOT_NODE);
         rootElement.setAttribute("xmlns:sling", "http://sling.apache.org/jcr/sling/1.0");
         rootElement.setAttribute("xmlns:cq", "http://www.day.com/jcr/cq/1.0");
@@ -55,10 +58,10 @@ public class XMLUtils {
     }
 
     /**
-     * method will transform Document structure by prettify xml elements to file.
+     * Method will transform Document structure by prettify xml elements to file.
      *
-     * @param document
-     * @param filePath
+     * @param document The {@link Document} object
+     * @param filePath The path to the file
      */
     public static void transformDomToFile(Document document, String filePath) {
         try {
