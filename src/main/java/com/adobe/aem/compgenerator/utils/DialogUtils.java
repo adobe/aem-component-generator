@@ -77,18 +77,18 @@ public class DialogUtils {
      * @param dialogType The type of dialog to create (regular, shared or global)
      * @return Element
      */
-    private static Element createDialogRoot(Document document, GenerationConfig generationConfig, String dialogType) {
+    protected static Element createDialogRoot(Document document, GenerationConfig generationConfig, String dialogType) {
         Element rootElement = XMLUtils.createRootElement(document, generationConfig);
 
         rootElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         rootElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_DIALOG);
 
         if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_GLOBAL)) {
-            rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE,
-                    generationConfig.getTitle() + " (Global Properties)");
+            rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getTitle() + " (Global Properties)");
         } else if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_SHARED)) {
-            rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE,
-                    generationConfig.getTitle() + " (Shared Properties)");
+            rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getTitle() + " (Shared Properties)");
+        } else if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_DESIGN_DIALOG)) {
+            rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getTitle() + " Design Dialog");
         } else {
             rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getTitle());
         }
@@ -305,7 +305,7 @@ public class DialogUtils {
      * @param nodeName The name of the node being created
      * @return Node
      */
-    private static Node createUnStructuredNode(Document document, String nodeName) {
+    protected static Node createUnStructuredNode(Document document, String nodeName) {
         Element element = document.createElement(nodeName);
         element.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         return element;
