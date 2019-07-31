@@ -32,10 +32,11 @@ public class DesignDialogUtils extends DialogUtils {
      * Creates the design dialog xml by adding the style system tab.
      *
      * @param generationConfig The {@link GenerationConfig} object with all the populated values
+     * @param dialogType The design dialog type
      */
     public static void createDesignDialogXml(final GenerationConfig generationConfig, String dialogType) {
         try {
-            String designDialogPath = generationConfig.getCompDir() + "/" + Constants.DIALOG_TYPE_DESIGN_DIALOG;
+            String designDialogPath = generationConfig.getCompDir() + "/" + dialogType;
             CommonUtils.createFolder(designDialogPath);
 
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
