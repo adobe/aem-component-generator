@@ -74,6 +74,9 @@ public class ComponentUtils {
             DialogUtils.createDialogXml(generationConfig, Constants.DIALOG_TYPE_SHARED);
         }
 
+        //create _cq_design_dialog xml.
+        DesignDialogUtils.createDesignDialogXml(generationConfig, Constants.DIALOG_TYPE_DESIGN_DIALOG);
+
         //builds clientLib and placeholder files for js and css.
         createClientLibs();
 
