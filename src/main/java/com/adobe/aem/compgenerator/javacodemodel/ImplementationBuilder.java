@@ -21,11 +21,11 @@ package com.adobe.aem.compgenerator.javacodemodel;
 
 import com.adobe.acs.commons.models.injectors.annotation.ChildResourceFromRequest;
 import com.adobe.acs.commons.models.injectors.annotation.SharedValueMapValue;
-import com.adobe.cq.export.json.ComponentExporter;
-import com.adobe.cq.export.json.ExporterConstants;
 import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.adobe.aem.compgenerator.models.Property;
+import com.adobe.cq.export.json.ComponentExporter;
+import com.adobe.cq.export.json.ExporterConstants;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.codemodel.JAnnotationArrayMember;
@@ -49,6 +49,7 @@ import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -250,7 +251,12 @@ public class ImplementationBuilder extends JavaCodeBuilder {
             }
         }
 
-        getMethod.body()._return(jFieldVar);
+
+        if (jFieldVar.type().erasure().fullName().equals(List.class.getName())) {
+            getMethod.body()._return(codeModel.ref(Collections.class).staticInvoke("unmodifiableList").arg(jFieldVar));
+        } else {
+            getMethod.body()._return(jFieldVar);
+        }
     }
 
     /**

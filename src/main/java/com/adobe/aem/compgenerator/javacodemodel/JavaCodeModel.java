@@ -91,7 +91,7 @@ public class JavaCodeModel {
      * Builds your slingModel interface with all required annotation,
      * fields and getters based on the <code>generationConfig</code>.
      */
-    private void buildInterface() throws JClassAlreadyExistsException {
+    private void buildInterface() {
         InterfaceBuilder builder = new InterfaceBuilder(codeModel, generationConfig, generationConfig.getJavaFormatedName());
         jc = builder.build();
     }

@@ -35,6 +35,7 @@ import com.sun.codemodel.JPackage;
 import com.sun.codemodel.JType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -181,13 +182,16 @@ public class InterfaceBuilder extends JavaCodeBuilder {
      * @param property
      */
     private void addJavadocToMethod(JMethod method, Property property) {
-        JDocComment javadoc = method.javadoc();
+        String javadocStr = null;
         if (StringUtils.isNotBlank(property.getJavadoc())) {
-            javadoc.append(property.getJavadoc());
-            javadoc.append("\n\n@return " + getGetterMethodReturnType(property).name());
+            javadocStr = property.getJavadoc();
         } else if (generationConfig.getOptions() != null && generationConfig.getOptions().isHasGenericJavadoc()) {
-            javadoc.append("Get the " + property.getField() + ".");
-            javadoc.append("\n\n@return " + getGetterMethodReturnType(property).name());
+            javadocStr = "Get the " + property.getField() + ".";
+        }
+        if (StringUtils.isNotBlank(javadocStr)) {
+            JDocComment javadoc = method.javadoc();
+            javadoc.append(javadocStr).append("");
+            javadoc.append("\n\n@return " + StringEscapeUtils.escapeHtml4(getGetterMethodReturnType(property).name()));
         }
     }
 }
