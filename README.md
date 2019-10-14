@@ -109,7 +109,7 @@ Successful component generation should result in output similar to the following
 
 ## Contributing
  
-Originally developed and contributed by Bounteous.
+Originally developed and contributed by [Bounteous](https://www.bounteous.com/insights/2019/07/31/aem-component-generator/).
 
 Contributions are welcomed! Read the [Contributing Guide](.github/CONTRIBUTING.md) for more information.
  

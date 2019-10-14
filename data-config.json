@@ -164,7 +164,7 @@
             {
                 "field": "links",
                 "type": "multifield",
-                "model-name": "MultiLink",
+                "model-name": "DemoLink",
                 "use-existing-model": false,
                 "label": "Links",
                 "json-expose": true,
