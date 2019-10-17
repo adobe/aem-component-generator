@@ -46,7 +46,7 @@
                 "label": "Pathfield Test",
                 "json-expose": true,
                 "attributes": {
-                    "rootPath": "/content/sites"
+                    "rootPath": "/content"
                 }
             },
             {
