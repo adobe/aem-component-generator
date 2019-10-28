@@ -260,7 +260,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
             JExpression condition = JExpr.ref(jFieldVar.name()).ne(JExpr._null());
             JExpression ifTrue = codeModel.ref(Collections.class).staticInvoke("unmodifiableList").arg(jFieldVar);
             JExpression ifFalse = JExpr._null();
-            getMethod.body()._return(JOp.cond(condition, ifTrue, ifFalse));
+            getMethod.body()._return(new TernaryOperator(condition, ifTrue, ifFalse));
         } else {
             getMethod.body()._return(jFieldVar);
         }
