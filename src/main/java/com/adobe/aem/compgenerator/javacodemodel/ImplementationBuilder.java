@@ -37,7 +37,11 @@ import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
+import com.sun.codemodel.JOp;
 import com.sun.codemodel.JPackage;
+import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JExpression;
+import com.sun.codemodel.JConditional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -253,7 +257,10 @@ public class ImplementationBuilder extends JavaCodeBuilder {
 
 
         if (jFieldVar.type().erasure().fullName().equals(List.class.getName())) {
-            getMethod.body()._return(codeModel.ref(Collections.class).staticInvoke("unmodifiableList").arg(jFieldVar));
+            JExpression condition = new IsNullExpression(jFieldVar, false);
+            JExpression ifTrue = codeModel.ref(Collections.class).staticInvoke("unmodifiableList").arg(jFieldVar);
+            JExpression ifFalse = JExpr._null();
+            getMethod.body()._return(new TernaryOperator(condition, ifTrue, ifFalse));
         } else {
             getMethod.body()._return(jFieldVar);
         }
