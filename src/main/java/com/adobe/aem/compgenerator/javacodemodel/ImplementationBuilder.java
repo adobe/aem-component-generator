@@ -257,7 +257,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
 
 
         if (jFieldVar.type().erasure().fullName().equals(List.class.getName())) {
-            JExpression condition = new NotNullExpression(jFieldVar);
+            JExpression condition = new IsNullExpression(jFieldVar, false);
             JExpression ifTrue = codeModel.ref(Collections.class).staticInvoke("unmodifiableList").arg(jFieldVar);
             JExpression ifFalse = JExpr._null();
             getMethod.body()._return(new TernaryOperator(condition, ifTrue, ifFalse));
