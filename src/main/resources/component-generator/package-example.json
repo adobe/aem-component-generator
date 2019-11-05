@@ -1,0 +1,21 @@
+{
+  "name": "aem-component-generator",
+  "version": "1.0.0",
+  "private": true,
+  "license": "SEE LICENSE file",
+  "dependencies": {},
+  "scripts": {
+    "npm:install": "npm install",
+    "java:generate:aem:components": "node ./nodeTasks/java-generate.js --workdir '.' --generatorJarSource 'src/main/resources/component-generator/component-generator-1.0.jar' --dataConfigRoot 'src/main/resources/component-generator' --createBundleTarget true"
+  },
+  "devDependencies": {
+    "shelljs": "^0.8",
+    "maven": "^4.7",
+    "glob": "^7.1",
+    "optimist": "^0.6",
+    "fs": "^0.0.1-security"
+  },
+  "engines": {
+    "node": ">=10.16.0"
+  }
+}

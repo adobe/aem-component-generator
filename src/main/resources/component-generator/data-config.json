@@ -1,8 +1,8 @@
 {
     "project-settings": {
         "code-owner": "NewCo Incorporated",
-        "bundle-path": "core/src/main/java",
-        "apps-path": "ui.apps/src/main/content/jcr_root/apps",
+        "bundle-path": "target/generated-sources/src/main/java",
+        "apps-path": "target/generated-sources/ui.apps/src/main/content/jcr_root/apps",
         "component-path": "newco/components",
         "model-interface-pkg": "com.newco.aem.base.core.models",
         "model-impl-pkg": "com.newco.aem.base.core.models.impl"

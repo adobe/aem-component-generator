@@ -25,18 +25,25 @@ To see the AEM Component Generator in action,
 [watch this video](https://s3.amazonaws.com/HS2Presentations/AEMPublic/2019-Adobe-AEM-Component-Code-Generator-Demo-Bounteous.mp4).
 Detailed steps for using the generator are found below. 
 
-Step 1: Clone the project from github.
+### Step 1: Clone the project from github.
 
-Step 2: Update the demo config file (`data-config.json`) to your company defaults, removing references to `NewCo`/`newco`
+### Step 2: Update the demo config file (`src/main/resources/component-generator/data-config.json`) to your company defaults, removing references to `NewCo`/`newco`
 in the `project-settings` and `group` values.
 
-Step 3: Build the project by running `mvn clean install` from the main project folder.
+### Step 3: Build the project
+    #### With node.js
+    [IntelliJ] With node support follow the steps below
+        - Right click on package.json -> select "Show npm Scripts"
+        - Double click on "1.Setup npm - npm:install"
+        - Double click on "2.Build generator jar"
+    #### With maven only
+    Running `mvn clean install` from the main project folder.
 
-Step 4: Copy the generated `component-generator-N.N.jar` file (under the `target` folder) to a location
+### Step 4: Copy the generated `component-generator-N.N.jar` file (under the `target` folder) to a location
 from which you wish to generate AEM component code.  Note that code will be generated at a relative path from which
 the generator is executed, which can be different from where the jar file is located.
 
-Step 5: Copy the `data-config.json` file from this project to the same location and update with relevant configs for
+### Step 5: Copy the `data-config.json` file from this project to the same location and update with relevant configs for
 your component.
 
 - `project-settings`: contains configuration options related to your AEM project
@@ -76,20 +83,26 @@ your component.
 - `options.properties-shared`: properties to create in shared dialog for this component. If empty, no shared dialog will be created
 - `options.properties-global`: properties to create in global dialog for this component. If empty, no global dialog will be created
 
-Step 6: To generate a component, navigate to the main folder of your AEM project and execute the following command.
+### Step 6: To generate a component, navigate to the main folder of your AEM project and execute the following command.
 Note that paths specified in `project-settings` configs (above) will be relative to this location.
+    #### With node.js
+    - [IntelliJ] With node.js support follow the steps below
+        - Right click on package.json -> select "Show npm Scripts"
+        - Double click on "3.Generate Components - java:generate"
 
-```sh
-$ java -jar <jarfile> <configfile>
-```
-
-- `jarfile`: path to `component-generator-N.N.jar` file (replacing `N.N` with the applicable numbers)
-- `configfile`: path to `data-config.json` file
-
-Example:
-```sh
-$ java -jar scripts/compgen/component-generator-1.0.jar scripts/compgen/data-config.json
-```
+    #### With java only
+    ```sh
+    $ java -jar <jarfile> <configfile>
+    ```
+    - `jarfile`: path to `component-generator-N.N.jar` file (replacing `N.N` with the applicable numbers)
+    - `configfile`: path to `data-config.json` file
+    Example:
+    ```sh
+    $ java -jar target/component-generator-1.0.jar src/main/resources/data-config/data-config.json
+    ```
+- Generates
+    - target/generated-sources/src/main/java
+    - target/generated-sources/ui.apps
 
 Successful component generation should result in output similar to the following:
 ```
@@ -106,6 +119,17 @@ Successful component generation should result in output similar to the following
 [17:57:50.488 [INFO ] CommonUtils @93] - Created: core/src/main/java/com/newco/aem/base/core/models/impl/DemoCompImpl.java
 [17:57:50.488 [INFO ] JavaCodeModel @103] - --------------* Sling Model successfully generated *--------------
 ```
+### Step 7: Inspect and copy source files below in your project using node.js
+#### Source: npm and demo config files -> Gives hints to adapt to your project
+    - src/main/resources/component-generator/package-example.json: Contains npm scripts -> Adapt 'java:generate:aem:components' spaths to data-config.json and component-generator-N.jar in <your-project>
+    - target/component-generator-1.0.jar -> Copy to <your-project>/src/main/resources/component-generator
+    - nodeTasks/mvn-build.js: Builds generator jar -> Copy to <your-project>/nodeTasks
+    - nodeTasks/java-generate.js: Generates Components -> Copy to <your-project>/nodeTasks
+    - src/main/resources/component-generator/data-config.json -> Copy to <your-project>/src/main/resources/component-generator
+#### Run in <your-project> with node.js
+    - [IntelliJ] With node.js support follow the steps below
+        - Right click on package.json -> select "Show npm Scripts"
+        - Double click on "java:generate:aem:components"
 
 ## Contributing
  
