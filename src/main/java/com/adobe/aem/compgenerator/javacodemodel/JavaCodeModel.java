@@ -27,7 +27,6 @@ import com.sun.codemodel.CodeWriter;
 import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
-import com.sun.codemodel.writer.FileCodeWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
 import org.apache.logging.log4j.LogManager;
@@ -110,7 +109,8 @@ public class JavaCodeModel {
      * Generates the slingModel file based on values from the config and the current codeModel object.
      */
     private void generateCodeFiles() throws IOException {
-        CodeWriter codeWriter = new FileCodeWriter(new File(generationConfig.getProjectSettings().getBundlePath()));
+        // RenameFileCodeWritern to rename existing files
+        CodeWriter codeWriter = new RenameFileCodeWriter(new File(generationConfig.getProjectSettings().getBundlePath()));
 
         // PrologCodeWriter to prepend the copyright template in each file
         String templateString = CommonUtils.getTemplateFileAsString(Constants.TEMPLATE_COPYRIGHT_JAVA, generationConfig);

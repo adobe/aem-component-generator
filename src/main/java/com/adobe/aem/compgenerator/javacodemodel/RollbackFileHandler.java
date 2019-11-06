@@ -17,36 +17,43 @@
  * limitations under the License.
  * #L%
  */
-package com.adobe.aem.compgenerator.utils;
+package com.adobe.aem.compgenerator.javacodemodel;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class RollbackFileHandler {
     private static final Logger LOG = LogManager.getLogger(RollbackFileHandler.class);
 
-    private final RollbackFileWriter fileWriterNew;
     private final File fileNew;
     private final File fileOld;
 
-    public RollbackFileHandler(File fileNew, File fileOld) throws IOException {
-        this.fileWriterNew = new RollbackFileWriter(fileNew, this);
+    public RollbackFileHandler(File fileNew, File fileOld) {
         this.fileNew = fileNew;
         this.fileOld = fileOld;
     }
 
-    public FileWriter getFileWriterNew() {
-        return (FileWriter) fileWriterNew;
+    public FileWriter getFileWriterNew() throws IOException {
+        return (FileWriter) new RollbackFileWriter(fileNew, this);
     }
 
-    private void rollbackFile(RollbackFileWriter rollbackFileWriter) {
+    public FileOutputStream getFileOutputStreamNew() throws IOException {
+        return (FileOutputStream) new RollbackFileOutputStream(fileNew, this);
+    }
+
+    private void rollbackFile() {
+        if (fileOld == null || fileNew == null) {
+            LOG.debug("No rollback fileOld {} fileNew {}", fileOld, fileNew);
+            return;
+        }
         try {
-            if (fileOld != null && fileNew != null && FileUtils.contentEquals(fileNew, fileOld)) {
+            if (fileOld.isFile() && FileUtils.contentEquals(fileNew, fileOld)) {
                 fileOld.delete();
                 LOG.info("Rollback of unchanged file {}", fileOld.getPath());
             }
@@ -65,7 +72,21 @@ public class RollbackFileHandler {
 
         public void close() throws IOException {
             super.close();
-            rollbackFileHandler.rollbackFile(this);
+            rollbackFileHandler.rollbackFile();
+        }
+    }
+
+    private class RollbackFileOutputStream extends FileOutputStream {
+        private final RollbackFileHandler rollbackFileHandler;
+
+        private RollbackFileOutputStream(File file, RollbackFileHandler rollbackFileHandler) throws IOException {
+            super(file);
+            this.rollbackFileHandler = rollbackFileHandler;
+        }
+
+        public void close() throws IOException {
+            super.close();
+            rollbackFileHandler.rollbackFile();
         }
     }
 }

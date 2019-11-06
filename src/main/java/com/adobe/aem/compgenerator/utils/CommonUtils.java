@@ -21,6 +21,7 @@ package com.adobe.aem.compgenerator.utils;
 
 import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.exceptions.GeneratorException;
+import com.adobe.aem.compgenerator.javacodemodel.RollbackFileHandler;
 import com.adobe.aem.compgenerator.models.BaseModel;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.fasterxml.jackson.databind.DeserializationFeature;
