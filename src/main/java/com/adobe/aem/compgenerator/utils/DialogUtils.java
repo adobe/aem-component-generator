@@ -65,13 +65,13 @@ public class DialogUtils {
             doc.appendChild(rootElement);
             XMLUtils.transformDomToFile(doc, dialogPath + "/" + Constants.FILENAME_CONTENT_XML);
         } catch (Exception e) {
-            throw new GeneratorException("Exception while creating Dialog xml : " + dialogPath);
+            throw new GeneratorException("Exception while creating Dialog xml : " + dialogPath, e);
         }
     }
 
     /**
      * Generates the root elements of what will be the _cq_dialog/.content.xml.
-     * 
+     *
      * @param document The {@link Document} object
      * @param generationConfig The {@link GenerationConfig} object with all the populated values
      * @param dialogType The type of dialog to create (regular, shared or global)
@@ -180,7 +180,7 @@ public class DialogUtils {
 
     /**
      * Processes the attributes for a propertyNode.
-     * 
+     *
      * @param propertyNode The node to add property attributes
      * @param property The {@link Property} object contains attributes
      */
@@ -209,7 +209,7 @@ public class DialogUtils {
             if (StringUtils.isNotEmpty(resourceType)) {
                 optionNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, resourceType);
             }
-            
+
             if (StringUtils.equalsIgnoreCase("multifield", property.getType())) {
                 optionNode.setAttribute(Constants.PROPERTY_NAME, "./" + item.getField());
             }
@@ -238,7 +238,7 @@ public class DialogUtils {
      * Adds the properties specific to the image node. These could all have been
      * included as attributes in the configuration json file, but they never/rarely
      * change, so hardcoding them here seems safe to do.
-     * 
+     *
      * @param imageNode The {@link Node} object
      * @param property The {@link Property} object contains attributes
      */
@@ -259,7 +259,7 @@ public class DialogUtils {
     /**
      * Adds the properties specific to the hidden image node that allows the image
      * dropzone to operate properly on dialogs.
-     * 
+     *
      * @param hiddenImageNode An {@link Element} object representing an image's hidden node
      * @param property The {@link Property} object contains attributes
      */
@@ -300,7 +300,7 @@ public class DialogUtils {
 
     /**
      * Creates a node with the jcr:primaryType set to nt:unstructured.
-     * 
+     *
      * @param document The {@link Document} object
      * @param nodeName The name of the node being created
      * @return Node
@@ -313,7 +313,7 @@ public class DialogUtils {
 
     /**
      * Determine the proper sling:resourceType.
-     * 
+     *
      * @param type The sling:resourceType
      * @return String
      */

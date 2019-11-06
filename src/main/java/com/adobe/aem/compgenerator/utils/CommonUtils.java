@@ -33,7 +33,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -77,7 +76,7 @@ public class CommonUtils {
      * @return File with the given path
      * @throws IOException exception
      */
-    public static File getNewFileAtPathAndRenameExisting(String path) throws IOException{
+    public static RollbackFileHandler getNewFileAtPathAndRenameExisting(String path) throws IOException {
         File file = new File(path);
         if (file.exists()) {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Constants.RENAME_FILE_DATE_PATTERN);
@@ -87,14 +86,14 @@ public class CommonUtils {
             boolean isSuccess = file.renameTo(oldFile);
             if (isSuccess) {
                 LOG.info("Replaced: " + path + " (Old file: " + oldFile.getName() + ")");
-                return file;
+                return new RollbackFileHandler(file, oldFile);
             } else {
-                throw new IOException();
+                throw new IOException(String.format("Rename oldFile %s failed", path));
             }
         }
 
         LOG.info("Created: " + path);
-        return file;
+        return new RollbackFileHandler(file, null);
     }
 
     /**
@@ -224,9 +223,9 @@ public class CommonUtils {
     private static BufferedWriter getFileWriterFromTemplate(String path,
             String template, GenerationConfig generationConfig) throws IOException {
 
-        File file = getNewFileAtPathAndRenameExisting(path);
+        RollbackFileHandler file = getNewFileAtPathAndRenameExisting(path);
         String templateString = getTemplateFileAsString(template, generationConfig);
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+        BufferedWriter writer = new BufferedWriter(file.getFileWriterNew());
         writer.write(templateString);
         return writer;
     }

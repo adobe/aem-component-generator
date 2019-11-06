@@ -30,7 +30,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
+import java.io.FileWriter;
 
 public class XMLUtils {
 
@@ -74,14 +74,15 @@ public class XMLUtils {
             tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
             DOMSource source = new DOMSource(document);
-            File file = CommonUtils.getNewFileAtPathAndRenameExisting(filePath);
-            StreamResult result = new StreamResult(file);
+            RollbackFileHandler file = CommonUtils.getNewFileAtPathAndRenameExisting(filePath);
+            FileWriter fileWriterNew = file.getFileWriterNew();
+            StreamResult result = new StreamResult(fileWriterNew);
 
             //transform your DOM source to the given file location.
             tr.transform(source, result);
-
+            fileWriterNew.close();
         } catch (Exception e) {
-            throw new GeneratorException("Exception while DOM conversion to file : " + filePath);
+            throw new GeneratorException("Exception while DOM conversion to file : " + filePath, e);
         }
     }
 }

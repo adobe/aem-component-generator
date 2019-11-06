@@ -26,4 +26,8 @@ public class GeneratorException extends RuntimeException {
     public GeneratorException(String errorMessage) {
         super(errorMessage);
     }
+
+    public GeneratorException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

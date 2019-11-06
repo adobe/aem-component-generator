@@ -22,9 +22,10 @@ package com.adobe.aem.compgenerator.utils;
 import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.exceptions.GeneratorException;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 
 public class DesignDialogUtils extends DialogUtils {
 
@@ -46,7 +47,7 @@ public class DesignDialogUtils extends DialogUtils {
             doc.appendChild(rootElement);
             XMLUtils.transformDomToFile(doc, designDialogPath + "/" + Constants.FILENAME_CONTENT_XML);
         } catch (Exception e) {
-            throw new GeneratorException("Exception while creating Design Dialog xml.");
+            throw new GeneratorException("Exception while creating Design Dialog xml.", e);
         }
     }
 
