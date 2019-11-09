@@ -107,13 +107,13 @@ public class DialogUtils {
         Element propertyNode = document.createElement(property.getField());
 
         propertyNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
-        propertyNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, getSlingResourceType(property.getType()));
+        propertyNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, getSlingResourceType(property));
 
         // Some of the properties are optional based on the different types available.
         addBasicProperties(propertyNode, property);
 
-        if (StringUtils.isNotEmpty(property.getField()) && (!property.getType().equalsIgnoreCase("radiogroup"))
-                || !property.getType().equalsIgnoreCase("image") && !property.getType().equalsIgnoreCase("multifield")) {
+        if (StringUtils.isNotEmpty(property.getField()) && (!property.getTypeAsFieldType().equals(Property.FieldType.RADIOGROUP))
+                || !property.getTypeAsFieldType().equals(Property.FieldType.IMAGE) && !property.getTypeAsFieldType().equals(Property.FieldType.MULTIFIELD)) {
             propertyNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
             propertyNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
         }
@@ -121,7 +121,7 @@ public class DialogUtils {
         processAttributes(propertyNode, property);
 
         if (property.getItems() != null && !property.getItems().isEmpty()) {
-            if (!property.getType().equalsIgnoreCase("multifield")) {
+            if (!property.getTypeAsFieldType().equals(Property.FieldType.MULTIFIELD)) {
                 Node items = propertyNode.appendChild(createUnStructuredNode(document, "items"));
                 processItems(document, items, property);
             } else {
@@ -152,7 +152,7 @@ public class DialogUtils {
                     actualField.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
 
                     Property prop = property.getItems().get(0);
-                    actualField.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, getSlingResourceType(prop.getType()));
+                    actualField.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, getSlingResourceType(prop));
                     addBasicProperties(actualField, prop);
                     processAttributes(actualField, prop);
                     items.appendChild(actualField);
@@ -166,7 +166,7 @@ public class DialogUtils {
             }
         }
 
-        if (property.getType().equalsIgnoreCase("image")) {
+        if (property.getTypeAsFieldType().equals(Property.FieldType.IMAGE)) {
             addImagePropertyValues(propertyNode, property);
             currentNode.appendChild(propertyNode);
 
@@ -199,22 +199,22 @@ public class DialogUtils {
      * @param property The {@link Property} object contains attributes
      */
     private static void processItems(Document document, Node itemsNode, Property property) {
-        for (Property item : property.getItems()) {
-            Element optionNode = document.createElement(item.getField());
+        for (Property propertyItem : property.getItems()) {
+            Element optionNode = document.createElement(propertyItem.getField());
             optionNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
 
-            addBasicProperties(optionNode, item);
+            addBasicProperties(optionNode, propertyItem);
 
-            String resourceType = getSlingResourceType(item.getType());
+            String resourceType = getSlingResourceType(propertyItem);
             if (StringUtils.isNotEmpty(resourceType)) {
                 optionNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, resourceType);
             }
 
-            if (StringUtils.equalsIgnoreCase("multifield", property.getType())) {
-                optionNode.setAttribute(Constants.PROPERTY_NAME, "./" + item.getField());
+            if (property.getTypeAsFieldType().equals(Property.FieldType.MULTIFIELD)) {
+                optionNode.setAttribute(Constants.PROPERTY_NAME, "./" + propertyItem.getField());
             }
 
-            processAttributes(optionNode, item);
+            processAttributes(optionNode, propertyItem);
             itemsNode.appendChild(optionNode);
         }
     }
@@ -314,37 +314,40 @@ public class DialogUtils {
     /**
      * Determine the proper sling:resourceType.
      *
-     * @param type The sling:resourceType
+     * @param property Property
      * @return String
      */
-    private static String getSlingResourceType(String type) {
-        if (StringUtils.isNotBlank(type)) {
-            if (StringUtils.equalsIgnoreCase("textfield", type)) {
-                return Constants.RESOURCE_TYPE_TEXTFIELD;
-            } else if (StringUtils.equalsIgnoreCase("numberfield", type)) {
-                return Constants.RESOURCE_TYPE_NUMBER;
-            } else if (StringUtils.equalsIgnoreCase("checkbox", type)) {
-                return Constants.RESOURCE_TYPE_CHECKBOX;
-            } else if (StringUtils.equalsIgnoreCase("pathfield", type)) {
-                return Constants.RESOURCE_TYPE_PATHFIELD;
-            } else if (StringUtils.equalsIgnoreCase("textarea", type)) {
-                return Constants.RESOURCE_TYPE_TEXTAREA;
-            } else if (StringUtils.equalsIgnoreCase("hidden", type)) {
-                return Constants.RESOURCE_TYPE_HIDDEN;
-            } else if (StringUtils.equalsIgnoreCase("datepicker", type)) {
-                return Constants.RESOURCE_TYPE_DATEPICKER;
-            } else if (StringUtils.equalsIgnoreCase("select", type)) {
-                return Constants.RESOURCE_TYPE_SELECT;
-            } else if (StringUtils.equalsIgnoreCase("radiogroup", type)) {
-                return Constants.RESOURCE_TYPE_RADIOGROUP;
-            } else if (StringUtils.equalsIgnoreCase("radio", type)) {
-                return Constants.RESOURCE_TYPE_RADIO;
-            } else if (StringUtils.equalsIgnoreCase("image", type)) {
-                return Constants.RESOURCE_TYPE_IMAGE;
-            } else if (StringUtils.equalsIgnoreCase("multifield", type)) {
-                return Constants.RESOURCE_TYPE_MULTIFIELD;
-            }
+    private static String getSlingResourceType(Property property) {
+        Property.FieldType type = property.getTypeAsFieldType();
+        if (Property.FieldType.TEXTFIELD.equals(type)) {
+            return Constants.RESOURCE_TYPE_TEXTFIELD;
+        } else if (Property.FieldType.NUMBERFIELD.equals(type)) {
+            return Constants.RESOURCE_TYPE_NUMBER;
+        } else if (Property.FieldType.CHECKBOX.equals(type)) {
+            return Constants.RESOURCE_TYPE_CHECKBOX;
+        } else if (Property.FieldType.PATHFIELD.equals(type)) {
+            return Constants.RESOURCE_TYPE_PATHFIELD;
+        } else if (Property.FieldType.TEXTAREA.equals(type)) {
+            return Constants.RESOURCE_TYPE_TEXTAREA;
+        } else if (Property.FieldType.HIDDEN.equals(type)) {
+            return Constants.RESOURCE_TYPE_HIDDEN;
+        } else if (Property.FieldType.DATEPICKER.equals(type)) {
+            return Constants.RESOURCE_TYPE_DATEPICKER;
+        } else if (Property.FieldType.SELECT.equals(type)) {
+            return Constants.RESOURCE_TYPE_SELECT;
+        } else if (Property.FieldType.RADIOGROUP.equals(type)) {
+            return Constants.RESOURCE_TYPE_RADIOGROUP;
+        } else if (Property.FieldType.RADIO.equals(type)) {
+            return Constants.RESOURCE_TYPE_RADIO;
+        } else if (Property.FieldType.IMAGE.equals(type)) {
+            return Constants.RESOURCE_TYPE_IMAGE;
+        } else if (Property.FieldType.MULTIFIELD.equals(type)) {
+            return Constants.RESOURCE_TYPE_MULTIFIELD;
+        } else if (Property.FieldType.UNKOWN.equals(type)) {
+            // Support for not defined types. Model name will be the sling model field type
+            return property.getTypeOriginal();
+        } else {
+            return null;
         }
-        return null;
     }
 }

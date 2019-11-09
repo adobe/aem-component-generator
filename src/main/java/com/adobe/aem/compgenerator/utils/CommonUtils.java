@@ -64,7 +64,7 @@ public class CommonUtils {
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 return mapper.readValue(jsonDataFile, GenerationConfig.class);
             } catch (IOException e) {
-                throw new GeneratorException("Exception while reading config file.");
+                throw new GeneratorException("Exception while reading config file.", e);
             }
         }
         return null;

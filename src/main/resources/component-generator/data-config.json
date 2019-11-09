@@ -184,6 +184,20 @@
                         "json-expose": true
                     }
                 ]
+            },
+            {
+                "field": "otherRichtextTest",
+                "type": "cq/gui/components/authoring/dialog/richtext",
+                "model-name": "org.w3c.dom.html.HTMLElement",
+                "label": "Richtext",
+                "use-existing-model": true,
+                "json-expose": true,
+                "attributes": {
+                    "cls": "rte-demo",
+                    "externalStyleSheets": "[]",
+                    "inheritFrom": "",
+                    "useFixedInlineToolbar": "{Boolean}true"
+                }
             }
         ],
         "properties-shared": [

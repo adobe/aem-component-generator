@@ -19,11 +19,11 @@
  */
 package com.adobe.aem.compgenerator.javacodemodel;
 
-import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.aem.compgenerator.Constants;
-import com.adobe.aem.compgenerator.utils.CommonUtils;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.adobe.aem.compgenerator.models.Property;
+import com.adobe.aem.compgenerator.utils.CommonUtils;
+import com.adobe.cq.export.json.ComponentExporter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.codemodel.JClassAlreadyExistsException;
@@ -42,8 +42,8 @@ import org.apache.logging.log4j.Logger;
 import java.util.List;
 import java.util.Objects;
 
-import static com.sun.codemodel.JMod.NONE;
 import static com.adobe.aem.compgenerator.javacodemodel.JavaCodeModel.getFieldType;
+import static com.sun.codemodel.JMod.NONE;
 
 /**
  * <p>
@@ -109,7 +109,7 @@ public class InterfaceBuilder extends JavaCodeBuilder {
                             }
                         }
 
-                        if (property.getType().equalsIgnoreCase("multifield")
+                        if (property.getTypeAsFieldType().equals(Property.FieldType.MULTIFIELD)
                                 && property.getItems().size() > 1) {
                             buildMultifieldInterface(property);
                         }
@@ -162,7 +162,7 @@ public class InterfaceBuilder extends JavaCodeBuilder {
      */
     private JType getGetterMethodReturnType(final Property property) {
         String fieldType = getFieldType(property);
-        if (property.getType().equalsIgnoreCase("multifield")) {
+        if (property.getTypeAsFieldType().equals(Property.FieldType.MULTIFIELD)) {
             if (property.getItems().size() == 1) {
                 return codeModel.ref(fieldType).narrow(codeModel.ref(getFieldType(property.getItems().get(0))));
             } else {

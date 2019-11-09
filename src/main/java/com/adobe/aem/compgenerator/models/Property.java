@@ -27,12 +27,50 @@ import java.util.List;
 import java.util.Map;
 
 public class Property implements BaseModel {
+    public enum PropertyType {GLOBAL, SHARED, PRIVATE}
+
+    public enum FieldType {
+        TEXTFIELD("textfield"), NUMBERFIELD("numberfield"), CHECKBOX("checkbox"), PATHFIELD("pathfield"),
+        TEXTAREA("textarea"), HIDDEN("hidden"), DATEPICKER("datepicker"), SELECT("select"), RADIOGROUP("radiogroup"), RADIO("radio"),
+        IMAGE("image"), MULTIFIELD("multifield"), UNKOWN("unkown"), EMPTY("");
+
+        private final String fieldType;
+
+        FieldType(String fieldType) {
+            this.fieldType = fieldType;
+        }
+
+        public static FieldType valueForType(String type) {
+            if (StringUtils.isBlank(type)) {
+                return EMPTY;
+            }
+            for (FieldType value : values()) {
+                if (value.getFieldType().equals(type)) {
+                    return value;
+                }
+            }
+            return UNKOWN;
+        }
+
+        public String getFieldType() {
+            return fieldType;
+        }
+
+        public String toString() {
+            return fieldType;
+        }
+    }
+
+    private Property.PropertyType propertyType;
+    private boolean isChildResource = false;
 
     @JsonProperty("field")
     private String field;
 
     @JsonProperty("type")
-    private String type;
+    private FieldType type;
+
+    private String typeOriginal;
 
     @JsonProperty("label")
     private String label;
@@ -61,6 +99,22 @@ public class Property implements BaseModel {
     @JsonProperty(value = "use-existing-model", defaultValue = "false")
     private boolean useExistingModel;
 
+    public PropertyType getPropertyType() {
+        return propertyType;
+    }
+
+    public void setPropertyType(PropertyType propertyType) {
+        this.propertyType = propertyType;
+    }
+
+    public boolean isChildResource() {
+        return isChildResource;
+    }
+
+    public void setChildResource(boolean childResource) {
+        isChildResource = childResource;
+    }
+
     public String getField() {
         if (StringUtils.isNotBlank(field)) {
             return field;
@@ -83,12 +137,17 @@ public class Property implements BaseModel {
         this.field = field;
     }
 
-    public String getType() {
+    public FieldType getTypeAsFieldType() {
         return type;
     }
 
     public void setType(String type) {
-        this.type = type;
+        this.type = FieldType.valueForType(type);
+        typeOriginal = type;
+    }
+
+    public String getTypeOriginal() {
+        return typeOriginal;
     }
 
     public String getLabel() {
@@ -179,11 +238,11 @@ public class Property implements BaseModel {
         }
 
         Property property = (Property) obj;
-        return property.getField().equals(this.getField()) && property.getType().equals(this.getType());
+        return property.getField().equals(this.getField()) && property.getTypeOriginal().equals(this.getTypeOriginal());
     }
 
     @Override
     public int hashCode() {
-        return getField().hashCode() + getType().hashCode();
+        return getField().hashCode() + getTypeOriginal().hashCode();
     }
 }

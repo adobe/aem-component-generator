@@ -99,9 +99,9 @@ public class ImplementationBuilder extends JavaCodeBuilder {
         JDefinedClass jc = this.implPackage._class(this.className)._implements(this.interfaceClass);
         addSlingAnnotations(jc, this.interfaceClass, resourceType);
 
-        addFieldVars(jc, globalProperties, Constants.PROPERTY_TYPE_GLOBAL);
-        addFieldVars(jc, sharedProperties, Constants.PROPERTY_TYPE_SHARED);
-        addFieldVars(jc, privateProperties, Constants.PROPERTY_TYPE_PRIVATE);
+        addFieldVars(jc, globalProperties);
+        addFieldVars(jc, sharedProperties);
+        addFieldVars(jc, privateProperties);
 
         addGetters(jc);
         addExportedTypeMethod(jc);
@@ -137,12 +137,11 @@ public class ImplementationBuilder extends JavaCodeBuilder {
      * adds fields to java model.
      *
      * @param properties
-     * @param propertyType
      */
-    private void addFieldVars(JDefinedClass jc, List<Property> properties, final String propertyType) {
+    private void addFieldVars(JDefinedClass jc, List<Property> properties) {
         properties.stream()
                 .filter(Objects::nonNull)
-                .forEach(property -> addFieldVar(jc, property, propertyType));
+                .forEach(property -> addFieldVar(jc, property));
     }
 
     /**
@@ -150,14 +149,14 @@ public class ImplementationBuilder extends JavaCodeBuilder {
      *
      * @param property
      */
-    private void addFieldVar(JDefinedClass jc, Property property, final String propertyType) {
+    private void addFieldVar(JDefinedClass jc, Property property) {
         if (property != null && StringUtils.isNotBlank(property.getField())) {
-            if (!property.getType().equalsIgnoreCase("multifield")) { // non multifield properties
-                addPropertyAsPrivateField(jc, property, propertyType);
-            } else if (property.getItems().size() == 1) { // multifield with single property
-                addPropertyAsPrivateField(jc, property, propertyType);
-            } else if (property.getItems().size() > 1) { // composite multifield
-                addPropertyAndObjectAsPrivateField(jc, property);
+            boolean propertyIsMultifield = property.getTypeAsFieldType().equals(Property.FieldType.MULTIFIELD);
+            boolean propertyHasSeveralItems = property.getItems() != null && property.getItems().size() > 1;
+            if (propertyIsMultifield && propertyHasSeveralItems) {
+                addPropertyAsChildResource(jc, property);
+            } else {
+                addPropertyAsValueMap(jc, property);
             }
         }
     }
@@ -166,22 +165,22 @@ public class ImplementationBuilder extends JavaCodeBuilder {
      * method that add the fieldname as private to jc.
      *
      * @param property
-     * @param propertyType
      */
-    private void addPropertyAsPrivateField(JDefinedClass jc, Property property, final String propertyType) {
+    private void addPropertyAsValueMap(JDefinedClass jc, Property property) {
         String fieldType = JavaCodeModel.getFieldType(property);
 
-        JClass fieldClass = property.getType().equalsIgnoreCase("multifield")
+        JClass fieldClass = property.getTypeAsFieldType().equals(Property.FieldType.MULTIFIELD)
                 ? codeModel.ref(fieldType).narrow(codeModel.ref(JavaCodeModel.getFieldType(property.getItems().get(0))))
                 : codeModel.ref(fieldType);
         JFieldVar jFieldVar = jc.field(PRIVATE, fieldClass, property.getField());
 
-        if (StringUtils.equalsIgnoreCase(property.getType(), "image")) {
+        if (property.getTypeAsFieldType().equals(Property.FieldType.IMAGE)) {
             jFieldVar.annotate(codeModel.ref(ChildResourceFromRequest.class))
                     .param(INJECTION_STRATEGY,
                             codeModel.ref(InjectionStrategy.class).staticRef(OPTIONAL_INJECTION_STRATEGY));
 
-        } else if (StringUtils.equalsIgnoreCase(propertyType, Constants.PROPERTY_TYPE_PRIVATE)) {
+        } else if (Property.PropertyType.PRIVATE.equals(property.getPropertyType()) || property.isChildResource()) {
+            //Current implementation does not support child resources other than private
             jFieldVar.annotate(codeModel.ref(ValueMapValue.class))
                     .param(INJECTION_STRATEGY,
                             codeModel.ref(InjectionStrategy.class).staticRef(OPTIONAL_INJECTION_STRATEGY));
@@ -197,12 +196,12 @@ public class ImplementationBuilder extends JavaCodeBuilder {
     /**
      * method that add the fieldname as private and adds a class to jc
      */
-    private void addPropertyAndObjectAsPrivateField(JDefinedClass jc, Property property) {
+    private void addPropertyAsChildResource(JDefinedClass jc, Property property) {
         String modelClassName = JavaCodeModel.getMultifieldInterfaceName(property);
 
         // Create the multifield item
         if (!property.getUseExistingModel()) {
-            buildImplementation(property.getItems(), modelClassName);
+            buildChildImplementation(property.getItems(), modelClassName);
         }
 
         String fieldType = JavaCodeModel.getFieldType(property);
@@ -277,12 +276,16 @@ public class ImplementationBuilder extends JavaCodeBuilder {
         return fieldVariable;
     }
 
-    private void buildImplementation(List<Property> properties, String modelClassName) {
+    private void buildChildImplementation(List<Property> properties, String modelClassName) {
+        for (Property childProperty : properties) {
+            childProperty.setChildResource(true);
+        }
         try {
             JClass childInterfaceClass = codeModel.ref(generationConfig.getProjectSettings().getModelInterfacePackage() + "." + modelClassName);
             JDefinedClass implClass = this.implPackage._class(modelClassName + "Impl")._implements(childInterfaceClass);
             addSlingAnnotations(implClass, childInterfaceClass, null);
-            addFieldVars(implClass, properties, Constants.PROPERTY_TYPE_PRIVATE);
+            // Child properties are marked as ChildResource and can be handled properly later
+            addFieldVars(implClass, properties);
             addGetters(implClass);
             addExportedTypeMethod(implClass);
         } catch (JClassAlreadyExistsException ex) {

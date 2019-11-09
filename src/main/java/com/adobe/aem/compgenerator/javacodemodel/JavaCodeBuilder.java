@@ -22,13 +22,13 @@ package com.adobe.aem.compgenerator.javacodemodel;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.adobe.aem.compgenerator.models.Property;
 import com.sun.codemodel.JCodeModel;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.stream.Collectors;
 
 public abstract class JavaCodeBuilder {
@@ -45,14 +45,13 @@ public abstract class JavaCodeBuilder {
 
         Set<Property> occurredProperties = new HashSet<>();
 
-        this.globalProperties = filterProperties(occurredProperties, generationConfig.getOptions().getGlobalProperties());
+        this.globalProperties = filterProperties(occurredProperties, generationConfig.getOptions().getGlobalProperties(), Property.PropertyType.GLOBAL);
         occurredProperties.addAll(this.globalProperties);
 
-        this.sharedProperties = filterProperties(occurredProperties, generationConfig.getOptions().getSharedProperties());
+        this.sharedProperties = filterProperties(occurredProperties, generationConfig.getOptions().getSharedProperties(), Property.PropertyType.SHARED);
         occurredProperties.addAll(this.sharedProperties);
 
-        this.privateProperties = filterProperties(occurredProperties, generationConfig.getOptions().getProperties());
-        occurredProperties.addAll(this.privateProperties);
+        this.privateProperties = filterProperties(occurredProperties, generationConfig.getOptions().getProperties(), Property.PropertyType.PRIVATE);
     }
 
     /**
@@ -62,17 +61,20 @@ public abstract class JavaCodeBuilder {
      * @param originalProperties
      * @return filtered properties
      */
-    private static List<Property> filterProperties(Set<Property> occurredProperties, List<Property> originalProperties) {
+    private static List<Property> filterProperties(Set<Property> occurredProperties, List<Property> originalProperties, Property.PropertyType propertyType) {
         List<Property> properties;
         if (originalProperties != null) {
             properties = originalProperties.stream()
                     .filter(Objects::nonNull)
                     .filter(property -> StringUtils.isNotBlank(property.getField()))
-                    .filter(property -> StringUtils.isNotBlank(property.getType()))
+                    .filter(property -> !property.getTypeAsFieldType().equals(Property.FieldType.EMPTY))
                     .filter(property -> !(occurredProperties.contains(property)))
                     .collect(Collectors.toList());
         } else {
             properties = Collections.emptyList();
+        }
+        for (Property property : properties) {
+            property.setPropertyType(propertyType);
         }
         return properties;
     }

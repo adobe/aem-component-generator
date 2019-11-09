@@ -136,25 +136,27 @@ public class JavaCodeModel {
      * @return String returns relevant java type of string passed in.
      */
     public static String getFieldType(Property property) {
-        String type = property.getType();
-        if (type.equalsIgnoreCase("textfield")
-                || type.equalsIgnoreCase("pathfield")
-                || type.equalsIgnoreCase("textarea")
-                || type.equalsIgnoreCase("hidden")
-                || type.equalsIgnoreCase("select")
-                || type.equalsIgnoreCase("radiogroup")) {
+        Property.FieldType type = property.getTypeAsFieldType();
+        if (type.equals(Property.FieldType.TEXTFIELD)
+                || type.equals(Property.FieldType.PATHFIELD)
+                || type.equals(Property.FieldType.TEXTAREA)
+                || type.equals(Property.FieldType.HIDDEN)
+                || type.equals(Property.FieldType.SELECT)
+                || type.equals(Property.FieldType.RADIOGROUP)) {
             return "java.lang.String";
-        } else if (type.equalsIgnoreCase("numberfield")) {
+        } else if (type.equals(Property.FieldType.NUMBERFIELD)) {
             return "java.lang.Long";
-        } else if (type.equalsIgnoreCase("checkbox")) {
+        } else if (type.equals(Property.FieldType.CHECKBOX)) {
             return "java.lang.Boolean";
-        } else if (type.equalsIgnoreCase("datepicker")) {
+        } else if (type.equals(Property.FieldType.DATEPICKER)) {
             return "java.util.Calendar";
-        } else if (type.equalsIgnoreCase("image")) {
+        } else if (type.equals(Property.FieldType.IMAGE)) {
             return "com.adobe.cq.wcm.core.components.models.Image";
-        } else if (type.equalsIgnoreCase("multifield")) {
+        } else if (type.equals(Property.FieldType.MULTIFIELD)) {
             return "java.util.List";
+        } else if (type.equals(Property.FieldType.UNKOWN)) {
+            return property.getModelName();
         }
-        return type;
+        return null;
     }
 }

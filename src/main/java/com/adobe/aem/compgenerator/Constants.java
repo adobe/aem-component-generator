@@ -50,10 +50,6 @@ public class Constants {
     public static final String DIALOG_TYPE_SHARED = "dialogshared";
     public static final String FILENAME_CONTENT_XML = ".content.xml";
 
-    public static final String PROPERTY_TYPE_GLOBAL = "global";
-    public static final String PROPERTY_TYPE_PRIVATE = "private";
-    public static final String PROPERTY_TYPE_SHARED = "shared";
-
     public static final String PROPERTY_JCR_TITLE = "jcr:title";
     public static final String PROPERTY_SLING_RESOURCETYPE = "sling:resourceType";
     public static final String PROPERTY_FIELDLABEL = "fieldLabel";
