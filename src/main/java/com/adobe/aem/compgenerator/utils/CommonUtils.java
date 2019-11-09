@@ -77,7 +77,7 @@ public class CommonUtils {
      * @return File with the given path
      * @throws IOException exception
      */
-    public static File getNewFileAtPathAndRenameExisting(String path) throws IOException{
+    public static File getNewFileAtPathAndRenameExisting(String path) throws IOException {
         File file = new File(path);
         if (file.exists()) {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Constants.RENAME_FILE_DATE_PATTERN);
@@ -110,7 +110,7 @@ public class CommonUtils {
     /**
      * Method to read the content of the provided template file as string.
      *
-     * @param filePath Path to the template file in the project
+     * @param filePath         Path to the template file in the project
      * @param generationConfig The {@link GenerationConfig} object with all the populated values
      * @return String return content of the resource file as string or null when file not exists
      */
@@ -126,6 +126,7 @@ public class CommonUtils {
         }
         return null;
     }
+
     /**
      * Creates a new folder.
      *
@@ -154,7 +155,7 @@ public class CommonUtils {
     /**
      * Creates a new file with the correct copyright text appearing at the top.
      *
-     * @param path Full path including the new file name
+     * @param path             Full path including the new file name
      * @param generationConfig The {@link GenerationConfig} object with all the populated values
      * @throws IOException exception
      */
@@ -177,13 +178,13 @@ public class CommonUtils {
     /**
      * Creates the css.txt or js.txt file for a clientLib.
      *
-     * @param path Full path including the new file name
-     * @param generationConfig The {@link GenerationConfig} object with all the populated values
+     * @param path              Full path including the new file name
+     * @param generationConfig  The {@link GenerationConfig} object with all the populated values
      * @param clientLibFileName The less/js file's name
      * @throws IOException exception
      */
     public static void createClientlibTextFile(String path,
-            GenerationConfig generationConfig, String clientLibFileName) throws IOException {
+                                               GenerationConfig generationConfig, String clientLibFileName) throws IOException {
 
         BufferedWriter writer = getFileWriterFromTemplate(path, Constants.TEMPLATE_COPYRIGHT_TEXT, generationConfig);
         writer.newLine();
@@ -216,13 +217,13 @@ public class CommonUtils {
     /**
      * Creates a {@link BufferedWriter} from the provided 'template'.
      *
-     * @param path Full path including the new file name
-     * @param template The template to use when creating the {@link BufferedWriter}
+     * @param path             Full path including the new file name
+     * @param template         The template to use when creating the {@link BufferedWriter}
      * @param generationConfig The {@link GenerationConfig} object with all the populated values
      * @throws IOException exception
      */
     private static BufferedWriter getFileWriterFromTemplate(String path,
-            String template, GenerationConfig generationConfig) throws IOException {
+                                                            String template, GenerationConfig generationConfig) throws IOException {
 
         File file = getNewFileAtPathAndRenameExisting(path);
         String templateString = getTemplateFileAsString(template, generationConfig);
@@ -245,6 +246,7 @@ public class CommonUtils {
             map.put("sightly", StringUtils.uncapitalize(generationConfig.getJavaFormatedName()));
             map.put("slingModel", generationConfig.getProjectSettings().getModelInterfacePackage() + "." + generationConfig.getJavaFormatedName());
             map.put("CODEOWNER", generationConfig.getProjectSettings().getCodeOwner());
+            map.put("htmlOutput", generationConfig.getOptions().isGenerateInHtml() ? HTMLUtils.renderHtml(generationConfig) : StringUtils.EMPTY);
             return map;
         }
         return null;
