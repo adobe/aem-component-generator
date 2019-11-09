@@ -110,7 +110,7 @@ public class CommonUtils {
     /**
      * Method to read the content of the provided template file as string.
      *
-     * @param filePath         Path to the template file in the project
+     * @param filePath Path to the template file in the project
      * @param generationConfig The {@link GenerationConfig} object with all the populated values
      * @return String return content of the resource file as string or null when file not exists
      */
@@ -155,7 +155,7 @@ public class CommonUtils {
     /**
      * Creates a new file with the correct copyright text appearing at the top.
      *
-     * @param path             Full path including the new file name
+     * @param path Full path including the new file name
      * @param generationConfig The {@link GenerationConfig} object with all the populated values
      * @throws IOException exception
      */
@@ -178,8 +178,8 @@ public class CommonUtils {
     /**
      * Creates the css.txt or js.txt file for a clientLib.
      *
-     * @param path              Full path including the new file name
-     * @param generationConfig  The {@link GenerationConfig} object with all the populated values
+     * @param path Full path including the new file name
+     * @param generationConfig The {@link GenerationConfig} object with all the populated values
      * @param clientLibFileName The less/js file's name
      * @throws IOException exception
      */
@@ -217,8 +217,8 @@ public class CommonUtils {
     /**
      * Creates a {@link BufferedWriter} from the provided 'template'.
      *
-     * @param path             Full path including the new file name
-     * @param template         The template to use when creating the {@link BufferedWriter}
+     * @param path Full path including the new file name
+     * @param template The template to use when creating the {@link BufferedWriter}
      * @param generationConfig The {@link GenerationConfig} object with all the populated values
      * @throws IOException exception
      */
