@@ -60,6 +60,7 @@ your component.
     - Fields are derived from dialog properties (see below)
 - `options.content-exporter`: whether to configure sling model for content export
 - `options.model-adaptables`: array of adaptables to include in the Sling Model ('request' and/or 'resource')
+- `generate-in-html`: generate dialog fields in the html file
 - `options.generic-javadoc`: whether to create generic javadoc for the getters in the model interface
 - `options.properties`: properties to create in standard dialog for this component. If empty, no standard dialog will be created. This sample includes one of every possible sling:resourceType
     - `options.properties[].field`: the property "name" and java variable name.

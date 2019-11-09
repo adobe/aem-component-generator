@@ -77,7 +77,7 @@ public class CommonUtils {
      * @return File with the given path
      * @throws IOException exception
      */
-    public static File getNewFileAtPathAndRenameExisting(String path) throws IOException{
+    public static File getNewFileAtPathAndRenameExisting(String path) throws IOException {
         File file = new File(path);
         if (file.exists()) {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Constants.RENAME_FILE_DATE_PATTERN);
@@ -126,6 +126,7 @@ public class CommonUtils {
         }
         return null;
     }
+
     /**
      * Creates a new folder.
      *
@@ -183,7 +184,7 @@ public class CommonUtils {
      * @throws IOException exception
      */
     public static void createClientlibTextFile(String path,
-            GenerationConfig generationConfig, String clientLibFileName) throws IOException {
+                                               GenerationConfig generationConfig, String clientLibFileName) throws IOException {
 
         BufferedWriter writer = getFileWriterFromTemplate(path, Constants.TEMPLATE_COPYRIGHT_TEXT, generationConfig);
         writer.newLine();
@@ -222,7 +223,7 @@ public class CommonUtils {
      * @throws IOException exception
      */
     private static BufferedWriter getFileWriterFromTemplate(String path,
-            String template, GenerationConfig generationConfig) throws IOException {
+                                                            String template, GenerationConfig generationConfig) throws IOException {
 
         File file = getNewFileAtPathAndRenameExisting(path);
         String templateString = getTemplateFileAsString(template, generationConfig);
@@ -245,6 +246,7 @@ public class CommonUtils {
             map.put("sightly", StringUtils.uncapitalize(generationConfig.getJavaFormatedName()));
             map.put("slingModel", generationConfig.getProjectSettings().getModelInterfacePackage() + "." + generationConfig.getJavaFormatedName());
             map.put("CODEOWNER", generationConfig.getProjectSettings().getCodeOwner());
+            map.put("htmlOutput", generationConfig.getOptions().isGenerateInHtml() ? HTMLUtils.renderHtml(generationConfig) : "<!-- Component HTML goes here -->");
             return map;
         }
         return null;
