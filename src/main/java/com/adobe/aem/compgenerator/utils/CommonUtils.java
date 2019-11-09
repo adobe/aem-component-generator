@@ -246,7 +246,7 @@ public class CommonUtils {
             map.put("sightly", StringUtils.uncapitalize(generationConfig.getJavaFormatedName()));
             map.put("slingModel", generationConfig.getProjectSettings().getModelInterfacePackage() + "." + generationConfig.getJavaFormatedName());
             map.put("CODEOWNER", generationConfig.getProjectSettings().getCodeOwner());
-            map.put("htmlOutput", generationConfig.getOptions().isGenerateInHtml() ? HTMLUtils.renderHtml(generationConfig) : StringUtils.EMPTY);
+            map.put("htmlOutput", generationConfig.getOptions().isGenerateInHtml() ? HTMLUtils.renderHtml(generationConfig) : "<!-- Component HTML goes here -->");
             return map;
         }
         return null;

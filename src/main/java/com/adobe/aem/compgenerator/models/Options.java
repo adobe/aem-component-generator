@@ -55,7 +55,7 @@ public class Options implements BaseModel {
     @JsonProperty("model-adaptables")
     private String[] modelAdaptables;
 
-    @JsonProperty(value = "generate-in-html", defaultValue = "true")
+    @JsonProperty(value = "generate-in-html")
     private boolean generateInHtml;
 
     @JsonProperty("properties")
