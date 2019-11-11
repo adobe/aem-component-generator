@@ -84,7 +84,7 @@ public class HTMLUtils {
     private static String generateParagraphHtml(String label, String field, String slingModel, String additional) {
         return "<p>" +
                 label +
-                ": $̊̄̄{" +
+                ": ${" +
                 slingModel +
                 "." +
                 field +

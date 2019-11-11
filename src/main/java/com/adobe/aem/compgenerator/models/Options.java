@@ -55,8 +55,8 @@ public class Options implements BaseModel {
     @JsonProperty("model-adaptables")
     private String[] modelAdaptables;
 
-    @JsonProperty(value = "generate-in-html")
-    private boolean generateInHtml;
+    @JsonProperty(value = "html-content")
+    private boolean htmlContent;
 
     @JsonProperty("properties")
     private List<Property> properties;
@@ -142,12 +142,12 @@ public class Options implements BaseModel {
         this.modelAdaptables = modelAdaptables;
     }
 
-    public boolean isGenerateInHtml() {
-        return generateInHtml;
+    public boolean isHtmlContent() {
+        return htmlContent;
     }
 
-    public void setGenerateInHtml(boolean generateInHtml) {
-        this.generateInHtml = generateInHtml;
+    public void setHtmlContent(boolean htmlContent) {
+        this.htmlContent = htmlContent;
     }
 
     public List<Property> getProperties() {
