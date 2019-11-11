@@ -17,7 +17,7 @@
         "css": true,
         "csstxt": true,
         "html": true,
-        "html-content": true,
+        "html-content": false,
         "slingmodel": true,
         "content-exporter": false,
         "model-adaptables": ["request"],

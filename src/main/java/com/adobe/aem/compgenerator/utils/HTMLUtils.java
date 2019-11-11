@@ -18,10 +18,7 @@ public class HTMLUtils {
         StringBuilder renderedHtml = new StringBuilder();
 
         for (Property prop : props) {
-            String label = "label_not_defined";
-            if (prop.getLabel() != null) {
-                label = prop.getLabel();
-            }
+            String label = getLabel(prop);
 
             if (Constants.TYPE_CHECKBOX.equals(prop.getType())) {
                 renderedHtml.append(generateParagraphHtml(label,
@@ -49,10 +46,22 @@ public class HTMLUtils {
         return renderedHtml.toString();
     }
 
+    private static String getLabel(Property prop) {
+        String label = prop.getLabel();
+        if (label == null) {
+            label = prop.getAttributes().get("value");
+            if (label == null) {
+                label = prop.getField();
+            }
+        }
+
+        return label;
+    }
+
     private static String generateImageHtml(String label, String field, String slingModel) {
-        return "<p>" +
+        return "\t<p>" +
                 label +
-                ": <img src=\"" +
+                ": <img src=\"${" +
                 slingModel +
                 "." +
                 field +
@@ -60,29 +69,31 @@ public class HTMLUtils {
     }
 
     private static String generateListHtml(Property prop, String slingModel) {
-        String initialListHtml = "<div data-sly-list=\"${" +
+        String initialListHtml = "\n\t<div data-sly-list=\"${" +
                 slingModel +
                 "." +
                 prop.getField() +
-                "}\">\n\t<p>";
+                "}\">\n\t\t<p>";
         if (prop.getItems().size() > 1) {
             StringBuilder items = new StringBuilder(initialListHtml);
+            int index = 1;
             for (Property property : prop.getItems()) {
                 items.append(property.getLabel())
                         .append(": ${item.")
                         .append(property.getField())
-                        .append("}\n\t");
+                        .append(prop.getItems().size() == index ? "}" : "} | ");
+                index++;
             }
-            return items + "</p>\n</div>\n";
+            return items + "</p>\n\t</div>";
         } else {
             return initialListHtml +
                     prop.getLabel() +
-                    ": ${item}</p>\n</div>\n";
+                    ": ${item}</p>\n\t</div>";
         }
     }
 
     private static String generateParagraphHtml(String label, String field, String slingModel, String additional) {
-        return "<p>" +
+        return "\t<p>" +
                 label +
                 ": ${" +
                 slingModel +
