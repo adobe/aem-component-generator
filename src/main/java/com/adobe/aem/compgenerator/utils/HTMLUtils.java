@@ -21,6 +21,7 @@ public class HTMLUtils {
             String label = getLabel(prop);
 
             if (Constants.TYPE_CHECKBOX.equals(prop.getType())) {
+                label = prop.getAttributes().get("text");
                 renderedHtml.append(generateParagraphHtml(label,
                         prop.getField(),
                         slingModel,
@@ -59,7 +60,7 @@ public class HTMLUtils {
     }
 
     private static String generateImageHtml(String label, String field, String slingModel) {
-        return "\t<p>" +
+        return "  <p>" +
                 label +
                 ": <img src=\"${" +
                 slingModel +
@@ -69,11 +70,11 @@ public class HTMLUtils {
     }
 
     private static String generateListHtml(Property prop, String slingModel) {
-        String initialListHtml = "\n\t<div data-sly-list=\"${" +
+        String initialListHtml = "  <div data-sly-list=\"${" +
                 slingModel +
                 "." +
                 prop.getField() +
-                "}\">\n\t\t<p>";
+                "}\">\n    <p>";
         if (prop.getItems().size() > 1) {
             StringBuilder items = new StringBuilder(initialListHtml);
             int index = 1;
@@ -84,16 +85,16 @@ public class HTMLUtils {
                         .append(prop.getItems().size() == index ? "}" : "} | ");
                 index++;
             }
-            return items + "</p>\n\t</div>";
+            return items + "</p>\n  </div>\n";
         } else {
             return initialListHtml +
                     prop.getLabel() +
-                    ": ${item}</p>\n\t</div>";
+                    ": ${item}</p>\n  </div>\n";
         }
     }
 
     private static String generateParagraphHtml(String label, String field, String slingModel, String additional) {
-        return "\t<p>" +
+        return "  <p>" +
                 label +
                 ": ${" +
                 slingModel +
