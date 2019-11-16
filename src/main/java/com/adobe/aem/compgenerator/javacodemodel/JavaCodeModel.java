@@ -19,8 +19,8 @@
  */
 package com.adobe.aem.compgenerator.javacodemodel;
 
-import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
+import com.adobe.aem.compgenerator.models.OptionTemplateTxt;
 import com.adobe.aem.compgenerator.models.Property;
 import com.adobe.aem.compgenerator.utils.CommonUtils;
 import com.sun.codemodel.CodeWriter;
@@ -113,7 +113,7 @@ public class JavaCodeModel {
         CodeWriter codeWriter = new RenameFileCodeWriter(new File(generationConfig.getProjectSettings().getBundlePath()));
 
         // PrologCodeWriter to prepend the copyright template in each file
-        String templateString = CommonUtils.getTemplateFileAsString(Constants.TEMPLATE_COPYRIGHT_JAVA, generationConfig);
+        String templateString = CommonUtils.getTemplateFileAsString(OptionTemplateTxt.TemplateType.TEMPLATE_COPYRIGHT_JAVA.toString(), generationConfig);
         PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter, templateString);
 
         codeModel.build(prologCodeWriter);

@@ -19,7 +19,9 @@
         "html": true,
         "slingmodel": true,
         "content-exporter": false,
-        "model-adaptables": ["request"],
+        "model-adaptables": [
+            "request"
+        ],
         "generic-javadoc": false,
         "properties": [
             {
@@ -37,7 +39,12 @@
                 "json-expose": true,
                 "attributes": {
                     "value": "{Boolean}true",
-                    "text": "Checkbox Test"
+                    "text": "Checkbox Test Successful"
+                },
+                "template": {
+                    "html": {
+                        "content": "\t<p>$${${sightly}Model.@{field} ? '@{attributes.text}' : 'Checkbox Test Failed'}</p>"
+                    }
                 }
             },
             {
@@ -97,6 +104,7 @@
             {
                 "field": "radioTest",
                 "type": "radiogroup",
+                "label": "Radio Test",
                 "json-expose": true,
                 "attributes": {
                     "vertical": "{Boolean}false"
@@ -129,6 +137,12 @@
                 "type": "hidden",
                 "attributes": {
                     "value": "hidden value"
+                },
+                "template": {
+                    "html": {
+                        "_comment_": "Template variables (@{...}) in values below means relative replacement to \"template\" parent path",
+                        "content": "\t<p>Hidden Field (@{field}): $${${sightly}Model.@{field}}</p>"
+                    }
                 }
             },
             {
@@ -183,7 +197,13 @@
                         "description": "Label to display on the link",
                         "json-expose": true
                     }
-                ]
+                ],
+                "template": {
+                    "html": {
+                        "_comment_": "Template variables (@{...}) in values below means relative replacement to \"template\" parent path",
+                        "content": "\t<div data-sly-list=\"$${${sightly}Model.@{field}}\">\n\t\t<p>Path: ${item.path}</p>\n\t\t<p>Label: ${item.label}</p>\n\t</div>"
+                    }
+                }
             },
             {
                 "field": "otherRichtextTest",
@@ -197,6 +217,12 @@
                     "externalStyleSheets": "[]",
                     "inheritFrom": "",
                     "useFixedInlineToolbar": "{Boolean}true"
+                },
+                "template": {
+                    "html": {
+                        "_comment_": "Template variables (@{...}) in values below means relative replacement to \"template\" parent path",
+                        "content": "\t<p>@{label}: $${${sightly}Model.@{field}}</p>"
+                    }
                 }
             }
         ],
@@ -215,6 +241,72 @@
                 "label": "Global Textfield Test",
                 "json-expose": true
             }
-        ]
+        ],
+        "template-definitions": {
+            "copy-patterns": [
+                {
+                    "_comment_": "Following copy patterns are used to copy targetAttributes (@...) to related baseJsonPath (https://github.com/json-path/JsonPath)"
+                },
+                {
+                    "_comment_": "Set component templates in the data-config.json tree. Using attributes see: <{sightly} ${template-html-attributes}>${template-html-content}</${sightly}>",
+                    "baseJsonPath": "$.options",
+                    "targetAttributes": {
+                        "@.template.html.component": "\t<!--/* Generated with data-config \"template-definitions\" */-->\n${template-html-content}",
+                        "@.template.html.bottom": "<sly data-sly-use.templates=\"core/wcm/components/commons/v1/templates.html\"\n\tdata-sly-call=\"${templates.placeholder @ isEmpty = !configured}\" />"
+                    }
+                },
+                {
+                    "_comment_": "All properties with type multifield and no content is actually set get different content",
+                    "baseJsonPath": "$.options.['properties','properties-shared','properties-global'].[?((@.field) && (@.type == \"multifield\") && !(@.template.html.content))]",
+                    "targetAttributes": {
+                        "@.template.html.content": "\t<div data-sly-list=\"$${${sightly}Model.@{field}}\">\n\t\t<p>@{label}: ${item}</p>\n\t</div>"
+                    }
+                },
+                {
+                    "_comment_": "All properties with type multifield  and no content is actually set get different content",
+                    "baseJsonPath": "$.options.['properties','properties-shared','properties-global'].[?((@.field) && (@.type == \"image\") && !(@.template.html.content))]",
+                    "targetAttributes": {
+                        "@.template.html.content": "\t<p>@{label}: <img src=\"$${${sightly}Model.@{field}.src}\"/></p>"
+                    }
+                },
+                {
+                    "_comment_": "Apply default values for properties for content not already set",
+                    "baseJsonPath": "$.options.['properties','properties-shared','properties-global'][?((@.field) && (@.label) && !(@.template.html.content))]",
+                    "targetAttributes": {
+                        "@.template.html.content": "\t<p>@{label}: $${${sightly}Model.@{field}}</p>"
+                    }
+                },
+                {
+                    "_comment_": "Apply default values for properties for content not already set",
+                    "baseJsonPath": "$.options.['properties','properties-shared','properties-global'][?((@.field) && !(@.label) && !(@.template.html.content))]",
+                    "targetAttributes": {
+                        "@.template.html.content": "\t<p>$${${sightly}Model.@{field}}</p>"
+                    }
+                },
+                {
+                    "_comment_": "All properties with template.attribute",
+                    "baseJsonPath": "$.options.['properties','properties-shared','properties-global'][?((@.field) && !(@.template.html.attribute))]",
+                    "targetAttributes": {
+                        "@.template.html.attribute": "${template.attribute}=\"$${${sightly}Model.@{field}}\""
+                    }
+                }
+            ],
+            "placeholder-patterns": {
+                "_comment_": "Finds all nodes with template values for resolving template variables (@{...})",
+                "jsonPath": "$..template"
+            },
+            "collect-patterns": [
+                {
+                    "_comment_": "After resolving the variables we need to collect the resolved texts, key and value are a jasonPath",
+                    "baseJsonPath": "$",
+                    "targetAttributes": {
+                        "@.options.replaceValueMap.template-html-component": "$.options.template.html.component",
+                        "@.options.replaceValueMap.template-html-content": "$.options['properties','properties-shared','properties-global'][?(@.template.html.content)].template.html.content",
+                        "@.options.replaceValueMap.template-html-attribute": "$.options['properties','properties-shared','properties-global'][?(@.template.html.attribute)].template.html.attribute",
+                        "@.options.replaceValueMap.template-html-bottom": "$.options.template.html.bottom"
+                    }
+                }
+            ]
+        }
     }
 }

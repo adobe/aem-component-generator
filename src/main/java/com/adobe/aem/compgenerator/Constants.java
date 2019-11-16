@@ -66,12 +66,6 @@ public class Constants {
     public static final String TYPE_CQ_COMPONENT = "cq:Component";
     public static final String TYPE_SLING_FOLDER = "sling:Folder";
 
-    public static final String TEMPLATE_COPYRIGHT_CSS = "template-copyright-css.txt";
-    public static final String TEMPLATE_COPYRIGHT_JAVA = "template-copyright.txt";
-    public static final String TEMPLATE_COPYRIGHT_HTL = "template-htl.txt";
-    public static final String TEMPLATE_COPYRIGHT_TEXT = "template-copyright-text.txt";
-    public static final String TEMPLATE_COPYRIGHT_XML = "template-copyright-xml.txt";
-
     public static final String STRING_GET = "get";
 
     public static final String RENAME_FILE_DATE_PATTERN = "yyyyMMddHHmmss";

@@ -23,6 +23,7 @@ import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.exceptions.GeneratorException;
 import com.adobe.aem.compgenerator.javacodemodel.RollbackFileHandler;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
+import com.adobe.aem.compgenerator.models.OptionTemplateTxt;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -47,7 +48,7 @@ public class XMLUtils {
             return null;
         }
 
-        String templateString = CommonUtils.getTemplateFileAsString(Constants.TEMPLATE_COPYRIGHT_XML, generationConfig);
+        String templateString = CommonUtils.getTemplateFileAsString(OptionTemplateTxt.TemplateType.TEMPLATE_COPYRIGHT_XML.toString(), generationConfig);
         document.appendChild(document.createComment(templateString));
         Element rootElement = document.createElement(Constants.JCR_ROOT_NODE);
         rootElement.setAttribute("xmlns:sling", "http://sling.apache.org/jcr/sling/1.0");

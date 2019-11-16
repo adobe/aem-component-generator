@@ -69,7 +69,8 @@ public class AemCompGenerator {
 
             //builds component folder and file structure.
             ComponentUtils generatorUtils = new ComponentUtils(config);
-            generatorUtils.buildComponent();
+            generatorUtils.buildComponent(configFile.getPath());
+
 
             //builds sling model based on config.
             if (config.getOptions() != null && config.getOptions().isHasSlingModel()) {

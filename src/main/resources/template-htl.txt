@@ -16,10 +16,9 @@
 *  ***********************************************************************
 */-->
 
-<sly data-sly-use.${sightly}Model="${slingModel}"
-     data-sly-test.configured="${false}">
+<sly data-sly-use.${sightly}Model="${slingModel}">
     <!-- Component HTML goes here -->
+${template-html-component}
 </sly>
 
-<sly data-sly-use.templates="core/wcm/components/commons/v1/templates.html"
-     data-sly-call="${templates.placeholder @ isEmpty = !configured}" />
+${template-html-bottom}

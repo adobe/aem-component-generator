@@ -22,12 +22,15 @@ package com.adobe.aem.compgenerator.utils;
 import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.exceptions.GeneratorException;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 /**
@@ -50,14 +53,20 @@ public class ComponentUtils {
      * Builds your base folder structure of a component includes component folder
      * itself, _cq_dialog with field properties, dialogglobal with properties-global,
      * HTML, clientlibs folder.
+     * @param configFilePath
      */
-    public void buildComponent() throws Exception {
+    public void buildComponent(String configFilePath) throws Exception {
         if (generationConfig == null) {
             throw new GeneratorException("Config file cannot be empty / null !!");
         }
+        generationConfig.setConfigFilePath(configFilePath);
+
+        //creates template structure
+        TemplateUtils.initConfigTemplates(generationConfig,
+                FileUtils.readFileToString(new File(configFilePath), StandardCharsets.UTF_8));
 
         //creates base component folder.
-        createFolderWithContentXML(generationConfig.getCompDir(), Constants.TYPE_CQ_COMPONENT);
+        createFolderWithContentXML(generationConfig.getCompDir(), Constants.TYPE_CQ_COMPONENT, generationConfig);
 
         //create _cq_dialog xml with user input properties in json.
         DialogUtils.createDialogXml(generationConfig, Constants.DIALOG_TYPE_DIALOG);
@@ -94,10 +103,10 @@ public class ComponentUtils {
         String clientLibDirPath = generationConfig.getCompDir() + "/clientlibs";
         try {
             if (generationConfig.getOptions().isHasJs() || generationConfig.getOptions().isHasCss()) {
-                createFolderWithContentXML(clientLibDirPath, Constants.TYPE_SLING_FOLDER);
+                createFolderWithContentXML(clientLibDirPath, Constants.TYPE_SLING_FOLDER, generationConfig);
 
                 String clientLibSiteDirPath = clientLibDirPath + "/site";
-                createFolderWithContentXML(clientLibSiteDirPath, Constants.TYPE_CQ_CLIENTLIB_FOLDER);
+                createFolderWithContentXML(clientLibSiteDirPath, Constants.TYPE_CQ_CLIENTLIB_FOLDER, generationConfig);
 
                 if (generationConfig.getOptions().isHasCss()) {
                     String clientLibCssFolder = clientLibSiteDirPath + "/css";
@@ -138,9 +147,11 @@ public class ComponentUtils {
      *
      * @param path Full path including the new file name
      * @param folderType The 'jcr:primaryType' of the folder
+     * @param generationConfig ..
      * @throws Exception exception
      */
-    private void createFolderWithContentXML(String path, String folderType) throws Exception {
+    static void createFolderWithContentXML(String path, String folderType, GenerationConfig generationConfig)
+            throws Exception {
         Path folderPath = CommonUtils.createFolder(path);
         try {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();

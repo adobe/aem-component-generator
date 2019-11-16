@@ -46,6 +46,7 @@ public class GenerationConfig implements BaseModel {
     // Non-JSON property runtime variables
     private String compDir;
     private String javaFormatedName;
+    private String configFilePath;
 
 
     public String getName() {
@@ -117,5 +118,13 @@ public class GenerationConfig implements BaseModel {
     @Override
     public boolean isValid() {
         return StringUtils.isNotBlank(name) && StringUtils.isNotBlank(type);
+    }
+
+    public void setConfigFilePath(String configFilePath) {
+        this.configFilePath = configFilePath;
+    }
+
+    public String getConfigFilePath() {
+        return configFilePath;
     }
 }

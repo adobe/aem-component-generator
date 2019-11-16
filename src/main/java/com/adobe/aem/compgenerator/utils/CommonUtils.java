@@ -24,6 +24,7 @@ import com.adobe.aem.compgenerator.exceptions.GeneratorException;
 import com.adobe.aem.compgenerator.javacodemodel.RollbackFileHandler;
 import com.adobe.aem.compgenerator.models.BaseModel;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
+import com.adobe.aem.compgenerator.models.OptionTemplateTxt;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -159,20 +160,22 @@ public class CommonUtils {
      * @throws IOException exception
      */
     public static void createFileWithCopyRight(String path, GenerationConfig generationConfig) throws IOException {
-        String template = Constants.TEMPLATE_COPYRIGHT_JAVA;
+
+        OptionTemplateTxt.TemplateType template = OptionTemplateTxt.TemplateType.TEMPLATE_COPYRIGHT_JAVA;
         if (path.endsWith("js") || path.endsWith("java")) {
-            template = Constants.TEMPLATE_COPYRIGHT_JAVA;
+            template = OptionTemplateTxt.TemplateType.TEMPLATE_COPYRIGHT_JAVA;
         } else if (path.endsWith("less")) {
-            template = Constants.TEMPLATE_COPYRIGHT_CSS;
+            template = OptionTemplateTxt.TemplateType.TEMPLATE_COPYRIGHT_CSS;
         } else if (path.endsWith("xml")) {
-            template = Constants.TEMPLATE_COPYRIGHT_XML;
+            template = OptionTemplateTxt.TemplateType.TEMPLATE_COPYRIGHT_XML;
         } else if (path.endsWith("html")) {
-            template = Constants.TEMPLATE_COPYRIGHT_HTL;
+            template = OptionTemplateTxt.TemplateType.TEMPLATE_COPYRIGHT_HTL;
         }
 
-        BufferedWriter writer = getFileWriterFromTemplate(path, template, generationConfig);
+        BufferedWriter writer = getFileWriterFromTemplate(path, template.toString(), generationConfig);
         writer.close();
     }
+
 
     /**
      * Creates the css.txt or js.txt file for a clientLib.
@@ -185,7 +188,9 @@ public class CommonUtils {
     public static void createClientlibTextFile(String path,
             GenerationConfig generationConfig, String clientLibFileName) throws IOException {
 
-        BufferedWriter writer = getFileWriterFromTemplate(path, Constants.TEMPLATE_COPYRIGHT_TEXT, generationConfig);
+        BufferedWriter writer =
+                getFileWriterFromTemplate(path, OptionTemplateTxt.TemplateType.TEMPLATE_COPYRIGHT_TEXT.toString(),
+                        generationConfig);
         writer.newLine();
 
         if (path.endsWith("js.txt")) {
@@ -237,7 +242,7 @@ public class CommonUtils {
      * @param generationConfig The {@link GenerationConfig} object with all the populated values
      * @return Map<String, String>
      */
-    private static Map<String, String> getStringsToReplaceValueMap(GenerationConfig generationConfig) {
+    static Map<String, String> getStringsToReplaceValueMap(GenerationConfig generationConfig) {
         if (generationConfig != null) {
             Map<String, String> map = new HashMap<>();
             map.put("name", generationConfig.getName());
@@ -245,8 +250,12 @@ public class CommonUtils {
             map.put("sightly", StringUtils.uncapitalize(generationConfig.getJavaFormatedName()));
             map.put("slingModel", generationConfig.getProjectSettings().getModelInterfacePackage() + "." + generationConfig.getJavaFormatedName());
             map.put("CODEOWNER", generationConfig.getProjectSettings().getCodeOwner());
+            if (generationConfig.getOptions().getReplaceValueMap() != null) {
+                map.putAll(generationConfig.getOptions().getReplaceValueMap());
+            }
             return map;
+        } else {
+            throw new GeneratorException("GenerationConfig generationConfig null");
         }
-        return null;
     }
 }

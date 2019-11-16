@@ -20,9 +20,10 @@
 package com.adobe.aem.compgenerator.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.List;
-import org.apache.commons.lang3.ArrayUtils;
+import java.util.Map;
 
 public class Options implements BaseModel {
 
@@ -55,6 +56,9 @@ public class Options implements BaseModel {
     @JsonProperty("model-adaptables")
     private String[] modelAdaptables;
 
+    @JsonProperty("templates")
+    private OptionTemplateTxt[] templates;
+
     @JsonProperty("properties")
     private List<Property> properties;
 
@@ -63,6 +67,8 @@ public class Options implements BaseModel {
 
     @JsonProperty("properties-shared")
     private List<Property> sharedProperties;
+
+    private Map replaceValueMap;
 
     public boolean isHasGenericJavadoc() {
         return hasGenericJavadoc;
@@ -161,6 +167,14 @@ public class Options implements BaseModel {
 
     public void setSharedProperties(List<Property> sharedProperties) {
         this.sharedProperties = sharedProperties;
+    }
+
+    public Map getReplaceValueMap() {
+        return replaceValueMap;
+    }
+
+    public void setReplaceValueMap(Map replaceValueMap) {
+        this.replaceValueMap = replaceValueMap;
     }
 
     @Override
