@@ -28,7 +28,7 @@
     - `options.properties[].type`: the property field type
     - `options.properties[].label`: the `fieldLabel` associated with the property
     - `options.properties[].description`: the `fieldDescription` associated with the property
-    - `options.properti```es[].items`: any child items needed for the specified property type
+    - `options.properties[].items`: any child items needed for the specified property type
     - `options.properties[].attributes`: any additional attributes to be associated with property in `cq:dialog`
     - `options.properties[].model-name`: **(Multifield type Only)** the name of the sling model class generated for a multifield property
     - `options.properties[].use-existing-model`: **(Multifield type Only)**  whether or not to generate a new sling model for the multifield property

@@ -17,7 +17,6 @@
 */-->
 
 <sly data-sly-use.${sightly}Model="${slingModel}">
-    <!-- Component HTML goes here -->
 ${template-html-component}
 </sly>
 
