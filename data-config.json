@@ -17,6 +17,7 @@
         "css": true,
         "csstxt": true,
         "html": true,
+        "html-content": false,
         "slingmodel": true,
         "content-exporter": false,
         "model-adaptables": ["request"],
@@ -97,6 +98,7 @@
             {
                 "field": "radioTest",
                 "type": "radiogroup",
+                "label": "Radio Test",
                 "json-expose": true,
                 "attributes": {
                     "vertical": "{Boolean}false"

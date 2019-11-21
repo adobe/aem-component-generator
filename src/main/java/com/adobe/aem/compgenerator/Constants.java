@@ -42,6 +42,12 @@ public class Constants {
     public static final String RESOURCE_TYPE_TEXTAREA = "granite/ui/components/coral/foundation/form/textarea";
     public static final String RESOURCE_TYPE_TEXTFIELD = "granite/ui/components/coral/foundation/form/textfield";
 
+    public static final String TYPE_CHECKBOX = "checkbox";
+    public static final String TYPE_DATEPICKER = "datepicker";
+    public static final String TYPE_IMAGE = "image";
+    public static final String TYPE_MULTIFIELD = "multifield";
+    public static final String TYPE_HIDDEN = "hidden";
+
     public static final String STYLE_SYSTEM_TAB_PATH = "/mnt/overlay/cq/gui/components/authoring/dialog/style/tab_design/styletab";
 
     public static final String DIALOG_TYPE_DESIGN_DIALOG = "_cq_design_dialog";

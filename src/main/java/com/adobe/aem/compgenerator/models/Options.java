@@ -55,6 +55,9 @@ public class Options implements BaseModel {
     @JsonProperty("model-adaptables")
     private String[] modelAdaptables;
 
+    @JsonProperty(value = "html-content")
+    private boolean htmlContent;
+
     @JsonProperty("properties")
     private List<Property> properties;
 
@@ -137,6 +140,14 @@ public class Options implements BaseModel {
 
     public void setModelAdaptables(final String[] modelAdaptables) {
         this.modelAdaptables = modelAdaptables;
+    }
+
+    public boolean isHtmlContent() {
+        return htmlContent;
+    }
+
+    public void setHtmlContent(boolean htmlContent) {
+        this.htmlContent = htmlContent;
     }
 
     public List<Property> getProperties() {
