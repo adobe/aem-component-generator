@@ -1,0 +1,85 @@
+{
+    "project-settings": {
+        "code-owner": "NewCo Incorporated",
+        "bundle-path": "core/src/main/java",
+        "apps-path": "ui.apps/src/main/content/jcr_root/apps",
+        "component-path": "newco/components",
+        "model-interface-pkg": "com.newco.aem.base.core.models",
+        "model-impl-pkg": "com.newco.aem.base.core.models.impl"
+    },
+    "name": "demo-comp-tabs",
+    "title": "Demo Component Tabs",
+    "group": "NewCo Base",
+    "type": "content",
+    "options": {
+        "js": true,
+        "jstxt": true,
+        "css": true,
+        "csstxt": true,
+        "html": true,
+        "html-content": true,
+        "slingmodel": true,
+        "content-exporter": false,
+        "model-adaptables": ["request"],
+        "generic-javadoc": false,
+		"tabs": [
+            {
+				"field": "general",
+				"label": "General",
+				"properties": [
+		            {
+						"field": "textfieldTest",
+						"description": "Adds a fieldDescription tooltip",
+						"javadoc": "Returns a text value tooltip used somewhere in the component",
+						"type": "textfield",
+						"label": "Textfield Test",
+						"json-expose": true,
+						"attributes": {}
+					},
+					{
+						"field": "checkTest",
+						"type": "checkbox",
+						"json-expose": true,
+						"attributes": {
+							"value": "{Boolean}true",
+							"text": "Checkbox Test"
+						}
+					},
+					{
+						"field": "pathfieldTest",
+						"type": "pathfield",
+						"label": "Pathfield Test",
+						"json-expose": true,
+						"attributes": {
+							"rootPath": "/content"
+						}
+					}
+				]
+			},
+			{
+				"field": "image",
+				"label": "Image",
+				"properties": [
+					{
+						"field": "imageTest",
+						"type": "image",
+						"label": "Image Test",
+						"json-expose": true
+					},
+					{
+						"field": "colors",
+						"type": "multifield",
+						"label": "Colors",
+						"json-expose": true,
+						"items": [
+							{
+								"type": "textfield",
+								"label": "Color"
+							}
+						]
+					}
+				]
+			}
+		]
+    }
+}

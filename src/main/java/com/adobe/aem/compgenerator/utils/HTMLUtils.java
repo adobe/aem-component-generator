@@ -3,10 +3,14 @@ package com.adobe.aem.compgenerator.utils;
 import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.adobe.aem.compgenerator.models.Property;
+import com.adobe.aem.compgenerator.models.Tab;
+
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -112,8 +116,22 @@ public class HTMLUtils {
     private static List<Property> getAllProperties(GenerationConfig generationConfig) {
         List<Property> globalProperties = generationConfig.getOptions().getGlobalProperties();
         List<Property> sharedProperties = generationConfig.getOptions().getSharedProperties();
-        List<Property> localProperties = generationConfig.getOptions().getProperties();
-        return Stream.of(globalProperties, sharedProperties, localProperties)
+        List<Property> localProperties = null;
+        List<Tab> tabs = generationConfig.getOptions().getTabs();
+        if(tabs != null && tabs.size() > 0) {
+        	List<Property> allProperties = new ArrayList<>(); 
+    		tabs.stream().filter(Objects::nonNull).map(tab -> tab.getProperties())
+    				.filter(Objects::nonNull).forEach(properties -> allProperties.addAll(properties));
+    		localProperties = allProperties;
+        } else {
+        	/* Individual properties when tabs are not used */
+        	localProperties = generationConfig.getOptions().getProperties();
+        }
+		/*
+		 * Added a null condition to avoid exceptions when either shared or global
+		 * properties are not provided when the HTML content is to generated
+		 */
+        return Stream.of(globalProperties, sharedProperties, localProperties).filter(Objects::nonNull)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }

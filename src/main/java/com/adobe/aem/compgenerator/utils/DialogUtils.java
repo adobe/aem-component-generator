@@ -23,6 +23,8 @@ import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.exceptions.GeneratorException;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.adobe.aem.compgenerator.models.Property;
+import com.adobe.aem.compgenerator.models.Tab;
+
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -42,32 +44,65 @@ public class DialogUtils {
      */
     public static void createDialogXml(final GenerationConfig generationConfig, final String dialogType) {
         String dialogPath = generationConfig.getCompDir() + "/" + dialogType;
-        try {
-            CommonUtils.createFolder(dialogPath);
+		try {
+			CommonUtils.createFolder(dialogPath);
 
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-            Element rootElement = createDialogRoot(doc, generationConfig, dialogType);
-            List<Property> properties = generationConfig.getOptions().getProperties();
+			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+			Element rootElement = createDialogRoot(doc, generationConfig, dialogType);
 
-            if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_GLOBAL)) {
-                properties = generationConfig.getOptions().getGlobalProperties();
-            } else if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_SHARED)) {
-                properties = generationConfig.getOptions().getSharedProperties();
-            }
+			List<Property> properties = null;
+			
+			if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_DIALOG)) {
+				List<Tab> tabs = generationConfig.getOptions().getTabs();
+				if (null != tabs && tabs.size() > 0) {
+					/* Have not considered global and shared properties when tabs are present. */
+					createTabDialogProperties(doc, rootElement, tabs);
+				} else {
+					properties = generationConfig.getOptions().getProperties();
+				}
+			}
+			
+			if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_GLOBAL)) {
+				properties = generationConfig.getOptions().getGlobalProperties();
+			} else if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_SHARED)) {
+				properties = generationConfig.getOptions().getSharedProperties();
+			}
 
-            if (properties != null && properties.size() > 0) {
-                Node currentNode = updateDefaultNodeStructure(doc, rootElement);
-                properties.stream().filter(Objects::nonNull)
-                        .map(property -> createPropertyNode(doc, currentNode, property)).filter(Objects::nonNull)
-                        .forEach(a -> currentNode.appendChild(a));
-            }
 
-            doc.appendChild(rootElement);
-            XMLUtils.transformDomToFile(doc, dialogPath + "/" + Constants.FILENAME_CONTENT_XML);
-        } catch (Exception e) {
+			if (properties != null && properties.size() > 0) {
+				Node currentNode = updateDefaultNodeStructure(doc, rootElement);
+				properties.stream().filter(Objects::nonNull)
+						.map(property -> createPropertyNode(doc, currentNode, property)).filter(Objects::nonNull)
+						.forEach(a -> currentNode.appendChild(a));
+			}
+
+			doc.appendChild(rootElement);
+			XMLUtils.transformDomToFile(doc, dialogPath + "/" + Constants.FILENAME_CONTENT_XML);
+		} catch (Exception e) {
             throw new GeneratorException("Exception while creating Dialog xml : " + dialogPath);
         }
     }
+
+	/**
+	 * Creates the tab dialog properties.
+	 *
+	 * @param doc The {@link Document} object
+	 * @param rootElement the root element
+	 * @param tabs The {@link Tab} object
+	 */
+	private static void createTabDialogProperties(Document doc, Element rootElement, List<Tab> tabs) {
+		Node currentNode = createDefaultTabNodeStructure(doc, rootElement);
+		for (Tab tab : tabs) {
+			List<Property> tabProperties = tab.getProperties();
+			if (null != tabProperties && tabProperties.size() > 0) {
+				Node tabNode = createTabStructure(doc, tab, currentNode);
+				List<Property> properties = tab.getProperties();
+				properties.stream().filter(Objects::nonNull)
+						.map(property -> createPropertyNode(doc, tabNode, property)).filter(Objects::nonNull)
+						.forEach(a -> tabNode.appendChild(a));
+			}
+		}
+	}
 
     /**
      * Generates the root elements of what will be the _cq_dialog/.content.xml.
@@ -278,24 +313,51 @@ public class DialogUtils {
      * @return Node
      */
     private static Node updateDefaultNodeStructure(Document document, Element root) {
-        Element containerElement = document.createElement("content");
-        containerElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
-        containerElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_CONTAINER);
+        Element containerElement = createNode(document, "content", Constants.RESOURCE_TYPE_CONTAINER);
 
         Element layoutElement1 = document.createElement("layout");
         layoutElement1.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         layoutElement1.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_FIXEDCOLUMNS);
         layoutElement1.setAttribute("margin", "{Boolean}false");
 
-        Element columnElement = document.createElement("column");
-        columnElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
-        columnElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_CONTAINER);
+        Element columnElement = createNode(document, "column", Constants.RESOURCE_TYPE_CONTAINER);
 
         Node containerNode = root.appendChild(containerElement);
 
         containerNode.appendChild(layoutElement1);
         return containerNode.appendChild(createUnStructuredNode(document, "items")).appendChild(columnElement)
                 .appendChild(createUnStructuredNode(document, "items"));
+    }
+
+    /**
+     * Creates the default tab node structure.
+     *
+     * @param document The {@link Document} object
+     * @param root The {@link Element} object
+     * @return the node
+     */
+    private static Node createDefaultTabNodeStructure(Document document, Element root) {
+    	Element containerElement = createNode(document, "content", Constants.RESOURCE_TYPE_CONTAINER);
+        Node containerNode = root.appendChild(containerElement);
+        Element tabsElement = createNode(document, "tabs", Constants.RESOURCE_TYPE_TABS);
+        
+    	return containerNode.appendChild(createUnStructuredNode(document, "items")).appendChild(tabsElement).appendChild(createUnStructuredNode(document, "items"));
+    }
+    
+    /**
+     * Creates the tab structure.
+     *
+     * @param document The {@link Document} object
+     * @param tab the tab
+     * @param node The {@link Node} object
+     * @return the node {@link Node} object
+     */
+    private static Node createTabStructure(Document document, Tab tab, Node node) {
+    	Element tabElement = createNode(document, tab.getField(), Constants.RESOURCE_TYPE_FIXEDCOLUMNS);
+        tabElement.setAttribute(Constants.PROPERTY_JCR_TITLE, tab.getLabel());
+        Element columnElement = createNode(document, "column",  Constants.RESOURCE_TYPE_CONTAINER);
+        
+        return node.appendChild(tabElement).appendChild(createUnStructuredNode(document, "items")).appendChild(columnElement).appendChild(createUnStructuredNode(document, "items"));
     }
 
     /**
@@ -311,6 +373,21 @@ public class DialogUtils {
         return element;
     }
 
+    /**
+     * Creates the node.
+     *
+     * @param document The {@link Document} object
+     * @param fieldName the field name
+     * @param resourceType the resource type
+     * @return An {@link Element} object 
+     */
+    private static Element createNode(Document document, String fieldName, String resourceType) {
+		Element containerElement = document.createElement(fieldName);
+        containerElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
+        containerElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, resourceType);
+		return containerElement;
+	}
+    
     /**
      * Determine the proper sling:resourceType.
      * 

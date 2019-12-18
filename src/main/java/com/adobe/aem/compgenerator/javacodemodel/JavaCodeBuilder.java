@@ -19,17 +19,22 @@
  */
 package com.adobe.aem.compgenerator.javacodemodel;
 
-import com.adobe.aem.compgenerator.models.GenerationConfig;
-import com.adobe.aem.compgenerator.models.Property;
-import com.sun.codemodel.JCodeModel;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.stream.Collectors;
+import com.adobe.aem.compgenerator.models.GenerationConfig;
+import com.adobe.aem.compgenerator.models.Property;
+import com.adobe.aem.compgenerator.models.Tab;
+import com.sun.codemodel.JCodeModel;
 
 public abstract class JavaCodeBuilder {
 
@@ -51,8 +56,21 @@ public abstract class JavaCodeBuilder {
         this.sharedProperties = filterProperties(occurredProperties, generationConfig.getOptions().getSharedProperties());
         occurredProperties.addAll(this.sharedProperties);
 
-        this.privateProperties = filterProperties(occurredProperties, generationConfig.getOptions().getProperties());
-        occurredProperties.addAll(this.privateProperties);
+        List<Tab> tabs = generationConfig.getOptions().getTabs();
+        
+		if (null != tabs && tabs.size() > 0) {
+			List<Property> allProperties = new ArrayList<>(); 
+			for (Tab tab : tabs) {
+				List<Property> properties = filterProperties(occurredProperties, tab.getProperties());
+				allProperties.addAll(properties);
+			}
+			this.privateProperties = allProperties;
+			occurredProperties.addAll(privateProperties);
+		} else {
+			this.privateProperties = filterProperties(occurredProperties, generationConfig.getOptions().getProperties());
+			occurredProperties.addAll(this.privateProperties);
+		}
+		
     }
 
     /**

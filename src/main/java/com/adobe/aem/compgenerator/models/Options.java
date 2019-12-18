@@ -67,9 +67,12 @@ public class Options implements BaseModel {
     @JsonProperty("properties-shared")
     private List<Property> sharedProperties;
 
-    public boolean isHasGenericJavadoc() {
-        return hasGenericJavadoc;
-    }
+	@JsonProperty("tabs")
+	private List<Tab> tabs;
+
+	public boolean isHasGenericJavadoc() {
+		return hasGenericJavadoc;
+	}
 
     public void setHasGenericJavadoc(boolean hasGenericJavadoc) {
         this.hasGenericJavadoc = hasGenericJavadoc;
@@ -174,8 +177,16 @@ public class Options implements BaseModel {
         this.sharedProperties = sharedProperties;
     }
 
-    @Override
-    public boolean isValid() {
-        return true;
-    }
+	public List<Tab> getTabs() {
+		return tabs;
+	}
+
+	public void setTabs(List<Tab> tabs) {
+		this.tabs = tabs;
+	}
+
+	@Override
+	public boolean isValid() {
+		return true;
+	}
 }
