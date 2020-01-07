@@ -62,6 +62,18 @@ your component.
 - `options.content-exporter`: whether to configure sling model for content export
 - `options.model-adaptables`: array of adaptables to include in the Sling Model ('request' and/or 'resource')
 - `options.generic-javadoc`: whether to create generic javadoc for the getters in the model interface
+- `options.properties-tabs`: Properties to create in tabs. If empty, properties will be created without tab structure
+	- `options.properties-tabs[].id`: the tab "name"
+	- `options.properties-tabs[].label`: the "title" of the tab
+	- `options.properties-tabs[].fields`: all the properties to be added in the tab.
+- `options.properties-shared-tabs`: Shared properties to create in tabs for this component in shared dialog. If empty, properties will be created without tab structure
+	- `options.properties-shared-tabs[].id`: the tab "name"
+	- `options.properties-shared-tabs[].label`: the "title" of the tab
+	- `options.properties-shared-tabs[].fields`: all the properties to be added in the tab.
+- `options.properties-global-tabs`: Global properties to create in tabs for this component in global dialog. If empty, properties will be created without tab structure
+	- `options.properties-global-tabs[].id`: the tab "name"
+	- `options.properties-global-tabs[].label`: the "title" of the tab
+	- `options.properties-global-tabs[].fields`: all the properties to be added in the tab.
 - `options.properties`: properties to create in standard dialog for this component. If empty, no standard dialog will be created. This sample includes one of every possible sling:resourceType
     - `options.properties[].field`: the property "name" and java variable name.
     - `options.properties[].javadoc`: the javadoc associated with the property

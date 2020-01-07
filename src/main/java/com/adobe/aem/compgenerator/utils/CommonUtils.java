@@ -23,6 +23,8 @@ import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.exceptions.GeneratorException;
 import com.adobe.aem.compgenerator.models.BaseModel;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
+import com.adobe.aem.compgenerator.models.Property;
+import com.adobe.aem.compgenerator.models.Tab;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -41,8 +43,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -250,5 +254,30 @@ public class CommonUtils {
             return map;
         }
         return null;
+    }
+    
+    
+    /**
+     * Gets the Tab properties if defined else returns all the properties.
+     *
+     * @param properties The {@link Property}
+     * @param tabs The {@link Tab}
+     * @return List<Property>
+     */
+    public static List<Property> getTabbedPropertiesIfExists(List<Property> properties, List<Tab> tabs) {
+        List<Property> updatedPropertiesList = null;
+        if (null != tabs && !tabs.isEmpty()) {
+            List<Property> sortedProperties = new ArrayList<>();
+            for (Tab tab : tabs) {
+                tab.getFields().stream()
+                        .filter(field -> properties.stream().anyMatch(
+                                property -> property.getField().equals(field) ? sortedProperties.add(property) : false))
+                        .collect(Collectors.toList());
+            }
+            updatedPropertiesList = sortedProperties;
+        } else {
+            updatedPropertiesList = properties;
+        }
+        return updatedPropertiesList;
     }
 }

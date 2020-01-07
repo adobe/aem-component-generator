@@ -66,9 +66,15 @@ public class Options implements BaseModel {
 
     @JsonProperty("properties-shared")
     private List<Property> sharedProperties;
-
-	@JsonProperty("tabs")
-	private List<Tab> tabs;
+    
+	@JsonProperty("properties-tabs")
+	private List<Tab> tabProperties;
+	
+	@JsonProperty("properties-shared-tabs")
+	private List<Tab> sharedTabProperties;
+	
+	@JsonProperty("properties-global-tabs")
+	private List<Tab> globalTabProperties;
 
 	public boolean isHasGenericJavadoc() {
 		return hasGenericJavadoc;
@@ -177,12 +183,28 @@ public class Options implements BaseModel {
         this.sharedProperties = sharedProperties;
     }
 
-	public List<Tab> getTabs() {
-		return tabs;
+	public List<Tab> getTabProperties() {
+		return tabProperties;
 	}
 
-	public void setTabs(List<Tab> tabs) {
-		this.tabs = tabs;
+	public void setTabProperties(List<Tab> tabProperties) {
+		this.tabProperties = tabProperties;
+	}
+
+	public List<Tab> getSharedTabProperties() {
+		return sharedTabProperties;
+	}
+
+	public void setSharedTabProperties(List<Tab> sharedTabProperties) {
+		this.sharedTabProperties = sharedTabProperties;
+	}
+
+	public List<Tab> getGlobalTabProperties() {
+		return globalTabProperties;
+	}
+
+	public void setGlobalTabProperties(List<Tab> globalTabProperties) {
+		this.globalTabProperties = globalTabProperties;
 	}
 
 	@Override

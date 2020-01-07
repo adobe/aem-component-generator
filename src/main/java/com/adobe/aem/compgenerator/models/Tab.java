@@ -6,38 +6,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Tab implements BaseModel {
 
-	@JsonProperty("field")
-	private String field;
-
-	@JsonProperty("type")
-	private String type;
-
+	@JsonProperty("id")
+	private String id;
+	
 	@JsonProperty("label")
 	private String label;
-
-	@JsonProperty("properties")
-	private List<Property> properties;
-
-	@JsonProperty("properties-global")
-	private List<Property> globalProperties;
-
-	@JsonProperty("properties-shared")
-	private List<Property> sharedProperties;
-
-	public String getField() {
-		return field;
+	
+	@JsonProperty("fields")
+	private List<String> fields;
+	
+	public String getId() {
+		return id;
 	}
 
-	public void setField(String field) {
-		this.field = field;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public String getLabel() {
@@ -48,28 +31,12 @@ public class Tab implements BaseModel {
 		this.label = label;
 	}
 
-	public List<Property> getProperties() {
-		return properties;
+	public List<String> getFields() {
+		return fields;
 	}
 
-	public void setProperties(List<Property> properties) {
-		this.properties = properties;
-	}
-
-	public List<Property> getGlobalProperties() {
-		return globalProperties;
-	}
-
-	public void setGlobalProperties(List<Property> globalProperties) {
-		this.globalProperties = globalProperties;
-	}
-
-	public List<Property> getSharedProperties() {
-		return sharedProperties;
-	}
-
-	public void setSharedProperties(List<Property> sharedProperties) {
-		this.sharedProperties = sharedProperties;
+	public void setFields(List<String> fields) {
+		this.fields = fields;
 	}
 
 	@Override
