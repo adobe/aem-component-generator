@@ -22,32 +22,32 @@
         "content-exporter": false,
         "model-adaptables": ["request"],
         "generic-javadoc": false,
-		"properties-tabs" : [
-			{
-				"id": "tab-1",
-				"label": "Tab 1",
-				"fields": ["textfieldTest", "checkTest", "pathfieldTest", "textareaTest", "dateTest", "selectTest", "radioTest", "hiddenTest", "numberfieldTest"]
-			},
-			{
-				"id": "tab-2",
-				"label": "Tab 2",
-				"fields": ["imageTest","colors","links"]
-			}
-		],
-		"properties-shared-tabs" : [
-			{
-				"id": "tab-shared",
-				"label": "Tab Shared",
-				"fields": ["sharedTextfieldTest"]
-			}
-		],
-		"properties-global-tabs" : [
-			{
-				"id": "tab-global",
-				"label": "Tab Global",
-				"fields": ["globalTextfieldTest"]
-			}
-		],
+        "properties-tabs" : [
+            {
+                "id": "tab-1",
+                "label": "Tab 1",
+                "fields": ["textfieldTest", "checkTest", "pathfieldTest", "textareaTest", "dateTest", "selectTest", "radioTest", "hiddenTest", "numberfieldTest"]
+            },
+            {
+                "id": "tab-2",
+                "label": "Tab 2",
+                "fields": ["imageTest","colors","links"]
+            }
+        ],
+        "properties-shared-tabs" : [
+            {
+                "id": "tab-shared",
+                "label": "Tab Shared",
+                "fields": ["sharedTextfieldTest"]
+            }
+        ],
+        "properties-global-tabs" : [
+            {
+                "id": "tab-global",
+                "label": "Tab Global",
+                "fields": ["globalTextfieldTest"]
+            }
+        ],
         "properties": [
             {
                 "field": "textfieldTest",

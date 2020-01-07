@@ -6,42 +6,42 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Tab implements BaseModel {
 
-	@JsonProperty("id")
-	private String id;
-	
-	@JsonProperty("label")
-	private String label;
-	
-	@JsonProperty("fields")
-	private List<String> fields;
-	
-	public String getId() {
-		return id;
-	}
+    @JsonProperty("id")
+    private String id;
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    @JsonProperty("label")
+    private String label;
 
-	public String getLabel() {
-		return label;
-	}
+    @JsonProperty("fields")
+    private List<String> fields;
 
-	public void setLabel(String label) {
-		this.label = label;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public List<String> getFields() {
-		return fields;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public void setFields(List<String> fields) {
-		this.fields = fields;
-	}
+    public String getLabel() {
+        return label;
+    }
 
-	@Override
-	public boolean isValid() {
-		return true;
-	}
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public List<String> getFields() {
+        return fields;
+    }
+
+    public void setFields(List<String> fields) {
+        this.fields = fields;
+    }
+
+    @Override
+    public boolean isValid() {
+        return true;
+    }
 
 }
