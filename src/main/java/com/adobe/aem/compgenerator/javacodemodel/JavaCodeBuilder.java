@@ -51,15 +51,15 @@ public abstract class JavaCodeBuilder {
         Set<Property> occurredProperties = new HashSet<>();
 
         this.globalProperties = filterProperties(occurredProperties,
-                CommonUtils.getTabbedPropertiesIfExists(generationConfig.getOptions().getGlobalProperties(), generationConfig.getOptions().getGlobalTabProperties()));
+                CommonUtils.getSortedPropertiesBasedOnTabs(generationConfig.getOptions().getGlobalProperties(), generationConfig.getOptions().getGlobalTabProperties()));
         occurredProperties.addAll(this.globalProperties);
 
         this.sharedProperties = filterProperties(occurredProperties,
-                CommonUtils.getTabbedPropertiesIfExists(generationConfig.getOptions().getSharedProperties(), generationConfig.getOptions().getSharedTabProperties()));
+                CommonUtils.getSortedPropertiesBasedOnTabs(generationConfig.getOptions().getSharedProperties(), generationConfig.getOptions().getSharedTabProperties()));
         occurredProperties.addAll(this.sharedProperties);
 
         this.privateProperties = filterProperties(occurredProperties, 
-                CommonUtils.getTabbedPropertiesIfExists(generationConfig.getOptions().getProperties(), generationConfig.getOptions().getTabProperties()));
+                CommonUtils.getSortedPropertiesBasedOnTabs(generationConfig.getOptions().getProperties(), generationConfig.getOptions().getTabProperties()));
         occurredProperties.addAll(this.privateProperties);
 
     }

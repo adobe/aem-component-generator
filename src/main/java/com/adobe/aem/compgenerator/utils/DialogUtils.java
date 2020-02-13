@@ -19,9 +19,10 @@
  */
 package com.adobe.aem.compgenerator.utils;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -84,15 +85,15 @@ public class DialogUtils {
 
         if (null != properties && !properties.isEmpty()) {
             if (null != tabs && !tabs.isEmpty()) {
-                Node currentNode = createDefaultTabNodeStructure(doc, rootElement);
+                Node currentNode = createTabsParentNodeStructure(doc, rootElement);
+                
+                Map<String, Property> propertiesMap = properties.stream()
+                        .collect(Collectors.toMap(Property::getField, Function.identity()));
+                
                 for (Tab tab : tabs) {
                     Node tabNode = createTabStructure(doc, tab, currentNode);
-                    List<Property> sortedProperties = new ArrayList<>();
-                    
-                    tab.getFields().stream().filter(field -> properties.stream().anyMatch(
-                            property -> property.getField().equals(field) ? sortedProperties.add(property) : false))
+                    List<Property> sortedProperties = tab.getFields().stream().map(propertiesMap::get)
                             .collect(Collectors.toList());
-
                     createNodeStructure(doc, sortedProperties, tabNode);
                 }
             } else {
@@ -203,8 +204,7 @@ public class DialogUtils {
                     actualField.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
 
                     Property prop = property.getItems().get(0);
-                    actualField.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE,
-                            getSlingResourceType(prop.getType()));
+                    actualField.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, getSlingResourceType(prop.getType()));
                     addBasicProperties(actualField, prop);
                     processAttributes(actualField, prop);
                     items.appendChild(actualField);
@@ -355,7 +355,7 @@ public class DialogUtils {
      * @param root The {@link Element} object
      * @return the node
      */
-    private static Node createDefaultTabNodeStructure(Document document, Element root) {
+    private static Node createTabsParentNodeStructure(Document document, Element root) {
         Element containerElement = createNode(document, "content", Constants.RESOURCE_TYPE_CONTAINER);
         Node containerNode = root.appendChild(containerElement);
         Element tabsElement = createNode(document, "tabs", Constants.RESOURCE_TYPE_TABS);

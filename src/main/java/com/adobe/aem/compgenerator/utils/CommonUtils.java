@@ -19,19 +19,6 @@
  */
 package com.adobe.aem.compgenerator.utils;
 
-import com.adobe.aem.compgenerator.Constants;
-import com.adobe.aem.compgenerator.exceptions.GeneratorException;
-import com.adobe.aem.compgenerator.models.BaseModel;
-import com.adobe.aem.compgenerator.models.GenerationConfig;
-import com.adobe.aem.compgenerator.models.Property;
-import com.adobe.aem.compgenerator.models.Tab;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringSubstitutor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -48,7 +35,22 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringSubstitutor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.adobe.aem.compgenerator.Constants;
+import com.adobe.aem.compgenerator.exceptions.GeneratorException;
+import com.adobe.aem.compgenerator.models.BaseModel;
+import com.adobe.aem.compgenerator.models.GenerationConfig;
+import com.adobe.aem.compgenerator.models.Property;
+import com.adobe.aem.compgenerator.models.Tab;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CommonUtils {
 
@@ -258,21 +260,20 @@ public class CommonUtils {
     
     
     /**
-     * Gets the Tab properties if defined else returns all the properties.
+     * Gets the Sorted properties based on tabs. If the tabs are not present, all properties will be considered.
      *
      * @param properties The {@link Property}
      * @param tabs The {@link Tab}
      * @return List<Property>
      */
-    public static List<Property> getTabbedPropertiesIfExists(List<Property> properties, List<Tab> tabs) {
+    public static List<Property> getSortedPropertiesBasedOnTabs(List<Property> properties, List<Tab> tabs) {
         List<Property> updatedPropertiesList = null;
         if (null != tabs && !tabs.isEmpty()) {
             List<Property> sortedProperties = new ArrayList<>();
+            Map<String, Property> propertiesMap = properties.stream()
+                    .collect(Collectors.toMap(Property::getField, Function.identity()));
             for (Tab tab : tabs) {
-                tab.getFields().stream()
-                        .filter(field -> properties.stream().anyMatch(
-                                property -> property.getField().equals(field) ? sortedProperties.add(property) : false))
-                        .collect(Collectors.toList());
+                sortedProperties.addAll(tab.getFields().stream().map(propertiesMap::get).collect(Collectors.toList()));
             }
             updatedPropertiesList = sortedProperties;
         } else {

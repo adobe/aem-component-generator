@@ -31,7 +31,7 @@
             {
                 "id": "tab-2",
                 "label": "Tab 2",
-                "fields": ["imageTest","colors","links"]
+                "fields": ["imageTest", "colors", "links"]
             }
         ],
         "properties-shared-tabs" : [

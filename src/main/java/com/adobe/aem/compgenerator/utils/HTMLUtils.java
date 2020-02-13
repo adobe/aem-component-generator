@@ -112,13 +112,13 @@ public class HTMLUtils {
     }
 
     private static List<Property> getAllProperties(GenerationConfig generationConfig) {
-        List<Property> globalProperties = CommonUtils.getTabbedPropertiesIfExists(
+        List<Property> globalProperties = CommonUtils.getSortedPropertiesBasedOnTabs(
                 generationConfig.getOptions().getGlobalProperties(),
                 generationConfig.getOptions().getGlobalTabProperties());
-        List<Property> sharedProperties = CommonUtils.getTabbedPropertiesIfExists(
+        List<Property> sharedProperties = CommonUtils.getSortedPropertiesBasedOnTabs(
                 generationConfig.getOptions().getSharedProperties(),
                 generationConfig.getOptions().getSharedTabProperties());
-        List<Property> localProperties = CommonUtils.getTabbedPropertiesIfExists(
+        List<Property> localProperties = CommonUtils.getSortedPropertiesBasedOnTabs(
                 generationConfig.getOptions().getProperties(), generationConfig.getOptions().getTabProperties());
         /*
          * Added a null condition to avoid exceptions when either shared or global
