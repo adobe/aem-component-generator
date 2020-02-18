@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.CaseUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -114,15 +115,14 @@ public class DialogUtils {
     private static void createNodeStructure(Document doc, List<Property> properties, Node currentNode) {
         properties.stream().filter(Objects::nonNull)
                 .map(property -> createPropertyNode(doc, currentNode, property)).filter(Objects::nonNull)
-                .forEach(a -> currentNode.appendChild(a));
+                .forEach(propertyNode -> currentNode.appendChild(propertyNode));
     }
 
     /**
      * Generates the root elements of what will be the _cq_dialog/.content.xml.
      * 
      * @param document The {@link Document} object
-     * @param generationConfig The {@link GenerationConfig} object with all the
-     *            populated values
+     * @param generationConfig The {@link GenerationConfig} object with all the populated values
      * @param dialogType The type of dialog to create (regular, shared or global)
      * @return Element
      */
@@ -334,16 +334,14 @@ public class DialogUtils {
     private static Node updateDefaultNodeStructure(Document document, Element root) {
         Element containerElement = createNode(document, "content", Constants.RESOURCE_TYPE_CONTAINER);
 
-        Element layoutElement1 = document.createElement("layout");
-        layoutElement1.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
-        layoutElement1.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_FIXEDCOLUMNS);
-        layoutElement1.setAttribute("margin", "{Boolean}false");
+        Element layoutElement = createNode(document, "layout", Constants.RESOURCE_TYPE_FIXEDCOLUMNS);
+        layoutElement.setAttribute("margin", "{Boolean}false");
 
         Element columnElement = createNode(document, "column", Constants.RESOURCE_TYPE_CONTAINER);
 
         Node containerNode = root.appendChild(containerElement);
 
-        containerNode.appendChild(layoutElement1);
+        containerNode.appendChild(layoutElement);
         return containerNode.appendChild(createUnStructuredNode(document, "items")).appendChild(columnElement)
                 .appendChild(createUnStructuredNode(document, "items"));
     }
@@ -374,7 +372,11 @@ public class DialogUtils {
      */
     private static Node createTabStructure(Document document, Tab tab, Node node) {
         Element tabElement = createNode(document, tab.getId(), Constants.RESOURCE_TYPE_CONTAINER);
-        tabElement.setAttribute(Constants.PROPERTY_JCR_TITLE, tab.getLabel());
+        String label = tab.getLabel();
+        if (StringUtils.isBlank(label)) {
+            label = CaseUtils.toCamelCase(tab.getId(), true);
+        }
+        tabElement.setAttribute(Constants.PROPERTY_JCR_TITLE, label);
         Element columnElement = createNode(document, "column", Constants.RESOURCE_TYPE_CONTAINER);
         
         Element layoutElement = document.createElement("layout");

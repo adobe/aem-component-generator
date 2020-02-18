@@ -120,10 +120,6 @@ public class HTMLUtils {
                 generationConfig.getOptions().getSharedTabProperties());
         List<Property> localProperties = CommonUtils.getSortedPropertiesBasedOnTabs(
                 generationConfig.getOptions().getProperties(), generationConfig.getOptions().getTabProperties());
-        /*
-         * Added a null condition to avoid exceptions when either shared or global
-         * properties are not provided when the HTML content is to generated
-         */
         return Stream.of(globalProperties, sharedProperties, localProperties).filter(Objects::nonNull)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
