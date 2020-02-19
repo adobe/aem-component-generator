@@ -1,14 +1,16 @@
 package com.adobe.aem.compgenerator.utils;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.adobe.aem.compgenerator.models.Property;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class HTMLUtils {
 
@@ -110,10 +112,15 @@ public class HTMLUtils {
     }
 
     private static List<Property> getAllProperties(GenerationConfig generationConfig) {
-        List<Property> globalProperties = generationConfig.getOptions().getGlobalProperties();
-        List<Property> sharedProperties = generationConfig.getOptions().getSharedProperties();
-        List<Property> localProperties = generationConfig.getOptions().getProperties();
-        return Stream.of(globalProperties, sharedProperties, localProperties)
+        List<Property> globalProperties = CommonUtils.getSortedPropertiesBasedOnTabs(
+                generationConfig.getOptions().getGlobalProperties(),
+                generationConfig.getOptions().getGlobalTabProperties());
+        List<Property> sharedProperties = CommonUtils.getSortedPropertiesBasedOnTabs(
+                generationConfig.getOptions().getSharedProperties(),
+                generationConfig.getOptions().getSharedTabProperties());
+        List<Property> localProperties = CommonUtils.getSortedPropertiesBasedOnTabs(
+                generationConfig.getOptions().getProperties(), generationConfig.getOptions().getTabProperties());
+        return Stream.of(globalProperties, sharedProperties, localProperties).filter(Objects::nonNull)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }

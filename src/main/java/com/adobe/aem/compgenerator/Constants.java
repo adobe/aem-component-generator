@@ -41,6 +41,7 @@ public class Constants {
     public static final String RESOURCE_TYPE_TABS = "granite/ui/components/coral/foundation/tabs";
     public static final String RESOURCE_TYPE_TEXTAREA = "granite/ui/components/coral/foundation/form/textarea";
     public static final String RESOURCE_TYPE_TEXTFIELD = "granite/ui/components/coral/foundation/form/textfield";
+    public static final String RESOURCE_TYPE_CORAL_FIXEDCOLUMNS = "granite/ui/components/coral/foundation/fixedcolumns";
 
     public static final String TYPE_CHECKBOX = "checkbox";
     public static final String TYPE_DATEPICKER = "datepicker";

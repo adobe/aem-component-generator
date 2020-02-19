@@ -19,25 +19,33 @@
  */
 package com.adobe.aem.compgenerator.utils;
 
-import com.adobe.aem.compgenerator.Constants;
-import com.adobe.aem.compgenerator.exceptions.GeneratorException;
-import com.adobe.aem.compgenerator.models.GenerationConfig;
-import com.adobe.aem.compgenerator.models.Property;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.CaseUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.util.List;
-import java.util.Objects;
+import com.adobe.aem.compgenerator.Constants;
+import com.adobe.aem.compgenerator.exceptions.GeneratorException;
+import com.adobe.aem.compgenerator.models.GenerationConfig;
+import com.adobe.aem.compgenerator.models.Property;
+import com.adobe.aem.compgenerator.models.Tab;
 
 public class DialogUtils {
 
     /**
      * Creates dialog xml by adding the properties in data-config json file.
      *
-     * @param generationConfig The {@link GenerationConfig} object with all the populated values
+     * @param generationConfig The {@link GenerationConfig} object with all the
+     *            populated values
      * @param dialogType The type of dialog to create (regular, shared or global)
      */
     public static void createDialogXml(final GenerationConfig generationConfig, final String dialogType) {
@@ -47,19 +55,16 @@ public class DialogUtils {
 
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             Element rootElement = createDialogRoot(doc, generationConfig, dialogType);
-            List<Property> properties = generationConfig.getOptions().getProperties();
 
-            if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_GLOBAL)) {
-                properties = generationConfig.getOptions().getGlobalProperties();
+            if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_DIALOG)) {
+                createDialogProperties(doc, rootElement, generationConfig.getOptions().getTabProperties(),
+                        generationConfig.getOptions().getProperties());
+            } else if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_GLOBAL)) {
+                createDialogProperties(doc, rootElement, generationConfig.getOptions().getGlobalTabProperties(),
+                        generationConfig.getOptions().getGlobalProperties());
             } else if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_SHARED)) {
-                properties = generationConfig.getOptions().getSharedProperties();
-            }
-
-            if (properties != null && properties.size() > 0) {
-                Node currentNode = updateDefaultNodeStructure(doc, rootElement);
-                properties.stream().filter(Objects::nonNull)
-                        .map(property -> createPropertyNode(doc, currentNode, property)).filter(Objects::nonNull)
-                        .forEach(a -> currentNode.appendChild(a));
+                createDialogProperties(doc, rootElement, generationConfig.getOptions().getSharedTabProperties(),
+                        generationConfig.getOptions().getSharedProperties());
             }
 
             doc.appendChild(rootElement);
@@ -67,6 +72,50 @@ public class DialogUtils {
         } catch (Exception e) {
             throw new GeneratorException("Exception while creating Dialog xml : " + dialogPath);
         }
+    }
+
+    /**
+     * Creates the tab dialog properties.
+     *
+     * @param doc The {@link Document} object
+     * @param rootElement the root element
+     * @param tabs The {@link Tab} object
+     */
+    private static void createDialogProperties(Document doc, Element rootElement, List<Tab> tabs,
+            List<Property> properties) {
+
+        if (null != properties && !properties.isEmpty()) {
+            if (null != tabs && !tabs.isEmpty()) {
+                Node currentNode = createTabsParentNodeStructure(doc, rootElement);
+                
+                Map<String, Property> propertiesMap = properties.stream()
+                        .collect(Collectors.toMap(Property::getField, Function.identity()));
+                
+                for (Tab tab : tabs) {
+                    Node tabNode = createTabStructure(doc, tab, currentNode);
+                    List<Property> sortedProperties = tab.getFields().stream().map(propertiesMap::get)
+                            .collect(Collectors.toList());
+                    createNodeStructure(doc, sortedProperties, tabNode);
+                }
+            } else {
+                Node currentNode = updateDefaultNodeStructure(doc, rootElement);
+                createNodeStructure(doc, properties, currentNode);
+            }
+        }
+
+    }
+
+    /**
+     * Creates the node structure.
+     *
+     * @param doc The {@link Document} object
+     * @param properties {@link Property}
+     * @param currentNode the current node
+     */
+    private static void createNodeStructure(Document doc, List<Property> properties, Node currentNode) {
+        properties.stream().filter(Objects::nonNull)
+                .map(property -> createPropertyNode(doc, currentNode, property)).filter(Objects::nonNull)
+                .forEach(propertyNode -> currentNode.appendChild(propertyNode));
     }
 
     /**
@@ -84,9 +133,11 @@ public class DialogUtils {
         rootElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_DIALOG);
 
         if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_GLOBAL)) {
-            rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getTitle() + " (Global Properties)");
+            rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE,
+                    generationConfig.getTitle() + " (Global Properties)");
         } else if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_SHARED)) {
-            rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getTitle() + " (Shared Properties)");
+            rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE,
+                    generationConfig.getTitle() + " (Shared Properties)");
         } else if (dialogType.equalsIgnoreCase(Constants.DIALOG_TYPE_DESIGN_DIALOG)) {
             rootElement.setAttribute(Constants.PROPERTY_JCR_TITLE, generationConfig.getTitle() + " Design Dialog");
         } else {
@@ -113,7 +164,8 @@ public class DialogUtils {
         addBasicProperties(propertyNode, property);
 
         if (StringUtils.isNotEmpty(property.getField()) && (!property.getType().equalsIgnoreCase("radiogroup"))
-                || !property.getType().equalsIgnoreCase("image") && !property.getType().equalsIgnoreCase("multifield")) {
+                || !property.getType().equalsIgnoreCase("image")
+                        && !property.getType().equalsIgnoreCase("multifield")) {
             propertyNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
             propertyNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
         }
@@ -209,7 +261,7 @@ public class DialogUtils {
             if (StringUtils.isNotEmpty(resourceType)) {
                 optionNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, resourceType);
             }
-            
+
             if (StringUtils.equalsIgnoreCase("multifield", property.getType())) {
                 optionNode.setAttribute(Constants.PROPERTY_NAME, "./" + item.getField());
             }
@@ -260,7 +312,8 @@ public class DialogUtils {
      * Adds the properties specific to the hidden image node that allows the image
      * dropzone to operate properly on dialogs.
      * 
-     * @param hiddenImageNode An {@link Element} object representing an image's hidden node
+     * @param hiddenImageNode An {@link Element} object representing an image's
+     *            hidden node
      * @param property The {@link Property} object contains attributes
      */
     private static void addImageHiddenProperyValues(Element hiddenImageNode, Property property) {
@@ -271,31 +324,69 @@ public class DialogUtils {
     }
 
     /**
-     * Builds default node structure of dialog xml in the document passed in based on dialogType.
+     * Builds default node structure of dialog xml in the document passed in based
+     * on dialogType.
      *
      * @param document The {@link Document} object
      * @param root The root node to append children nodes to
      * @return Node
      */
     private static Node updateDefaultNodeStructure(Document document, Element root) {
-        Element containerElement = document.createElement("content");
-        containerElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
-        containerElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_CONTAINER);
+        Element containerElement = createNode(document, "content", Constants.RESOURCE_TYPE_CONTAINER);
 
-        Element layoutElement1 = document.createElement("layout");
-        layoutElement1.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
-        layoutElement1.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_FIXEDCOLUMNS);
-        layoutElement1.setAttribute("margin", "{Boolean}false");
+        Element layoutElement = createNode(document, "layout", Constants.RESOURCE_TYPE_FIXEDCOLUMNS);
+        layoutElement.setAttribute("margin", "{Boolean}false");
 
-        Element columnElement = document.createElement("column");
-        columnElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
-        columnElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_CONTAINER);
+        Element columnElement = createNode(document, "column", Constants.RESOURCE_TYPE_CONTAINER);
 
         Node containerNode = root.appendChild(containerElement);
 
-        containerNode.appendChild(layoutElement1);
+        containerNode.appendChild(layoutElement);
         return containerNode.appendChild(createUnStructuredNode(document, "items")).appendChild(columnElement)
                 .appendChild(createUnStructuredNode(document, "items"));
+    }
+
+    /**
+     * Creates the default tab node structure.
+     *
+     * @param document The {@link Document} object
+     * @param root The {@link Element} object
+     * @return the node
+     */
+    private static Node createTabsParentNodeStructure(Document document, Element root) {
+        Element containerElement = createNode(document, "content", Constants.RESOURCE_TYPE_CONTAINER);
+        Node containerNode = root.appendChild(containerElement);
+        Element tabsElement = createNode(document, "tabs", Constants.RESOURCE_TYPE_TABS);
+
+        return containerNode.appendChild(createUnStructuredNode(document, "items")).appendChild(tabsElement)
+                .appendChild(createUnStructuredNode(document, "items"));
+    }
+
+    /**
+     * Creates the tab structure.
+     *
+     * @param document The {@link Document} object
+     * @param tab the tab
+     * @param node The {@link Node} object
+     * @return the node {@link Node} object
+     */
+    private static Node createTabStructure(Document document, Tab tab, Node node) {
+        Element tabElement = createNode(document, tab.getId(), Constants.RESOURCE_TYPE_CONTAINER);
+        String label = tab.getLabel();
+        if (StringUtils.isBlank(label)) {
+            label = CaseUtils.toCamelCase(tab.getId(), true);
+        }
+        tabElement.setAttribute(Constants.PROPERTY_JCR_TITLE, label);
+        Element columnElement = createNode(document, "column", Constants.RESOURCE_TYPE_CONTAINER);
+        
+        Element layoutElement = document.createElement("layout");
+        layoutElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
+        layoutElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_CORAL_FIXEDCOLUMNS);
+
+        tabElement.appendChild(layoutElement);
+        
+        return node.appendChild(tabElement).appendChild(createUnStructuredNode(document, "items"))
+                .appendChild(columnElement).appendChild(createUnStructuredNode(document, "items"));
     }
 
     /**
@@ -309,6 +400,21 @@ public class DialogUtils {
         Element element = document.createElement(nodeName);
         element.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         return element;
+    }
+
+    /**
+     * Creates the node.
+     *
+     * @param document The {@link Document} object
+     * @param fieldName the field name
+     * @param resourceType the resource type
+     * @return An {@link Element} object
+     */
+    private static Element createNode(Document document, String fieldName, String resourceType) {
+        Element containerElement = document.createElement(fieldName);
+        containerElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
+        containerElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, resourceType);
+        return containerElement;
     }
 
     /**

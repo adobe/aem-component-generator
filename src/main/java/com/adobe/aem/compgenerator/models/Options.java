@@ -26,7 +26,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 public class Options implements BaseModel {
 
-    private final static String[] DEFAULT_ADAPTABLES = new String[]{"request"};
+    private final static String[] DEFAULT_ADAPTABLES = new String[] { "request" };
 
     @JsonProperty("generic-javadoc")
     private boolean hasGenericJavadoc;
@@ -66,6 +66,15 @@ public class Options implements BaseModel {
 
     @JsonProperty("properties-shared")
     private List<Property> sharedProperties;
+
+    @JsonProperty("properties-tabs")
+    private List<Tab> tabProperties;
+
+    @JsonProperty("properties-shared-tabs")
+    private List<Tab> sharedTabProperties;
+
+    @JsonProperty("properties-global-tabs")
+    private List<Tab> globalTabProperties;
 
     public boolean isHasGenericJavadoc() {
         return hasGenericJavadoc;
@@ -172,6 +181,30 @@ public class Options implements BaseModel {
 
     public void setSharedProperties(List<Property> sharedProperties) {
         this.sharedProperties = sharedProperties;
+    }
+
+    public List<Tab> getTabProperties() {
+        return tabProperties;
+    }
+
+    public void setTabProperties(List<Tab> tabProperties) {
+        this.tabProperties = tabProperties;
+    }
+
+    public List<Tab> getSharedTabProperties() {
+        return sharedTabProperties;
+    }
+
+    public void setSharedTabProperties(List<Tab> sharedTabProperties) {
+        this.sharedTabProperties = sharedTabProperties;
+    }
+
+    public List<Tab> getGlobalTabProperties() {
+        return globalTabProperties;
+    }
+
+    public void setGlobalTabProperties(List<Tab> globalTabProperties) {
+        this.globalTabProperties = globalTabProperties;
     }
 
     @Override
