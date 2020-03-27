@@ -39,6 +39,9 @@ public class ProjectSettings implements BaseModel {
     @JsonProperty("bundle-path")
     private String bundlePath;
 
+    @JsonProperty("test-path")
+    private String testPath;
+
     @JsonProperty("apps-path")
     private String appsPath;
 
@@ -82,6 +85,14 @@ public class ProjectSettings implements BaseModel {
         this.bundlePath = bundlePath;
     }
 
+    public String getTestPath() {
+        return testPath;
+    }
+
+    public void setTestPath(String testPath) {
+        this.testPath = testPath;
+    }
+
     public String getAppsPath() {
         return appsPath;
     }
@@ -93,6 +104,6 @@ public class ProjectSettings implements BaseModel {
     @Override
     public boolean isValid() {
         return StringUtils.isNotBlank(modelInterfacePackage) && StringUtils.isNotBlank(modelImplPackage)
-                && StringUtils.isNotBlank(componentPath) && StringUtils.isNotBlank(bundlePath) && StringUtils.isNotBlank(appsPath);
+                && StringUtils.isNotBlank(componentPath) && StringUtils.isNotBlank(bundlePath) && StringUtils.isNotBlank(testPath) && StringUtils.isNotBlank(appsPath);
     }
 }

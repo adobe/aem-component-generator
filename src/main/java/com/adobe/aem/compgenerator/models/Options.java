@@ -46,6 +46,9 @@ public class Options implements BaseModel {
     @JsonProperty("html")
     private boolean hasHtml;
 
+    @JsonProperty("testclass")
+    private boolean hasTestClass;
+
     @JsonProperty("slingmodel")
     private boolean hasSlingModel;
 
@@ -94,6 +97,14 @@ public class Options implements BaseModel {
 
     public boolean isHasJsTxt() {
         return hasJsTxt;
+    }
+
+    public boolean isHasTestClass() {
+        return hasTestClass;
+    }
+
+    public void setHasTestClass(boolean hasTestClass) {
+        this.hasTestClass = hasTestClass;
     }
 
     public void setHasJsTxt(final boolean hasJsTxt) {

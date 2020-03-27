@@ -42,6 +42,7 @@ your component.
 - `project-settings`: contains configuration options related to your AEM project
 - `project-settings.code-owner`: the name of the company/user this code belongs to - will replace `${CODEOWNER}` in the template files with this configured value
 - `project-settings.bundle-path`: path to the java code of your main bundle
+- `project-settings.test-path`: path to the java code of your test cases
 - `project-settings.apps-path`: path to the `/apps` root
 - `project-settings.component-path`: path to the project's components directory, relative to the `/apps` folder
 - `project-settings.model-interface-pkg`: Java package for the interface model objects
@@ -59,6 +60,8 @@ your component.
 - `options.slingmodel`: whether to create a sling model for the component
     - Class name is derived from converting "name" prop above to camel case (e.g. "google-maps" -> `GoogleMaps`/`GoogleMapsImpl`)
     - Fields are derived from dialog properties (see below)
+- `options.testclass`: whether to create a test class for the component's sling model
+    - Test methods will fail with reason as yet to be implemented.
 - `options.content-exporter`: whether to configure sling model for content export
 - `options.model-adaptables`: array of adaptables to include in the Sling Model ('request' and/or 'resource')
 - `options.generic-javadoc`: whether to create generic javadoc for the getters in the model interface

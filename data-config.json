@@ -2,6 +2,7 @@
     "project-settings": {
         "code-owner": "NewCo Incorporated",
         "bundle-path": "core/src/main/java",
+        "test-path": "core/src/test/java",
         "apps-path": "ui.apps/src/main/content/jcr_root/apps",
         "component-path": "newco/components",
         "model-interface-pkg": "com.newco.aem.base.core.models",
@@ -19,6 +20,7 @@
         "html": true,
         "html-content": false,
         "slingmodel": true,
+        "testclass": true,
         "content-exporter": false,
         "model-adaptables": ["request"],
         "generic-javadoc": false,
