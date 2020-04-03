@@ -20,9 +20,9 @@
 package com.adobe.aem.compgenerator.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.List;
-import org.apache.commons.lang3.ArrayUtils;
 
 public class Options implements BaseModel {
 
@@ -48,6 +48,9 @@ public class Options implements BaseModel {
 
     @JsonProperty("testclass")
     private boolean hasTestClass;
+
+    @JsonProperty("junit-major-version")
+    private int junitVersion;
 
     @JsonProperty("slingmodel")
     private boolean hasSlingModel;
@@ -105,6 +108,14 @@ public class Options implements BaseModel {
 
     public void setHasTestClass(boolean hasTestClass) {
         this.hasTestClass = hasTestClass;
+    }
+
+    public void setJunitVersion(int junitVersion) {
+        this.junitVersion = junitVersion;
+    }
+
+    public int getJunitVersion() {
+        return junitVersion;
     }
 
     public void setHasJsTxt(final boolean hasJsTxt) {

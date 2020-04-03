@@ -35,8 +35,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Root of the code.
@@ -85,7 +83,7 @@ public class JavaCodeModel {
             this.generationConfig = generationConfig;
             buildInterface();
             buildImplClass();
-            if(generationConfig.getOptions().isHasTestClass()){
+            if (generationConfig.getOptions().isHasTestClass()) {
                 buildTestClass();
             }
             generateCodeFiles();
@@ -137,7 +135,7 @@ public class JavaCodeModel {
         PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter, templateString);
 
         codeModel.build(prologCodeWriter);
-        if(generationConfig.getOptions().isHasTestClass()){
+        if (generationConfig.getOptions().isHasTestClass()) {
             CodeWriter codeWriterTest = new RenameFileCodeWriter(new File(generationConfig.getProjectSettings().getTestPath()));
             PrologCodeWriter prologCodeWriterTest = new PrologCodeWriter(codeWriterTest, templateString);
             codeModelTest.build(prologCodeWriterTest);

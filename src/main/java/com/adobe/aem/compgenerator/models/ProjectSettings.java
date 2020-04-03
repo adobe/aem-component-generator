@@ -104,6 +104,6 @@ public class ProjectSettings implements BaseModel {
     @Override
     public boolean isValid() {
         return StringUtils.isNotBlank(modelInterfacePackage) && StringUtils.isNotBlank(modelImplPackage)
-                && StringUtils.isNotBlank(componentPath) && StringUtils.isNotBlank(bundlePath) && StringUtils.isNotBlank(testPath) && StringUtils.isNotBlank(appsPath);
+                && StringUtils.isNotBlank(componentPath) && StringUtils.isNotBlank(bundlePath) && StringUtils.isNotBlank(appsPath);
     }
 }

@@ -116,6 +116,11 @@ public class GenerationConfig implements BaseModel {
 
     @Override
     public boolean isValid() {
-        return StringUtils.isNotBlank(name) && StringUtils.isNotBlank(type);
+        return StringUtils.isNotBlank(name) && StringUtils.isNotBlank(type)
+                && isValidTestPath(projectSettings.getTestPath(), options.isHasTestClass());
+    }
+
+    private boolean isValidTestPath(String testPath, boolean hasTestClass) {
+        return !hasTestClass || StringUtils.isNotBlank(testPath);
     }
 }

@@ -62,6 +62,7 @@ your component.
     - Fields are derived from dialog properties (see below)
 - `options.testclass`: whether to create a test class for the component's sling model
     - Test methods will fail with reason as yet to be implemented.
+- `options.junit-major-version`: provide major version identifier of junit to generate test classes accordingly. Currently, 4 or 5 is supported.
 - `options.content-exporter`: whether to configure sling model for content export
 - `options.model-adaptables`: array of adaptables to include in the Sling Model ('request' and/or 'resource')
 - `options.generic-javadoc`: whether to create generic javadoc for the getters in the model interface

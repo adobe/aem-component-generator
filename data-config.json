@@ -20,20 +20,37 @@
         "html": true,
         "html-content": false,
         "slingmodel": true,
-        "testclass": true,
+        "testclass": false,
+        "junit-major-version": 5,
         "content-exporter": false,
-        "model-adaptables": ["request"],
+        "model-adaptables": [
+            "request"
+        ],
         "generic-javadoc": false,
-        "properties-tabs" : [
+        "properties-tabs": [
             {
                 "id": "tab-1",
                 "label": "Tab 1",
-                "fields": ["textfieldTest", "checkTest", "pathfieldTest", "textareaTest", "dateTest", "selectTest", "radioTest", "hiddenTest", "numberfieldTest"]
+                "fields": [
+                    "textfieldTest",
+                    "checkTest",
+                    "pathfieldTest",
+                    "textareaTest",
+                    "dateTest",
+                    "selectTest",
+                    "radioTest",
+                    "hiddenTest",
+                    "numberfieldTest"
+                ]
             },
             {
                 "id": "tab-2",
                 "label": "Tab 2",
-                "fields": ["imageTest", "colors", "links"]
+                "fields": [
+                    "imageTest",
+                    "colors",
+                    "links"
+                ]
             }
         ],
         "properties-shared-tabs" : [

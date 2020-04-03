@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Map;
 
@@ -49,7 +50,11 @@ public class TestClassBuilder extends JavaCodeBuilder  {
     private void addSetupMethod(JDefinedClass jc) {
         JMethod setUpMethod = jc.method(JMod.PUBLIC, jc.owner().VOID, "setUp")
                 ._throws(Exception.class);
-        setUpMethod.annotate(codeModel.ref(Before.class));
+        if (generationConfig.getOptions().getJunitVersion() == Constants.JUNIT_VERSION_4) {
+            setUpMethod.annotate(codeModel.ref(Before.class));
+        } else {
+            setUpMethod.annotate(codeModel.ref(BeforeEach.class));
+        }
         JBlock block = setUpMethod.body();
         block.directStatement("// TODO: Test Setup");
     }
@@ -59,24 +64,29 @@ public class TestClassBuilder extends JavaCodeBuilder  {
         if (!fieldVars.isEmpty()) {
             for (Map.Entry<String, JFieldVar> entry : fieldVars.entrySet()) {
                 if (entry.getValue() != null) {
-                    addTestMethod(jc, entry.getValue());
+                    if (generationConfig.getOptions().getJunitVersion() == Constants.JUNIT_VERSION_4) {
+                        addTestMethod(jc, entry.getValue(), Test.class, Assert.class);
+                    } else {
+                        addTestMethod(jc, entry.getValue(), org.junit.jupiter.api.Test.class, org.junit.jupiter.api.Assertions.class);
+                    }
                 }
             }
         }
     }
 
-    private void addTestMethod(JDefinedClass jc, JFieldVar jFieldVar) {
+    private void addTestMethod(JDefinedClass jc, JFieldVar jFieldVar, Class<?> testClassAnnotation,
+                               Class<?> assertClassAnnotation) {
         JMethod getMethod = jc.method(JMod.PUBLIC, jc.owner().VOID, getMethodFormattedString(jFieldVar.name()));
-        getMethod.annotate(codeModel.ref(Test.class));
+        getMethod.annotate(codeModel.ref(testClassAnnotation));
         JBlock block = getMethod.body();
-        JClass assertClassRef = codeModel.ref(Assert.class);
+        JClass assertClassRef = codeModel.ref(assertClassAnnotation);
         JInvocation assertNotYetImplemented = assertClassRef.staticInvoke("fail").arg("Not Yet Implemented");
         block.add(assertNotYetImplemented);
     }
 
     private String getMethodFormattedString(String fieldVariable) {
         if (StringUtils.isNotBlank(fieldVariable) && StringUtils.length(fieldVariable) > 0) {
-            return Constants.STRING_GET + Character.toTitleCase(fieldVariable.charAt(0)) + fieldVariable.substring(1);
+            return Constants.STRING_TEST + Character.toTitleCase(fieldVariable.charAt(0)) + fieldVariable.substring(1);
         }
         return fieldVariable;
     }
