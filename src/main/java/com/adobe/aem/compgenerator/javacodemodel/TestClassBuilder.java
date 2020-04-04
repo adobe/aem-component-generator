@@ -1,6 +1,7 @@
 package com.adobe.aem.compgenerator.javacodemodel;
 
 import com.adobe.aem.compgenerator.Constants;
+import com.adobe.aem.compgenerator.exceptions.GeneratorException;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.sun.codemodel.*;
 import org.apache.commons.lang3.StringUtils;
@@ -14,7 +15,9 @@ import java.util.Map;
 /**
  * The type Test class builder.
  */
-public class TestClassBuilder extends JavaCodeBuilder  {
+public class TestClassBuilder extends JavaCodeBuilder {
+
+    private static final String JUNIT_UNSUPPORTED_VERSION_EXCEPTION = "Component generator either supports Junit 5 or Junit 4.";
 
     private final String className;
     private final JDefinedClass implementationClass;
@@ -50,10 +53,13 @@ public class TestClassBuilder extends JavaCodeBuilder  {
     private void addSetupMethod(JDefinedClass jc) {
         JMethod setUpMethod = jc.method(JMod.PUBLIC, jc.owner().VOID, "setUp")
                 ._throws(Exception.class);
-        if (generationConfig.getOptions().getJunitVersion() == Constants.JUNIT_VERSION_4) {
+        int junitVersion = generationConfig.getOptions().getJunitVersion();
+        if (junitVersion == Constants.JUNIT_VERSION_5) {
+            setUpMethod.annotate(codeModel.ref(BeforeEach.class));
+        } else if ((junitVersion == Constants.JUNIT_VERSION_4)) {
             setUpMethod.annotate(codeModel.ref(Before.class));
         } else {
-            setUpMethod.annotate(codeModel.ref(BeforeEach.class));
+            throw new GeneratorException(JUNIT_UNSUPPORTED_VERSION_EXCEPTION);
         }
         JBlock block = setUpMethod.body();
         block.directStatement("// TODO: Test Setup");
@@ -64,10 +70,13 @@ public class TestClassBuilder extends JavaCodeBuilder  {
         if (!fieldVars.isEmpty()) {
             for (Map.Entry<String, JFieldVar> entry : fieldVars.entrySet()) {
                 if (entry.getValue() != null) {
-                    if (generationConfig.getOptions().getJunitVersion() == Constants.JUNIT_VERSION_4) {
+                    int junitVersion = generationConfig.getOptions().getJunitVersion();
+                    if (junitVersion == Constants.JUNIT_VERSION_5) {
+                        addTestMethod(jc, entry.getValue(), org.junit.jupiter.api.Test.class, org.junit.jupiter.api.Assertions.class);
+                    } else if (junitVersion == Constants.JUNIT_VERSION_4) {
                         addTestMethod(jc, entry.getValue(), Test.class, Assert.class);
                     } else {
-                        addTestMethod(jc, entry.getValue(), org.junit.jupiter.api.Test.class, org.junit.jupiter.api.Assertions.class);
+                        throw new GeneratorException(JUNIT_UNSUPPORTED_VERSION_EXCEPTION);
                     }
                 }
             }
@@ -86,7 +95,9 @@ public class TestClassBuilder extends JavaCodeBuilder  {
 
     private String getMethodFormattedString(String fieldVariable) {
         if (StringUtils.isNotBlank(fieldVariable) && StringUtils.length(fieldVariable) > 0) {
-            return Constants.STRING_TEST + Character.toTitleCase(fieldVariable.charAt(0)) + fieldVariable.substring(1);
+            return Constants.STRING_TEST
+                    + StringUtils.capitalize(Constants.STRING_GET)
+                    + Character.toTitleCase(fieldVariable.charAt(0)) + fieldVariable.substring(1);
         }
         return fieldVariable;
     }

@@ -88,5 +88,6 @@ public class Constants {
 
     public static final String RENAME_FILE_DATE_PATTERN = "yyyyMMddHHmmss";
 
+    public static final int JUNIT_VERSION_5 = 5;
     public static final int JUNIT_VERSION_4 = 4;
 }

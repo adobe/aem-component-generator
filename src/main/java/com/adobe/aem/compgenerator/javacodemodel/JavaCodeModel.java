@@ -23,10 +23,7 @@ import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.adobe.aem.compgenerator.models.Property;
 import com.adobe.aem.compgenerator.utils.CommonUtils;
-import com.sun.codemodel.CodeWriter;
-import com.sun.codemodel.JClassAlreadyExistsException;
-import com.sun.codemodel.JCodeModel;
-import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
 import org.apache.logging.log4j.LogManager;
@@ -34,6 +31,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -101,8 +99,12 @@ public class JavaCodeModel {
      * method stubs based on the <code>generationConfig</code>.
      */
     private void buildTestClass() throws JClassAlreadyExistsException {
-        TestClassBuilder builder = new TestClassBuilder(codeModelTest, generationConfig, generationConfig.getJavaFormatedName() + "ImplTest", jcImpl);
-        builder.build();
+        JPackage slingModelImplPackage = codeModel._package(jcImpl._package().name());
+        for (Iterator<JDefinedClass> it = slingModelImplPackage.classes(); it.hasNext(); ) {
+            JDefinedClass slingModelImplClass = it.next();
+            TestClassBuilder builder = new TestClassBuilder(codeModelTest, generationConfig, slingModelImplClass.name() + "Test", slingModelImplClass);
+            builder.build();
+        }
     }
 
     /**
