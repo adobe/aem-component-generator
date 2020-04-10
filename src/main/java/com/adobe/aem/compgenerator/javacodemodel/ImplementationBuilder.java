@@ -97,7 +97,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
         this.isAllowExporting = generationConfig.getOptions().isAllowExporting();
     }
 
-    public void build(String resourceType) throws JClassAlreadyExistsException {
+    public JDefinedClass build(String resourceType) throws JClassAlreadyExistsException {
         JDefinedClass jc = this.implPackage._class(this.className)._implements(this.interfaceClass);
         addSlingAnnotations(jc, this.interfaceClass, resourceType);
 
@@ -107,6 +107,7 @@ public class ImplementationBuilder extends JavaCodeBuilder {
 
         addGetters(jc);
         addExportedTypeMethod(jc);
+        return jc;
     }
 
     private void addSlingAnnotations(JDefinedClass jDefinedClass, JClass adapterClass, String resourceType) {

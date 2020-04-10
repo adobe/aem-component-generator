@@ -39,6 +39,9 @@ public class ProjectSettings implements BaseModel {
     @JsonProperty("bundle-path")
     private String bundlePath;
 
+    @JsonProperty("test-path")
+    private String testPath;
+
     @JsonProperty("apps-path")
     private String appsPath;
 
@@ -80,6 +83,14 @@ public class ProjectSettings implements BaseModel {
 
     public void setBundlePath(String bundlePath) {
         this.bundlePath = bundlePath;
+    }
+
+    public String getTestPath() {
+        return testPath;
+    }
+
+    public void setTestPath(String testPath) {
+        this.testPath = testPath;
     }
 
     public String getAppsPath() {

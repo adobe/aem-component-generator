@@ -23,10 +23,7 @@ import com.adobe.aem.compgenerator.Constants;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.adobe.aem.compgenerator.models.Property;
 import com.adobe.aem.compgenerator.utils.CommonUtils;
-import com.sun.codemodel.CodeWriter;
-import com.sun.codemodel.JClassAlreadyExistsException;
-import com.sun.codemodel.JCodeModel;
-import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
 import org.apache.logging.log4j.LogManager;
@@ -34,6 +31,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -57,9 +55,11 @@ public class JavaCodeModel {
     private static final Logger LOG = LogManager.getLogger(JavaCodeModel.class);
 
     private final JCodeModel codeModel;
+    private final JCodeModel codeModelTest;
 
     private GenerationConfig generationConfig;
     private JDefinedClass jc;
+    private JDefinedClass jcImpl;
 
     private List<Property> globalProperties;
     private List<Property> sharedProperties;
@@ -67,6 +67,7 @@ public class JavaCodeModel {
 
     public JavaCodeModel() {
         this.codeModel = new JCodeModel();
+        this.codeModelTest = new JCodeModel();
     }
 
     /**
@@ -80,10 +81,29 @@ public class JavaCodeModel {
             this.generationConfig = generationConfig;
             buildInterface();
             buildImplClass();
+            if (generationConfig.getOptions().isHasTestClass()) {
+                buildTestClass();
+            }
             generateCodeFiles();
-            LOG.info("--------------* Sling Model successfully generated *--------------");
+            String withTestsStr = generationConfig.getOptions().isHasTestClass() ? "with test class " : StringUtils.EMPTY;
+            LOG.info("--------------* Sling Model {}successfully generated *--------------", withTestsStr);
+
+
         } catch (JClassAlreadyExistsException | IOException e) {
             LOG.error("Failed to create sling model.", e);
+        }
+    }
+
+    /**
+     * Builds your slingModel test class with all required Test annotation,
+     * method stubs based on the <code>generationConfig</code>.
+     */
+    private void buildTestClass() throws JClassAlreadyExistsException {
+        JPackage slingModelImplPackage = codeModel._package(jcImpl._package().name());
+        for (Iterator<JDefinedClass> it = slingModelImplPackage.classes(); it.hasNext(); ) {
+            JDefinedClass slingModelImplClass = it.next();
+            TestClassBuilder builder = new TestClassBuilder(codeModelTest, generationConfig, slingModelImplClass.name() + "Test", slingModelImplClass);
+            builder.build();
         }
     }
 
@@ -102,7 +122,7 @@ public class JavaCodeModel {
      */
     private void buildImplClass() throws JClassAlreadyExistsException {
         ImplementationBuilder builder = new ImplementationBuilder(codeModel, generationConfig, generationConfig.getJavaFormatedName() + "Impl", jc);
-        builder.build(CommonUtils.getResourceType(generationConfig));
+        jcImpl = builder.build(CommonUtils.getResourceType(generationConfig));
     }
 
     /**
@@ -117,6 +137,12 @@ public class JavaCodeModel {
         PrologCodeWriter prologCodeWriter = new PrologCodeWriter(codeWriter, templateString);
 
         codeModel.build(prologCodeWriter);
+        if (generationConfig.getOptions().isHasTestClass()) {
+            CodeWriter codeWriterTest = new RenameFileCodeWriter(new File(generationConfig.getProjectSettings().getTestPath()));
+            PrologCodeWriter prologCodeWriterTest = new PrologCodeWriter(codeWriterTest, templateString);
+            codeModelTest.build(prologCodeWriterTest);
+        }
+
     }
 
     /**

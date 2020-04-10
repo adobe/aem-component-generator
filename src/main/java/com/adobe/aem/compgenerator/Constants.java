@@ -84,6 +84,10 @@ public class Constants {
     public static final String TEMPLATE_COPYRIGHT_XML = "template-copyright-xml.txt";
 
     public static final String STRING_GET = "get";
+    public static final String STRING_TEST = "test";
 
     public static final String RENAME_FILE_DATE_PATTERN = "yyyyMMddHHmmss";
+
+    public static final int JUNIT_VERSION_5 = 5;
+    public static final int JUNIT_VERSION_4 = 4;
 }
