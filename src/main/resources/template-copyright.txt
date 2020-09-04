@@ -3,7 +3,7 @@
  * ${CODEOWNER} CONFIDENTIAL
  * ___________________
  *
- * Copyright 2019 ${CODEOWNER}.
+ * Copyright ${YEAR} ${CODEOWNER}.
  * All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains the property

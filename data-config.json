@@ -1,5 +1,6 @@
 {
     "project-settings": {
+        "year": "current",
         "code-owner": "NewCo Incorporated",
         "bundle-path": "core/src/main/java",
         "test-path": "core/src/test/java",

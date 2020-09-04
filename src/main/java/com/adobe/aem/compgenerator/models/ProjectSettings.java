@@ -22,6 +22,8 @@ package com.adobe.aem.compgenerator.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
 
+import java.time.Year;
+
 public class ProjectSettings implements BaseModel {
 
     @JsonProperty("code-owner")
@@ -44,6 +46,9 @@ public class ProjectSettings implements BaseModel {
 
     @JsonProperty("apps-path")
     private String appsPath;
+
+    @JsonProperty("year")
+    private String year;
 
     public String getCodeOwner() {
         return codeOwner;
@@ -99,6 +104,20 @@ public class ProjectSettings implements BaseModel {
 
     public void setAppsPath(String appsPath) {
         this.appsPath = appsPath;
+    }
+
+    public String getYear() {
+        if (StringUtils.isNotEmpty(year) && year.equals("current")) {
+            return String.valueOf(Year.now().getValue());
+        } else if (StringUtils.isEmpty(year)) {
+            return String.valueOf(Year.now().getValue());
+        } else {
+            return year;
+        }
+    }
+
+    public void setYear(final String year) {
+        this.year = year;
     }
 
     @Override
