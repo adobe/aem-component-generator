@@ -19,15 +19,24 @@
  */
 package com.adobe.aem.compgenerator;
 
-import com.adobe.aem.compgenerator.exceptions.GeneratorException;
-import com.adobe.aem.compgenerator.javacodemodel.JavaCodeModel;
-import com.adobe.aem.compgenerator.models.GenerationConfig;
-import com.adobe.aem.compgenerator.utils.CommonUtils;
-import com.adobe.aem.compgenerator.utils.ComponentUtils;
+import com.adobe.aem.compgenerator.web.ComponentServlet;
+import io.undertow.Handlers;
+import io.undertow.Undertow;
+import io.undertow.UndertowOptions;
+import io.undertow.server.HttpHandler;
+import io.undertow.server.handlers.resource.PathResourceManager;
+import io.undertow.server.handlers.resource.ResourceHandler;
+import io.undertow.servlet.api.DeploymentInfo;
+import io.undertow.servlet.api.DeploymentManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
+import javax.servlet.ServletException;
+import java.nio.file.Paths;
+
+import static io.undertow.servlet.Servlets.defaultContainer;
+import static io.undertow.servlet.Servlets.deployment;
+import static io.undertow.servlet.Servlets.servlet;
 
 /**
  * Root of the AEM Component generator.
@@ -40,44 +49,77 @@ public class AemCompGenerator {
     private static final Logger LOG = LogManager.getLogger(AemCompGenerator.class);
 
     public static void main(String[] args) {
+        DeploymentInfo servletBuilder = deployment()
+                .setClassLoader(AemCompGenerator.class.getClassLoader())
+                .setContextPath("/api")
+                .setDefaultEncoding("UTF-8")
+                .setDeploymentName("componentgen.war")
+                .addServlets(
+                        servlet("MessageServlet", ComponentServlet.class)
+                                .addInitParam("message", "Hello World 🍑")
+                                .addMapping("/*"),
+                        servlet("MyServlet", ComponentServlet.class)
+                                .addInitParam("message", "MyServlet")
+                                .addMapping("/myservlet"));
+
+        DeploymentManager manager = defaultContainer().addDeployment(servletBuilder);
+        manager.deploy();
         try {
-            String configPath = "data-config.json";
-            if (args.length > 0) {
-                configPath = args[0];
-            }
-
-            File configFile = new File(configPath);
-
-            if (CommonUtils.isFileBlank(configFile)) {
-                throw new GeneratorException("Config file missing / empty.");
-            }
-
-            GenerationConfig config = CommonUtils.getComponentData(configFile);
-
-            if (config == null) {
-                throw new GeneratorException("Config file is empty / null !!");
-            }
-
-            if (!config.isValid() || !CommonUtils.isModelValid(config.getProjectSettings())) {
-                throw new GeneratorException("Mandatory fields missing in the data-config.json !");
-            }
-
-            String compDir = config.getProjectSettings().getAppsPath() + "/"
-                    + config.getProjectSettings().getComponentPath() + "/"
-                    + config.getType() + "/" + config.getName();
-            config.setCompDir(compDir);
-
-            //builds component folder and file structure.
-            ComponentUtils generatorUtils = new ComponentUtils(config);
-            generatorUtils.buildComponent();
-
-            //builds sling model based on config.
-            if (config.getOptions() != null && config.getOptions().isHasSlingModel()) {
-                JavaCodeModel javaCodeModel = new JavaCodeModel();
-                javaCodeModel.buildSlingModel(config);
-            }
-        } catch (Exception e) {
-            LOG.error("Failed to generate aem component.", e);
+            HttpHandler servletHandler = manager.start();
+            ResourceHandler pathResourceManager = new ResourceHandler(
+                    new PathResourceManager(Paths.get("src/main/resources/static/build"), 100))
+                    .setWelcomeFiles("index.html");
+            Undertow server = Undertow.builder()
+                    .setServerOption(UndertowOptions.URL_CHARSET, "UTF8")
+                    .addHttpListener(8080, "localhost")
+                    .setHandler(
+                            Handlers.path()
+                                    .addPrefixPath("/servlet", servletHandler)
+                                    .addPrefixPath("/", pathResourceManager)
+                                    .addPrefixPath("/config", pathResourceManager)
+                    ).build();
+            server.start();
+        } catch (ServletException e) {
+            e.printStackTrace();
         }
+//        try {
+//            String configPath = "data-config.json";
+//            if (args.length > 0) {
+//                configPath = args[0];
+//            }
+//
+//            File configFile = new File(configPath);
+//
+//            if (CommonUtils.isFileBlank(configFile)) {
+//                throw new GeneratorException("Config file missing / empty.");
+//            }
+//
+//            GenerationConfig config = CommonUtils.getComponentData(configFile);
+//
+//            if (config == null) {
+//                throw new GeneratorException("Config file is empty / null !!");
+//            }
+//
+//            if (!config.isValid() || !CommonUtils.isModelValid(config.getProjectSettings())) {
+//                throw new GeneratorException("Mandatory fields missing in the data-config.json !");
+//            }
+//
+//            String compDir = config.getProjectSettings().getAppsPath() + "/"
+//                    + config.getProjectSettings().getComponentPath() + "/"
+//                    + config.getType() + "/" + config.getName();
+//            config.setCompDir(compDir);
+//
+//            //builds component folder and file structure.
+//            ComponentUtils generatorUtils = new ComponentUtils(config);
+//            generatorUtils.buildComponent();
+//
+//            //builds sling model based on config.
+//            if (config.getOptions() != null && config.getOptions().isHasSlingModel()) {
+//                JavaCodeModel javaCodeModel = new JavaCodeModel();
+//                javaCodeModel.buildSlingModel(config);
+//            }
+//        } catch (Exception e) {
+//            LOG.error("Failed to generate aem component.", e);
+//        }
     }
 }
