@@ -20116,7 +20116,7 @@ code {
   -webkit-flex-wrap: wrap;
   flex-wrap: wrap;
   -webkit-justify-content: start;
-  justify-content: start;
+  justify-content: flex-start;
 }
 
 .chartjs-legend ul li {

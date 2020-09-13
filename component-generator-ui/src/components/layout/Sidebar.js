@@ -11,11 +11,19 @@ function Sidebar() {
     return (
         <div className={mobileState.menuOpen ? 'active sidebar sidebar-offcanvas' : 'sidebar sidebar-offcanvas' }>
             <ul className="nav">
+                <li className={location.pathname === routes.home ? 'nav-item active' : 'nav-item'}>
+                    <LinkContainer to={`${routes.home}`}>
+                        <a className="nav-link" href="#config">
+                            <i className="mdi mdi-home menu-icon" />
+                            <span className="menu-title">Home</span>
+                        </a>
+                    </LinkContainer>
+                </li>
                 <li className={location.pathname === routes.config ? 'nav-item active' : 'nav-item'}>
                     <LinkContainer to={`${routes.config}`}>
                         <a className="nav-link" href="#config">
-                            <i className="mdi mdi-wrench menu-icon" />
-                            <span className="menu-title">Global Config</span>
+                            <i className="mdi mdi-cogs menu-icon" />
+                            <span className="menu-title">Global Configs</span>
                         </a>
                     </LinkContainer>
                 </li>

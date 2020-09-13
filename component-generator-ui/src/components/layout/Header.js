@@ -1,8 +1,9 @@
 import React from 'react';
+import { Dropdown, NavLink } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import { LinkContainer } from 'react-router-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagic, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import { faMagic } from '@fortawesome/free-solid-svg-icons';
 import { MOBILE_MENU_CLICK } from '../../actions';
 import routes from '../../routes';
 
@@ -32,29 +33,34 @@ function Header() {
             <div className="navbar-menu-wrapper d-flex align-items-center justify-content-end">
                 <ul className="navbar-nav mr-lg-4 w-100">
                     <li className="nav-item mr-1">
-                        <button className="btn btn-primary btn-md mt-xl-0" type="button">
-                            <i className="mdi mdi-floppy menu-icon" />
-                            <span className="pl-1">Save changes</span>
-                        </button>
-                    </li>
-                    <li className="nav-item mr-1">
-                        <button className="btn btn-light btn-md mt-xl-0" type="button">
-                            <i className="mdi mdi-refresh menu-icon" />
-                            <span className="pl-1">Reset</span>
-                        </button>
-                    </li>
-                    <li className="nav-item mr-1">
                         <button className="btn btn-warning btn-md mt-xl-0" type="button">
                             <i className="mdi mdi-content-save-all menu-icon" />
                             <span className="pl-1">Save &amp; Generate Component</span>
                         </button>
                     </li>
+                    <li className="nav-item mr-1">
+                        <button className="btn btn-danger btn-md mt-xl-0" type="button">
+                            <i className="mdi mdi-refresh menu-icon" />
+                            <span className="pl-1">Reset all fields</span>
+                        </button>
+                    </li>
                 </ul>
                 <ul className="navbar-nav navbar-nav-right">
-                    <li className="nav-item dropdown mr-2">
-                        <a href="#home" className="navbar-brand brand-logo-mini">
-                            <FontAwesomeIcon icon={faQuestionCircle} />
-                        </a>
+                    <li className="nav-item help mr-2">
+                        <Dropdown>
+                            <Dropdown.Toggle as={NavLink}>
+                                <i className="mdi mdi-help-circle" />
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu>
+                                <LinkContainer to={`${routes.about}`}>
+                                    <Dropdown.Item>About</Dropdown.Item>
+                                </LinkContainer>
+                                <Dropdown.Divider />
+                                <LinkContainer to={`${routes.help}`}>
+                                    <Dropdown.Item>Help</Dropdown.Item>
+                                </LinkContainer>
+                            </Dropdown.Menu>
+                        </Dropdown>
                     </li>
                 </ul>
                 <button

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { LinkContainer } from 'react-router-bootstrap';
-import { ROOT_URL } from '../actions';
-import routes from '../routes';
-import wretch from '../utils/wretch';
+import { ROOT_URL } from '../../actions';
+import routes from '../../routes';
+import wretch from '../../utils/wretch';
 
 function Home() {
     const [data, setData] = useState('');
