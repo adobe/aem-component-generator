@@ -19,7 +19,8 @@
  */
 package com.adobe.aem.compgenerator;
 
-import com.adobe.aem.compgenerator.web.ComponentServlet;
+import com.adobe.aem.compgenerator.exceptions.GeneratorException;
+import com.adobe.aem.compgenerator.web.ConfigurationReadWriteServlet;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
@@ -32,11 +33,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.ServletException;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static io.undertow.servlet.Servlets.defaultContainer;
 import static io.undertow.servlet.Servlets.deployment;
 import static io.undertow.servlet.Servlets.servlet;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * Root of the AEM Component generator.
@@ -49,18 +54,32 @@ public class AemCompGenerator {
     private static final Logger LOG = LogManager.getLogger(AemCompGenerator.class);
 
     public static void main(String[] args) {
+
+        // Ensure that an initial data configuration
+        // JSON file exists for loading / saving data to
+        String configPath = "data-config.json";
+
+        File configFile = new File(configPath);
+
+        if (!configFile.exists()) {
+            // if the config does not exist, copy a sample one to the root directory
+            LOG.info(configPath + " file does not exist.. creating new empty one from sample file");
+            try {
+                File file = new File(AemCompGenerator.class.getClassLoader().getResource("data-config-sample.json").getFile());
+                Files.copy(file.toPath(), configFile.toPath(), REPLACE_EXISTING);
+            } catch (IOException e) {
+                throw new GeneratorException("Could not initialize data config file");
+            }
+        }
+
         DeploymentInfo servletBuilder = deployment()
                 .setClassLoader(AemCompGenerator.class.getClassLoader())
                 .setContextPath("/api")
                 .setDefaultEncoding("UTF-8")
                 .setDeploymentName("componentgen.war")
                 .addServlets(
-                        servlet("MessageServlet", ComponentServlet.class)
-                                .addInitParam("message", "Hello World 🍑")
-                                .addMapping("/*"),
-                        servlet("MyServlet", ComponentServlet.class)
-                                .addInitParam("message", "MyServlet")
-                                .addMapping("/myservlet"));
+                        servlet("global", ConfigurationReadWriteServlet.class)
+                                .addMapping("/*"));
 
         DeploymentManager manager = defaultContainer().addDeployment(servletBuilder);
         manager.deploy();
@@ -77,6 +96,7 @@ public class AemCompGenerator {
                                     .addPrefixPath("/servlet", servletHandler)
                                     .addPrefixPath("/", pathResourceManager)
                                     .addPrefixPath("/config", pathResourceManager)
+                                    .addPrefixPath("/builder", pathResourceManager)
                     ).build();
             server.start();
         } catch (ServletException e) {

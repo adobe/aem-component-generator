@@ -1,10 +1,16 @@
 /* eslint jsx-a11y/label-has-associated-control: 0 */
 /* eslint jsx-a11y/label-has-for: 0 */
 import React from 'react';
+import { FORM_ERROR } from 'final-form';
 import { Form, Field } from 'react-final-form';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import createDecorator from 'final-form-focus';
+import { ROOT_URL } from '../../actions';
+import wretch from '../../utils/wretch';
 
 function GlobalConfiguration() {
+    const global = useSelector((state) => state.compData);
     const GLOBAL_CONF_FIELDS = {
         codeOwner: 'codeOwner',
         bundlePath: 'bundlePath',
@@ -53,6 +59,16 @@ function GlobalConfiguration() {
 
     const onSubmit = async (values) => {
         console.info('Submitting', values);
+        const toastId = 'globalConfigSubmit';
+        try {
+            const response = await wretch.url(`${ROOT_URL}`).post({ ...values }).json();
+            return toast(`Success!: ${response.message}`, {
+                toastId,
+                type: toast.TYPE.SUCCESS,
+            });
+        } catch (err) {
+            return { [FORM_ERROR]: err.message };
+        }
     };
 
     const focusOnError = createDecorator();
@@ -65,6 +81,7 @@ function GlobalConfiguration() {
                         Global Project Configurations
                     </h4>
                     <Form
+                        initialValues={{ ...global }} // init form with values from server
                         onSubmit={onSubmit}
                         validate={onValidate}
                         decorators={[focusOnError]}
@@ -82,7 +99,10 @@ function GlobalConfiguration() {
                                 <Field name={`${GLOBAL_CONF_FIELDS.codeOwner}`}>
                                     {({ input, meta }) => (
                                         <div className={`form-group row ${(meta.error) && meta.touched ? 'has-danger' : ''}`}>
-                                            <label className="col-sm-3" htmlFor={`${GLOBAL_CONF_FIELDS.codeOwner}`}>Code Owner: </label>
+                                            <div className="col-sm-3">
+                                                <label htmlFor={`${GLOBAL_CONF_FIELDS.codeOwner}`}>Code Owner: </label>
+                                                <p className="text-muted">client / project name - e.g. NewCo Inc</p>
+                                            </div>
                                             <div className="col-sm-9">
                                                 <input {...input} id={`${GLOBAL_CONF_FIELDS.codeOwner}`} type="text" placeholder="Code owner" className={`form-control ${(meta.error) && meta.touched ? 'form-control-danger' : ''}`} />
                                                 {(meta.error)
@@ -194,15 +214,17 @@ function GlobalConfiguration() {
                                         </div>
                                     )}
                                 </Field>
-                                <button type="submit" className="btn btn-primary btn-md" disabled={submitting}>
-                                    <i className="mdi mdi-floppy menu-icon" />
-                                    <span className="pl-1">Save changes</span>
-                                </button>
-                                <div className={` ${submitting ? '' : 'd-none'}`}>
-                                    <div className="dot-opacity-loader">
-                                        <span />
-                                        <span />
-                                        <span />
+                                <div className="row offset-4">
+                                    <button type="submit" className="btn btn-primary btn-md" disabled={submitting || pristine}>
+                                        <i className="mdi mdi-floppy menu-icon" />
+                                        <span className="pl-1">Save changes</span>
+                                    </button>
+                                    <div className={` ${submitting ? '' : 'd-none'}`}>
+                                        <div className="dot-opacity-loader">
+                                            <span />
+                                            <span />
+                                            <span />
+                                        </div>
                                     </div>
                                 </div>
                             </form>

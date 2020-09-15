@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { LinkContainer } from 'react-router-bootstrap';
-import { ROOT_URL } from '../../actions';
+import { toast } from 'react-toastify';
 import routes from '../../routes';
-import wretch from '../../utils/wretch';
 
 function Home() {
     const [data, setData] = useState('');
@@ -10,13 +9,8 @@ function Home() {
 
     const loadData = async () => {
         try {
-            setIsLoading(true);
-            const result = await wretch
-                .url(`${ROOT_URL}`)
-                .get()
-                .json();
-            setIsLoading(false);
-            setData(result.message);
+            toast('Wow so easy !');
+            setData('Test');
         } catch (err) {
             setIsLoading(false);
             // eslint-disable-next-line no-console

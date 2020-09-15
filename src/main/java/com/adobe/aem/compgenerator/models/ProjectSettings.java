@@ -19,10 +19,9 @@
  */
 package com.adobe.aem.compgenerator.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
-
-import java.time.Year;
 
 public class ProjectSettings implements BaseModel {
 
@@ -107,13 +106,7 @@ public class ProjectSettings implements BaseModel {
     }
 
     public String getYear() {
-        if (StringUtils.isNotEmpty(year) && year.equals("current")) {
-            return String.valueOf(Year.now().getValue());
-        } else if (StringUtils.isEmpty(year)) {
-            return String.valueOf(Year.now().getValue());
-        } else {
-            return year;
-        }
+        return year;
     }
 
     public void setYear(final String year) {
@@ -121,6 +114,7 @@ public class ProjectSettings implements BaseModel {
     }
 
     @Override
+    @JsonIgnore
     public boolean isValid() {
         return StringUtils.isNotBlank(modelInterfacePackage) && StringUtils.isNotBlank(modelImplPackage)
                 && StringUtils.isNotBlank(componentPath) && StringUtils.isNotBlank(bundlePath) && StringUtils.isNotBlank(appsPath);

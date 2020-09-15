@@ -180,7 +180,7 @@ function AdditionalAttributesForm() {
                                         </div>
                                     </div>
                                 </div>
-                                <button type="submit" className="btn btn-primary btn-md" disabled={submitting}>
+                                <button type="submit" className="btn btn-primary btn-md" disabled={submitting || pristine}>
                                     <i className="mdi mdi-floppy menu-icon" />
                                     <span className="pl-1">Save changes</span>
                                 </button>

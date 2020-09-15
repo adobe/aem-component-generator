@@ -1,10 +1,10 @@
 package com.adobe.aem.compgenerator.models;
 
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 
 public class Tab implements BaseModel {
 
@@ -42,6 +42,7 @@ public class Tab implements BaseModel {
     }
 
     @Override
+    @JsonIgnore
     public boolean isValid() {
         return StringUtils.isNotBlank(id) && fields != null && !fields.isEmpty();
     }

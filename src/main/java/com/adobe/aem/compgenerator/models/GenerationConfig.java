@@ -19,6 +19,7 @@
  */
 package com.adobe.aem.compgenerator.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
@@ -59,6 +60,7 @@ public class GenerationConfig implements BaseModel {
         this.name = name;
     }
 
+    @JsonIgnore
     public String getJavaFormatedName() {
         if(StringUtils.isNotBlank(name)){
             javaFormatedName = CaseUtils.toCamelCase(name.replaceAll("-", " "), true);
@@ -115,11 +117,13 @@ public class GenerationConfig implements BaseModel {
     }
 
     @Override
+    @JsonIgnore
     public boolean isValid() {
         return StringUtils.isNotBlank(name) && StringUtils.isNotBlank(type)
                 && isValidTestPath(projectSettings.getTestPath(), options.isHasTestClass());
     }
 
+    @JsonIgnore
     private boolean isValidTestPath(String testPath, boolean hasTestClass) {
         return !hasTestClass || StringUtils.isNotBlank(testPath);
     }

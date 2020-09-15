@@ -87,6 +87,8 @@ public class Constants {
     public static final String STRING_TEST = "test";
 
     public static final String RENAME_FILE_DATE_PATTERN = "yyyyMMddHHmmss";
+    public static final String UPDATED_MSG = "Configuration file was successfully updated";
+    public static final String NO_UPDATE_MSG = "No changes to the configuration file was made";
 
     public static final int JUNIT_VERSION_5 = 5;
     public static final int JUNIT_VERSION_4 = 4;

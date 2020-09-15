@@ -19,6 +19,7 @@
  */
 package com.adobe.aem.compgenerator.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
@@ -164,11 +165,13 @@ public class Property implements BaseModel {
     }
 
     @Override
+    @JsonIgnore
     public boolean isValid() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
@@ -183,6 +186,7 @@ public class Property implements BaseModel {
     }
 
     @Override
+    @JsonIgnore
     public int hashCode() {
         return getField().hashCode() + getType().hashCode();
     }

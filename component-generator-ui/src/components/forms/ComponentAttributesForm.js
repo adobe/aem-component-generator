@@ -4,14 +4,16 @@
 /* eslint max-len: 0 */
 import React from 'react';
 import { Field, Form } from 'react-final-form';
+import { useSelector } from 'react-redux';
 import Select from 'react-select';
 
 function ComponentAttributesForm() {
+    const global = useSelector((state) => state.compData);
     const COMP_ATTR_FIELDS = {
         componentTitle: 'componentTitle',
         componentNodeName: 'componentNodeName',
-        group: 'group',
-        type: 'type',
+        componentGroup: 'componentGroup',
+        componentType: 'componentType',
         modelAdapters: 'modelAdapters',
     };
 
@@ -52,6 +54,7 @@ function ComponentAttributesForm() {
                 <div className="card-body">
                     <h4 className="card-title">Component attributes</h4>
                     <Form
+                        initialValues={{ ...global, modelAdapters: global.options.modelAdaptables }}
                         onSubmit={onSubmit}
                         validate={onValidate}
                         render={({
@@ -86,29 +89,29 @@ function ComponentAttributesForm() {
                                         </div>
                                     )}
                                 </Field>
-                                <Field name={`${COMP_ATTR_FIELDS.group}`}>
+                                <Field name={`${COMP_ATTR_FIELDS.componentGroup}`}>
                                     {({ input, meta }) => (
                                         <div className={`form-group row ${(meta.error) && meta.touched ? 'has-danger' : ''}`}>
-                                            <label className="col-sm-3" htmlFor={`${COMP_ATTR_FIELDS.group}`}>Component Group: </label>
+                                            <label className="col-sm-3" htmlFor={`${COMP_ATTR_FIELDS.componentGroup}`}>Component Group: </label>
                                             <div className="col-sm-9">
-                                                <input {...input} id={`${COMP_ATTR_FIELDS.group}`} type="text" placeholder="e.g. NewCo.Content" className={`form-control form-control-sm ${(meta.error) && meta.touched ? 'form-control-danger' : ''}`} />
+                                                <input {...input} id={`${COMP_ATTR_FIELDS.componentGroup}`} type="text" placeholder="e.g. NewCo.Content" className={`form-control form-control-sm ${(meta.error) && meta.touched ? 'form-control-danger' : ''}`} />
                                                 {(meta.error)
                                                 && meta.touched && (
-                                                    <label htmlFor={`${COMP_ATTR_FIELDS.group}`} className="error mt-2 text-danger">{meta.error}</label>
+                                                    <label htmlFor={`${COMP_ATTR_FIELDS.componentGroup}`} className="error mt-2 text-danger">{meta.error}</label>
                                                 )}
                                             </div>
                                         </div>
                                     )}
                                 </Field>
-                                <Field name={`${COMP_ATTR_FIELDS.type}`}>
+                                <Field name={`${COMP_ATTR_FIELDS.componentType}`}>
                                     {({ input, meta }) => (
                                         <div className={`form-group row ${(meta.error) && meta.touched ? 'has-danger' : ''}`}>
                                             <label className="col-sm-3" htmlFor={`${COMP_ATTR_FIELDS.type}`}>Component Type: </label>
                                             <div className="col-sm-9">
-                                                <input {...input} id={`${COMP_ATTR_FIELDS.type}`} type="text" placeholder="e.g. content" className={`form-control form-control-sm ${(meta.error) && meta.touched ? 'form-control-danger' : ''}`} />
+                                                <input {...input} id={`${COMP_ATTR_FIELDS.componentType}`} type="text" placeholder="e.g. content" className={`form-control form-control-sm ${(meta.error) && meta.touched ? 'form-control-danger' : ''}`} />
                                                 {(meta.error)
                                                 && meta.touched && (
-                                                    <label htmlFor={`${COMP_ATTR_FIELDS.type}`} className="error mt-2 text-danger">{meta.error}</label>
+                                                    <label htmlFor={`${COMP_ATTR_FIELDS.componentType}`} className="error mt-2 text-danger">{meta.error}</label>
                                                 )}
                                             </div>
                                         </div>
@@ -129,10 +132,12 @@ function ComponentAttributesForm() {
                                         </div>
                                     )}
                                 </Field>
-                                <button type="submit" className="btn btn-primary btn-md" disabled={submitting}>
-                                    <i className="mdi mdi-floppy menu-icon" />
-                                    <span className="pl-1">Save changes</span>
-                                </button>
+                                <div className="row offset-4">
+                                    <button type="submit" className="btn btn-primary btn-sm" disabled={submitting || pristine}>
+                                        <i className="mdi mdi-floppy menu-icon" />
+                                        <span className="pl-1">Save changes</span>
+                                    </button>
+                                </div>
                             </form>
                         )}
                     />

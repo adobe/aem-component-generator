@@ -37,6 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.time.Year;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -241,7 +242,13 @@ public class CommonUtils {
             map.put("sightly", StringUtils.uncapitalize(generationConfig.getJavaFormatedName()));
             map.put("slingModel", generationConfig.getProjectSettings().getModelInterfacePackage() + "." + generationConfig.getJavaFormatedName());
             map.put("CODEOWNER", generationConfig.getProjectSettings().getCodeOwner());
-            map.put("YEAR", generationConfig.getProjectSettings().getYear());
+            String year = generationConfig.getProjectSettings().getYear();
+            if (StringUtils.isNotEmpty(year) && year.equals("current")) {
+                year = String.valueOf(Year.now().getValue());
+            } else if (StringUtils.isEmpty(year)) {
+                year = String.valueOf(Year.now().getValue());
+            }
+            map.put("YEAR", year);
             map.put("htmlOutput", generationConfig.getOptions().isHtmlContent() ? HTMLUtils.renderHtml(generationConfig) : "    <!-- Component HTML goes here -->");
             return map;
         }
