@@ -3,14 +3,16 @@
 import React from 'react';
 import { FORM_ERROR } from 'final-form';
 import { Form, Field } from 'react-final-form';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import createDecorator from 'final-form-focus';
-import { ROOT_URL } from '../../actions';
+import { FETCH_CONFIGS, ROOT_URL } from '../../actions';
 import wretch from '../../utils/wretch';
 
 function GlobalConfiguration() {
+    const dispatch = useDispatch();
     const global = useSelector((state) => state.compData);
+
     const GLOBAL_CONF_FIELDS = {
         codeOwner: 'codeOwner',
         bundlePath: 'bundlePath',
@@ -62,6 +64,8 @@ function GlobalConfiguration() {
         const toastId = 'globalConfigSubmit';
         try {
             const response = await wretch.url(`${ROOT_URL}`).post({ ...values }).json();
+            const result = await wretch.url(`${ROOT_URL}`).get().json();
+            dispatch({ type: FETCH_CONFIGS, payload: result });
             return toast(`Success!: ${response.message}`, {
                 toastId,
                 type: toast.TYPE.SUCCESS,

@@ -3,11 +3,17 @@
 /* eslint react/jsx-props-no-spreading: 0 */
 /* eslint max-len: 0 */
 import React from 'react';
+import { FORM_ERROR } from 'final-form';
 import { Field, Form } from 'react-final-form';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Select from 'react-select';
+import { toast } from 'react-toastify';
+import { FETCH_CONFIGS, ROOT_URL } from '../../actions';
+import { SLING_ADAPTABLES } from '../../utils/Constants';
+import wretch from '../../utils/wretch';
 
 function ComponentAttributesForm() {
+    const dispatch = useDispatch();
     const global = useSelector((state) => state.compData);
     const COMP_ATTR_FIELDS = {
         componentTitle: 'componentTitle',
@@ -17,11 +23,6 @@ function ComponentAttributesForm() {
         modelAdapters: 'modelAdapters',
     };
 
-    const slingAdaptables = [
-        { value: 'resource', label: 'Resource' },
-        { value: 'request', label: 'SlingHttpServletRequest' },
-    ];
-
     const onValidate = (values) => {
         const errors = {};
         if (!values.componentTitle) {
@@ -30,11 +31,11 @@ function ComponentAttributesForm() {
         if (!values.componentNodeName) {
             errors.componentNodeName = 'Component node name is required';
         }
-        if (!values.group) {
-            errors.group = 'Component group is required';
+        if (!values.componentGroup) {
+            errors.componentGroup = 'Component group is required';
         }
-        if (!values.type) {
-            errors.type = 'Component type is required';
+        if (!values.componentType) {
+            errors.componentType = 'Component type is required';
         }
         if (!values.modelAdapters) {
             errors.modelAdapters = 'Model adapter is required';
@@ -45,7 +46,18 @@ function ComponentAttributesForm() {
     };
 
     const onSubmit = async (values) => {
-        console.info('Submitting', values);
+        const toastId = 'componentAttrSubmit';
+        try {
+            const response = await wretch.url(`${ROOT_URL}`).post({ ...values }).json();
+            const result = await wretch.url(`${ROOT_URL}`).get().json();
+            dispatch({ type: FETCH_CONFIGS, payload: result });
+            return toast(`Success!: ${response.message}`, {
+                toastId,
+                type: toast.TYPE.SUCCESS,
+            });
+        } catch (err) {
+            return { [FORM_ERROR]: err.message };
+        }
     };
 
     return (
@@ -61,6 +73,13 @@ function ComponentAttributesForm() {
                             submitError, handleSubmit, reset, submitting, pristine,
                         }) => (
                             <form className="form-comp-attributes" onSubmit={handleSubmit}>
+                                {submitError && (
+                                    <div className="alert alert-danger">
+                                        <strong>Error!</strong>
+                                        {' '}
+                                        {submitError}
+                                    </div>
+                                )}
                                 <Field name={`${COMP_ATTR_FIELDS.componentTitle}`}>
                                     {({ input, meta }) => (
                                         <div className={`form-group row ${(meta.error) && meta.touched ? 'has-danger' : ''}`}>
@@ -123,7 +142,7 @@ function ComponentAttributesForm() {
                                             <label className="col-sm-3" htmlFor={`${COMP_ATTR_FIELDS.modelAdapters}`}>Model Adapters: </label>
                                             <div className="col-sm-9">
                                                 {/* pass in default value={{ value: 'resource', label: 'Resource' }} */}
-                                                <Select {...input} options={slingAdaptables} searchable isMulti />
+                                                <Select {...input} options={SLING_ADAPTABLES} searchable isMulti />
                                                 {(meta.error)
                                                 && meta.touched && (
                                                     <label htmlFor={`${COMP_ATTR_FIELDS.modelAdapters}`} className="error mt-2 text-danger">{meta.error}</label>

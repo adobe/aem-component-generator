@@ -20,6 +20,7 @@
 package com.adobe.aem.compgenerator;
 
 import com.adobe.aem.compgenerator.exceptions.GeneratorException;
+import com.adobe.aem.compgenerator.utils.CommonUtils;
 import com.adobe.aem.compgenerator.web.ConfigurationReadWriteServlet;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
@@ -33,15 +34,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.ServletException;
+import java.awt.*;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
+import java.util.jar.JarFile;
 
 import static io.undertow.servlet.Servlets.defaultContainer;
 import static io.undertow.servlet.Servlets.deployment;
 import static io.undertow.servlet.Servlets.servlet;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * Root of the AEM Component generator.
@@ -54,10 +63,10 @@ public class AemCompGenerator {
     private static final Logger LOG = LogManager.getLogger(AemCompGenerator.class);
 
     public static void main(String[] args) {
-
         // Ensure that an initial data configuration
         // JSON file exists for loading / saving data to
         String configPath = "data-config.json";
+        String configSamplePath = "data-config-sample.json";
 
         File configFile = new File(configPath);
 
@@ -65,9 +74,17 @@ public class AemCompGenerator {
             // if the config does not exist, copy a sample one to the root directory
             LOG.info(configPath + " file does not exist.. creating new empty one from sample file");
             try {
-                File file = new File(AemCompGenerator.class.getClassLoader().getResource("data-config-sample.json").getFile());
-                Files.copy(file.toPath(), configFile.toPath(), REPLACE_EXISTING);
+                InputStream input = AemCompGenerator.class.getResourceAsStream("/resources/" + configSamplePath);
+                if (input == null) {
+                    input = AemCompGenerator.class.getClassLoader().getResourceAsStream(configSamplePath);
+                }
+                byte[] buffer = new byte[input.available()];
+                input.read(buffer);
+
+                OutputStream outStream = new FileOutputStream(configPath);
+                outStream.write(buffer);
             } catch (IOException e) {
+                LOG.error(e);
                 throw new GeneratorException("Could not initialize data config file");
             }
         }
@@ -85,8 +102,25 @@ public class AemCompGenerator {
         manager.deploy();
         try {
             HttpHandler servletHandler = manager.start();
+            Path staticPath = Paths.get("src/main/resources/static/build");
+
+            String protocol = AemCompGenerator.class.getResource("").getProtocol();
+            if (Objects.equals(protocol, "jar")) {
+                try {
+                    Path tempDirWithPrefix = Files.createTempDirectory("comp_gen_web");
+                    tempDirWithPrefix.toFile().deleteOnExit(); // cleanup temp folder when exiting app
+                    JarFile jarFile = CommonUtils.jarForClass(AemCompGenerator.class, null);
+                    CommonUtils.copyResourcesToDirectory(jarFile, "static/build", tempDirWithPrefix.toAbsolutePath().toString());
+                    staticPath = Paths.get(tempDirWithPrefix.toAbsolutePath().toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                LOG.info("running in IDE / copying static files from Jar not needed");
+            }
+
             ResourceHandler pathResourceManager = new ResourceHandler(
-                    new PathResourceManager(Paths.get("src/main/resources/static/build"), 100))
+                    new PathResourceManager(staticPath, 100))
                     .setWelcomeFiles("index.html");
             Undertow server = Undertow.builder()
                     .setServerOption(UndertowOptions.URL_CHARSET, "UTF8")
@@ -96,50 +130,18 @@ public class AemCompGenerator {
                                     .addPrefixPath("/servlet", servletHandler)
                                     .addPrefixPath("/", pathResourceManager)
                                     .addPrefixPath("/config", pathResourceManager)
-                                    .addPrefixPath("/builder", pathResourceManager)
+                                    .addPrefixPath("/comp-config", pathResourceManager)
+                                    .addPrefixPath("/dialog-properties", pathResourceManager)
+                                    .addPrefixPath("/dialog-tabs", pathResourceManager)
                     ).build();
             server.start();
-        } catch (ServletException e) {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                System.out.println("Launching new browser window with Component Builder UI");
+                Desktop.getDesktop().browse(new URI("http://localhost:8080"));
+            }
+        } catch (ServletException | URISyntaxException | IOException e) {
             e.printStackTrace();
         }
-//        try {
-//            String configPath = "data-config.json";
-//            if (args.length > 0) {
-//                configPath = args[0];
-//            }
-//
-//            File configFile = new File(configPath);
-//
-//            if (CommonUtils.isFileBlank(configFile)) {
-//                throw new GeneratorException("Config file missing / empty.");
-//            }
-//
-//            GenerationConfig config = CommonUtils.getComponentData(configFile);
-//
-//            if (config == null) {
-//                throw new GeneratorException("Config file is empty / null !!");
-//            }
-//
-//            if (!config.isValid() || !CommonUtils.isModelValid(config.getProjectSettings())) {
-//                throw new GeneratorException("Mandatory fields missing in the data-config.json !");
-//            }
-//
-//            String compDir = config.getProjectSettings().getAppsPath() + "/"
-//                    + config.getProjectSettings().getComponentPath() + "/"
-//                    + config.getType() + "/" + config.getName();
-//            config.setCompDir(compDir);
-//
-//            //builds component folder and file structure.
-//            ComponentUtils generatorUtils = new ComponentUtils(config);
-//            generatorUtils.buildComponent();
-//
-//            //builds sling model based on config.
-//            if (config.getOptions() != null && config.getOptions().isHasSlingModel()) {
-//                JavaCodeModel javaCodeModel = new JavaCodeModel();
-//                javaCodeModel.buildSlingModel(config);
-//            }
-//        } catch (Exception e) {
-//            LOG.error("Failed to generate aem component.", e);
-//        }
     }
+
 }

@@ -1,21 +1,58 @@
-import React from 'react';
+import React, { useState } from 'react';
+import join from 'lodash/join';
 import { Dropdown, NavLink } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { LinkContainer } from 'react-router-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagic } from '@fortawesome/free-solid-svg-icons';
-import { MOBILE_MENU_CLICK } from '../../actions';
+import { MOBILE_MENU_CLICK, ROOT_URL } from '../../actions';
 import routes from '../../routes';
+import validateGlobalData from '../../utils/Utils';
+import wretch from '../../utils/wretch';
+import FeedbackModal from '../modals/FeedbackModal';
 
 function Header() {
     const dispatch = useDispatch();
+    const global = useSelector((state) => state.compData);
+    const [modalShow, setModalShow] = useState(false);
+    const [modalTitle, setModalTitle] = useState('Validation failed');
+    const [modalDesc, setModalDesc] = useState('');
 
-    function mobileMenuAction() {
+    const mobileMenuAction = () => {
         dispatch({ type: MOBILE_MENU_CLICK });
-    }
+    };
+
+    const saveAndGenerateAction = async () => {
+        const result = validateGlobalData(global);
+        if (result.valid) {
+            try {
+                await wretch.url(`${ROOT_URL}`).put().json();
+                setModalTitle('Success!');
+                setModalDesc('Your component code was successfully generated.');
+                setModalShow(true);
+            } catch (err) {
+                let msg = '';
+                if (err && err.message) {
+                    msg = err.message;
+                }
+                setModalTitle('Uh-oh something went wrong');
+                setModalDesc(msg);
+                setModalShow(true);
+            }
+        } else {
+            setModalDesc(`${result.message} ${join(result.invalidFields, ',')}`);
+            setModalShow(true);
+        }
+    };
 
     return (
         <nav className="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row navbar-dark">
+            <FeedbackModal
+                title={modalTitle}
+                description={modalDesc}
+                show={modalShow}
+                onHide={() => setModalShow(false)}
+            />
             <div className="navbar-brand-wrapper d-flex justify-content-center">
                 <div className="navbar-brand-inner-wrapper d-flex justify-content-between align-items-center w-100">
                     <LinkContainer to={`${routes.home}`}>
@@ -33,7 +70,7 @@ function Header() {
             <div className="navbar-menu-wrapper d-flex align-items-center justify-content-end">
                 <ul className="navbar-nav mr-lg-4 w-100">
                     <li className="nav-item mr-1">
-                        <button className="btn btn-warning btn-md mt-xl-0" type="button">
+                        <button onClick={saveAndGenerateAction} className="btn btn-warning btn-md mt-xl-0" type="button">
                             <i className="mdi mdi-content-save-all menu-icon" />
                             <span className="pl-1">Save &amp; Generate Component</span>
                         </button>

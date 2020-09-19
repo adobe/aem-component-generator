@@ -59,6 +59,9 @@ public class Property implements BaseModel {
     @JsonProperty(value = "model-name")
     private String modelName;
 
+    @JsonProperty(value = "id")
+    private String id;
+
     @JsonProperty(value = "use-existing-model", defaultValue = "false")
     private boolean useExistingModel;
 
@@ -71,6 +74,7 @@ public class Property implements BaseModel {
         return field;
     }
 
+    @JsonIgnore
     public String getFieldGetterName() {
         if (StringUtils.isNotBlank(field)) {
             return StringUtils.capitalize(field);
@@ -162,6 +166,14 @@ public class Property implements BaseModel {
 
     public void setJsonProperty(String jsonProperty) {
         this.jsonProperty = jsonProperty;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(final String id) {
+        this.id = id;
     }
 
     @Override

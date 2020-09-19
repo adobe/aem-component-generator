@@ -6,6 +6,15 @@ AEM Component Generator is a java project that enables developers to generate th
 AEM component using a JSON configuration file specifying component and dialog properties and other configuration
 options.
 
+Starting with version 2.0:
+
+The AEM Component Generator now has graphical user interface!
+- SPA web app, with a backend api that can dynamically build json conigurations for the components
+
+- The backend generates the component config json structures still and can maintain multiple components
+
+- executes the code / folder structure build-out on demand 
+
 Generated code includes:
 - `cq:dialog` for component properties
     - `dialogshared`/`dialogglobal` for shared/global component properties

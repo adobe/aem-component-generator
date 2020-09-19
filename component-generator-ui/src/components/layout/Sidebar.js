@@ -27,11 +27,27 @@ function Sidebar() {
                         </a>
                     </LinkContainer>
                 </li>
-                <li className={location.pathname === routes.builder ? 'nav-item active' : 'nav-item'}>
-                    <LinkContainer to={`${routes.builder}`}>
+                <li className={location.pathname === routes.compConfig ? 'nav-item active' : 'nav-item'}>
+                    <LinkContainer to={`${routes.compConfig}`}>
                         <a className="nav-link" href="#builder">
                             <i className="mdi mdi-pencil menu-icon" />
-                            <span className="menu-title">Component Builder</span>
+                            <span className="menu-title">Component Configs</span>
+                        </a>
+                    </LinkContainer>
+                </li>
+                <li className={location.pathname === routes.dialogProperties ? 'nav-item active' : 'nav-item'}>
+                    <LinkContainer to={`${routes.dialogProperties}`}>
+                        <a className="nav-link" href="#dialogProperties">
+                            <i className="mdi mdi-database-settings menu-icon" />
+                            <span className="menu-title">Dialog Properties</span>
+                        </a>
+                    </LinkContainer>
+                </li>
+                <li className={location.pathname === routes.dialogTabs ? 'nav-item active' : 'nav-item'}>
+                    <LinkContainer to={`${routes.dialogTabs}`}>
+                        <a className="nav-link" href="#dialogTabs">
+                            <i className="mdi mdi-tab menu-icon" />
+                            <span className="menu-title">Dialog Tab Builder</span>
                         </a>
                     </LinkContainer>
                 </li>

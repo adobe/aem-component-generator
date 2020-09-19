@@ -76,12 +76,14 @@
                 "type": "textfield",
                 "label": "Textfield Test",
                 "json-expose": true,
+                "id": "417671d1-8923-41eb-a315-cc5c2c05bf75",
                 "attributes": {}
             },
             {
                 "field": "checkTest",
                 "type": "checkbox",
                 "json-expose": true,
+                "id": "6e8e5781-f0eb-4dfe-973e-9172dbe8a0a2",
                 "attributes": {
                     "value": "{Boolean}true",
                     "text": "Checkbox Test"
@@ -91,6 +93,7 @@
                 "field": "pathfieldTest",
                 "type": "pathfield",
                 "label": "Pathfield Test",
+                "id": "e8173cb7-c2c9-471c-bc03-83ae2f531062",
                 "json-expose": true,
                 "attributes": {
                     "rootPath": "/content"
@@ -100,6 +103,7 @@
                 "field": "textareaTest",
                 "type": "textarea",
                 "label": "Textarea Test",
+                "id": "fae4a960-d7c6-411c-a073-5803ce8550a1",
                 "json-expose": true,
                 "attributes": {}
             },
@@ -108,6 +112,7 @@
                 "description": "Context tooltip for authors.",
                 "type": "datepicker",
                 "json-expose": true,
+                "id": "e9c992f2-85d2-497d-83db-7c0f9eea2e8d",
                 "label": "Select Date",
                 "attributes": {
                     "displayedFormat": "MM/DD/YYYY"
@@ -119,6 +124,7 @@
                 "label": "Select Test",
                 "json-property": "selection",
                 "json-expose": true,
+                "id": "e9c992f2-85d2-497d-83db-7c0f9eea2e8c",
                 "attributes": {
                     "defaultValue": "opt1",
                     "value": "opt1"
@@ -146,6 +152,7 @@
                 "type": "radiogroup",
                 "label": "Radio Test",
                 "json-expose": true,
+                "id": "e9c992f2-85d2-497d-83db-7c0f9eea2e83",
                 "attributes": {
                     "vertical": "{Boolean}false"
                 },
@@ -175,6 +182,7 @@
             {
                 "field": "hiddenTest",
                 "type": "hidden",
+                "id": "e9c992f2-85d3-497d-83db-7c0f9eea2e83",
                 "attributes": {
                     "value": "hidden value"
                 }
@@ -184,6 +192,7 @@
                 "type": "numberfield",
                 "label": "Numberfield Test",
                 "json-expose": true,
+                "id": "e9c992f2-85d3-497d-82db-7c0f9eea2e82",
                 "attributes": {
                     "max": "{Double}20",
                     "min": "{Double}0",
@@ -195,12 +204,14 @@
                 "field": "imageTest",
                 "type": "image",
                 "label": "Image Test",
+                "id": "e9c982f2-85d3-497d-82db-7c0f9eea2e83",
                 "json-expose": true
             },
             {
                 "field": "colors",
                 "type": "multifield",
                 "label": "Colors",
+                "id": "e8c992f2-85d3-497d-82db-7c0f9eea2e82",
                 "json-expose": true,
                 "items": [
                     {
@@ -216,6 +227,7 @@
                 "use-existing-model": false,
                 "label": "Links",
                 "json-expose": true,
+                "id": "e7c992f2-85d3-497d-82db-7c0f9eea2e82",
                 "items": [
                     {
                         "field": "path",
@@ -239,6 +251,7 @@
                 "field": "sharedTextfieldTest",
                 "type": "textfield",
                 "label": "Shared Textfield Test",
+                "id": "e7c992f2-85d3-497d-72db-7c0f9eea2e82",
                 "json-expose": true
             }
         ],
@@ -247,6 +260,7 @@
                 "field": "globalTextfieldTest",
                 "type": "textfield",
                 "label": "Global Textfield Test",
+                "id": "e6c992f2-85d3-497d-72db-7c0f9eea2e82",
                 "json-expose": true
             }
         ]

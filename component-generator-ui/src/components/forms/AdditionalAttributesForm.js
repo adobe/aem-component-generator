@@ -1,33 +1,52 @@
 /* eslint jsx-a11y/label-has-associated-control: 0 */
 /* eslint jsx-a11y/label-has-for: 0 */
+import { FORM_ERROR } from 'final-form';
 import React from 'react';
 import { Field, Form } from 'react-final-form';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import { FETCH_CONFIGS, ROOT_URL } from '../../actions';
+import wretch from '../../utils/wretch';
 
 function AdditionalAttributesForm() {
+    const dispatch = useDispatch();
+    const global = useSelector((state) => state.compData);
     const ADD_ATTR_FIELDS = {
         js: 'js',
-        jstxt: 'jstxt',
+        jsTxt: 'jsTxt',
         css: 'css',
-        csstxt: 'csstxt',
+        cssTxt: 'cssTxt',
         html: 'html',
         htmlContent: 'htmlContent',
-        slingmodel: 'slingmodel',
-        testclass: 'testclass',
-        jUnitVersion: 'jUnitVersion',
+        slingModel: 'slingModel',
+        testClass: 'testClass',
+        junitMajorVersion: 'junitMajorVersion',
         contentExporter: 'contentExporter',
-        javaDoc: 'javaDoc',
+        genericJavadoc: 'genericJavadoc',
     };
 
     const onValidate = (values) => {
         const errors = {};
-        if (!values.jUnitVersion) {
-            errors.jUnitVersion = 'Required';
+        if (!values.junitMajorVersion) {
+            errors.junitMajorVersion = 'Required';
         }
         return errors;
     };
 
     const onSubmit = async (values) => {
         console.info('Submitting', values);
+        const toastId = 'addAttrSubmit';
+        try {
+            const response = await wretch.url(`${ROOT_URL}`).post({ ...values }).json();
+            const result = await wretch.url(`${ROOT_URL}`).get().json();
+            dispatch({ type: FETCH_CONFIGS, payload: result });
+            return toast(`Success!: ${response.message}`, {
+                toastId,
+                type: toast.TYPE.SUCCESS,
+            });
+        } catch (err) {
+            return { [FORM_ERROR]: err.message };
+        }
     };
 
     return (
@@ -37,7 +56,7 @@ function AdditionalAttributesForm() {
                     <h4 className="card-title">Additional Options</h4>
                     <Form
                         onSubmit={onSubmit}
-                        initialValues={{ js: true }}
+                        initialValues={{ ...global.options }}
                         validate={onValidate}
                         render={({
                             submitError, handleSubmit, reset, submitting, pristine,
@@ -60,7 +79,7 @@ function AdditionalAttributesForm() {
                                             <div className="form-check">
                                                 <label className="form-check-label">
                                                     <Field
-                                                        name={`${ADD_ATTR_FIELDS.jstxt}`}
+                                                        name={`${ADD_ATTR_FIELDS.jsTxt}`}
                                                         component="input"
                                                         type="checkbox"
                                                     />
@@ -82,7 +101,7 @@ function AdditionalAttributesForm() {
                                             <div className="form-check">
                                                 <label className="form-check-label">
                                                     <Field
-                                                        name={`${ADD_ATTR_FIELDS.csstxt}`}
+                                                        name={`${ADD_ATTR_FIELDS.cssTxt}`}
                                                         component="input"
                                                         type="checkbox"
                                                     />
@@ -119,7 +138,7 @@ function AdditionalAttributesForm() {
                                             <div className="form-check">
                                                 <label className="form-check-label">
                                                     <Field
-                                                        name={`${ADD_ATTR_FIELDS.slingmodel}`}
+                                                        name={`${ADD_ATTR_FIELDS.slingModel}`}
                                                         component="input"
                                                         type="checkbox"
                                                     />
@@ -130,7 +149,7 @@ function AdditionalAttributesForm() {
                                             <div className="form-check">
                                                 <label className="form-check-label">
                                                     <Field
-                                                        name={`${ADD_ATTR_FIELDS.testclass}`}
+                                                        name={`${ADD_ATTR_FIELDS.testClass}`}
                                                         component="input"
                                                         type="checkbox"
                                                     />
@@ -141,7 +160,7 @@ function AdditionalAttributesForm() {
                                             <div className="form-check">
                                                 <label className="form-check-label">
                                                     <Field
-                                                        name={`${ADD_ATTR_FIELDS.javaDoc}`}
+                                                        name={`${ADD_ATTR_FIELDS.genericJavadoc}`}
                                                         component="input"
                                                         type="checkbox"
                                                     />
@@ -156,22 +175,22 @@ function AdditionalAttributesForm() {
                                                         component="input"
                                                         type="checkbox"
                                                     />
-                                                    content exporter annotation
+                                                    add content exporter annotation
                                                     <i className="input-helper" />
-                                                    <a title="What is this?" target="_blank" rel="noreferrer noopener" href="https://docs.adobe.com/content/help/en/experience-manager-65/developing/components/json-exporter.html">
+                                                    <a className="whatThisLink" title="What is this?" target="_blank" rel="noreferrer noopener" href="https://docs.adobe.com/content/help/en/experience-manager-65/developing/components/json-exporter.html">
                                                         <i className="mdi mdi-comment-question" />
                                                     </a>
                                                 </label>
                                             </div>
-                                            <Field name={`${ADD_ATTR_FIELDS.jUnitVersion}`}>
+                                            <Field name={`${ADD_ATTR_FIELDS.junitMajorVersion}`}>
                                                 {({ input, meta }) => (
                                                     <div className={`form-group ${(meta.error) && meta.touched ? 'has-danger' : ''}`}>
-                                                        <label className="d-inline pr-2" htmlFor={`${ADD_ATTR_FIELDS.jUnitVersion}`}>junit version: </label>
+                                                        <label className="d-inline pr-2" htmlFor={`${ADD_ATTR_FIELDS.junitMajorVersion}`}>junit version: </label>
                                                         <div className="d-inline">
-                                                            <input {...input} id={`${ADD_ATTR_FIELDS.jUnitVersion}`} style={{ maxWidth: '70px' }} type="number" placeholder="5" className={`form-control form-control-sm d-inline pr-2 ${(meta.error) && meta.touched ? 'form-control-danger' : ''}`} />
+                                                            <input {...input} id={`${ADD_ATTR_FIELDS.junitMajorVersion}`} style={{ maxWidth: '70px' }} type="number" placeholder="5" className={`form-control form-control-sm d-inline pr-2 ${(meta.error) && meta.touched ? 'form-control-danger' : ''}`} />
                                                             {(meta.error)
                                                             && meta.touched && (
-                                                                <label htmlFor={`${ADD_ATTR_FIELDS.jUnitVersion}`} className="error mt-2 text-danger">{meta.error}</label>
+                                                                <label htmlFor={`${ADD_ATTR_FIELDS.junitMajorVersion}`} className="error mt-2 text-danger">{meta.error}</label>
                                                             )}
                                                         </div>
                                                     </div>
@@ -180,10 +199,12 @@ function AdditionalAttributesForm() {
                                         </div>
                                     </div>
                                 </div>
-                                <button type="submit" className="btn btn-primary btn-md" disabled={submitting || pristine}>
-                                    <i className="mdi mdi-floppy menu-icon" />
-                                    <span className="pl-1">Save changes</span>
-                                </button>
+                                <div className="row offset-30 mt-2">
+                                    <button type="submit" className="btn btn-primary btn-md" disabled={submitting || pristine}>
+                                        <i className="mdi mdi-floppy menu-icon" />
+                                        <span className="pl-1">Save changes</span>
+                                    </button>
+                                </div>
                             </form>
                         )}
                     />
