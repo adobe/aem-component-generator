@@ -1,28 +1,28 @@
 export default function validateGlobalData(global) {
     const result = { valid: true, message: 'Validation success', invalidFields: [] };
     if (!global.codeOwner) {
-        result.invalidFields.push('Code owner (global configuration)');
+        result.invalidFields.push('Code owner (global configs)');
     }
     if (!global.bundlePath) {
-        result.invalidFields.push('Bundle path (global configuration)');
+        result.invalidFields.push('Bundle path (global configs)');
     }
     if (!global.testPath) {
-        result.invalidFields.push('Test path (global configuration)');
+        result.invalidFields.push('Test path (global configs)');
     }
     if (!global.appsPath) {
-        result.invalidFields.push('App path (global configuration)');
+        result.invalidFields.push('App path (global configs)');
     }
     if (!global.componentPath) {
-        result.invalidFields.push('Component path (global configuration)');
+        result.invalidFields.push('Component path (global configs)');
     }
     if (!global.modelInterfacePackage) {
-        result.invalidFields.push('Model interface (global configuration)');
+        result.invalidFields.push('Model interface (global configs)');
     }
     if (!global.modelImplPackage) {
-        result.invalidFields.push('Model impl package (global configuration)');
+        result.invalidFields.push('Model impl package (global configs)');
     }
     if (!global.copyrightYear) {
-        result.invalidFields.push('Copyright year (global configuration)');
+        result.invalidFields.push('Copyright year (global configs)');
     }
     if (!global.componentTitle) {
         result.invalidFields.push('Component Title (Component Configs)');
@@ -43,6 +43,11 @@ export default function validateGlobalData(global) {
         result.invalidFields.push('Component Properties (need at least one)');
     } else if (global.options.properties.length <= 0) {
         result.invalidFields.push('Component Properties (need at least one)');
+    }
+    if (!global.options.propertiesTabs) {
+        result.invalidFields.push('Dialog Tabs (need at least one)');
+    } else if (global.options.propertiesTabs <= 0) {
+        result.invalidFields.push('Dialog Tabs (need at least one)');
     }
 
     if (result.invalidFields.length > 0) {

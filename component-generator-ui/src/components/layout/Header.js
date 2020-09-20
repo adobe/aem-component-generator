@@ -5,15 +5,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { LinkContainer } from 'react-router-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagic } from '@fortawesome/free-solid-svg-icons';
-import { MOBILE_MENU_CLICK, ROOT_URL } from '../../actions';
+import { FETCH_CONFIGS, MOBILE_MENU_CLICK, ROOT_URL } from '../../actions';
 import routes from '../../routes';
 import validateGlobalData from '../../utils/Utils';
 import wretch from '../../utils/wretch';
+import ConfirmModal from '../modals/ConfirmModal';
 import FeedbackModal from '../modals/FeedbackModal';
 
 function Header() {
     const dispatch = useDispatch();
     const global = useSelector((state) => state.compData);
+    const [confirmShow, setConfirmShow] = useState(false);
     const [modalShow, setModalShow] = useState(false);
     const [modalTitle, setModalTitle] = useState('Validation failed');
     const [modalDesc, setModalDesc] = useState('');
@@ -31,7 +33,7 @@ function Header() {
                 setModalDesc('Your component code was successfully generated.');
                 setModalShow(true);
             } catch (err) {
-                let msg = '';
+                let msg = 'Server error occurred. Please check the logs.';
                 if (err && err.message) {
                     msg = err.message;
                 }
@@ -40,13 +42,41 @@ function Header() {
                 setModalShow(true);
             }
         } else {
-            setModalDesc(`${result.message} ${join(result.invalidFields, ',')}`);
+            setModalDesc(`${result.message} ${join(result.invalidFields, ', ')}`);
             setModalShow(true);
         }
     };
 
+    const resetAllFieldsAction = async () => {
+        setConfirmShow(false);
+        try {
+            const result = await wretch.url(`${ROOT_URL}`).delete().json();
+            dispatch({ type: FETCH_CONFIGS, payload: result });
+        } catch (err) {
+            let msg = '';
+            if (err && err.message) {
+                msg = err.message;
+            }
+            setModalTitle('Uh-oh something went wrong');
+            setModalDesc(msg);
+            setModalShow(true);
+        }
+    };
+
+    const handleResetClick = (event) => {
+        event.preventDefault();
+        setConfirmShow(true);
+    };
+
     return (
         <nav className="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row navbar-dark">
+            <ConfirmModal
+                title="Are you Sure?"
+                description="This action will reset / remove the data-config.json file. If you want to save your current config, make a copy of the data-config.json file before proceeding."
+                onHide={() => setConfirmShow(false)}
+                onConfirm={resetAllFieldsAction}
+                show={confirmShow}
+            />
             <FeedbackModal
                 title={modalTitle}
                 description={modalDesc}
@@ -76,7 +106,7 @@ function Header() {
                         </button>
                     </li>
                     <li className="nav-item mr-1">
-                        <button className="btn btn-danger btn-md mt-xl-0" type="button">
+                        <button onClick={handleResetClick} className="btn btn-danger btn-md mt-xl-0" type="button">
                             <i className="mdi mdi-refresh menu-icon" />
                             <span className="pl-1">Reset all fields</span>
                         </button>

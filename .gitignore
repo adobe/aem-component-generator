@@ -1,6 +1,7 @@
 # Created by https://www.gitignore.io/api/eclipse,java,maven
 src/main/resources/static/build
-
+!src/main/resources/static/.keep
+data-config.json
 ### Eclipse ###
 *.pydevproject
 .metadata

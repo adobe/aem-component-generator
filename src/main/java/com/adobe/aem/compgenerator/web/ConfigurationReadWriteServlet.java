@@ -1,6 +1,8 @@
 package com.adobe.aem.compgenerator.web;
 
 import acscommons.com.google.common.primitives.Ints;
+import com.adobe.aem.compgenerator.AemCompGenerator;
+import com.adobe.aem.compgenerator.exceptions.GeneratorException;
 import com.adobe.aem.compgenerator.javacodemodel.JavaCodeModel;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.adobe.aem.compgenerator.models.Options;
@@ -22,7 +24,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,7 +79,51 @@ public class ConfigurationReadWriteServlet extends HttpServlet {
      * Handles resetting the config file to a default state
      */
     protected void doDelete(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
-        super.doDelete(req, resp);
+        resp.setContentType("application/json; charset=UTF-8");
+        resp.setCharacterEncoding("UTF-8");
+        File configFile = new File(CONFIG_PATH);
+        if (configFile.exists()) {
+            boolean d = configFile.delete();
+            if (d) {
+                // reset the config file to defaults
+                String configEmptyPath = "data-config-empty.json";
+                try {
+                    InputStream input = AemCompGenerator.class.getResourceAsStream("/resources/" + configEmptyPath);
+                    if (input == null) {
+                        input = AemCompGenerator.class.getClassLoader().getResourceAsStream(configEmptyPath);
+                    }
+                    byte[] buffer = new byte[input.available()];
+                    input.read(buffer);
+
+                    OutputStream outStream = new FileOutputStream(CONFIG_PATH);
+                    outStream.write(buffer);
+                    File reConfigFile = new File(CONFIG_PATH);
+                    GenerationConfig config = CommonUtils.getComponentData(reConfigFile);
+
+                    ObjectMapper mapper = new ObjectMapper();
+
+                    PrintWriter writer = resp.getWriter();
+                    writer.write(mapper.writeValueAsString(config));
+                    writer.close();
+                } catch (IOException e) {
+                    LOG.error(e);
+                    resp.setStatus(500);
+                    throw new GeneratorException("Could not initialize data config file");
+                }
+            } else {
+                resp.setStatus(500);
+                PrintWriter writer = resp.getWriter();
+                String msg = "{ \"result\": false, \"message\" : \"" + "data-config.json could not be deleted." + "\" }";
+                writer.write(msg);
+                writer.close();
+            }
+        } else {
+            resp.setStatus(500);
+            PrintWriter writer = resp.getWriter();
+            String msg = "{ \"result\": false, \"message\" : \"" + "data-config.json could not be deleted / reset because it was missing." + "\" }";
+            writer.write(msg);
+            writer.close();
+        }
     }
 
     @Override
