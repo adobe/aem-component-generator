@@ -30,6 +30,7 @@ import io.undertow.server.handlers.resource.PathResourceManager;
 import io.undertow.server.handlers.resource.ResourceHandler;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -63,6 +64,23 @@ public class AemCompGenerator {
     private static final Logger LOG = LogManager.getLogger(AemCompGenerator.class);
 
     public static void main(String[] args) {
+        int port = 8080;
+        // option to override default port
+        if (args.length > 0) {
+            String portOption = args[0];
+            if (StringUtils.contains(portOption, "p") &&
+                    StringUtils.contains(portOption, "=")) {
+                String[] portArr = StringUtils.split(portOption, "=");
+                try {
+                    port = Integer.parseInt(portArr[1]);
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid arg usage, expected -p=8080");
+                    System.exit(1);
+                }
+            } else {
+                System.out.println("Invalid arg usage, expected -p=8080");
+            }
+        }
         // Ensure that an initial data configuration
         // JSON file exists for loading / saving data to
         String configPath = "data-config.json";
@@ -124,7 +142,7 @@ public class AemCompGenerator {
                     .setWelcomeFiles("index.html");
             Undertow server = Undertow.builder()
                     .setServerOption(UndertowOptions.URL_CHARSET, "UTF8")
-                    .addHttpListener(8080, "localhost")
+                    .addHttpListener(port, "localhost")
                     .setHandler(
                             Handlers.path()
                                     .addPrefixPath("/servlet", servletHandler)
@@ -137,7 +155,7 @@ public class AemCompGenerator {
             server.start();
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 System.out.println("Launching new browser window with Component Builder UI");
-                Desktop.getDesktop().browse(new URI("http://localhost:8080"));
+                Desktop.getDesktop().browse(new URI("http://localhost:" + port));
             }
         } catch (ServletException | URISyntaxException | IOException e) {
             e.printStackTrace();

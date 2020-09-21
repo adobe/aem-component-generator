@@ -37,8 +37,14 @@ function AttributesModal(props) {
 
     const handleRemoveFields = (index) => {
         const values = [...inputFields];
-        values.splice(index, 1);
-        setInputFields(values);
+        if (values.length === 1) {
+            values.splice(index, 1);
+            values.push({ attribute: '', value: '' });
+            setInputFields(values);
+        } else {
+            values.splice(index, 1);
+            setInputFields(values);
+        }
     };
 
     const handleInputChange = (index, event) => {

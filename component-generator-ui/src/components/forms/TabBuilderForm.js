@@ -2,12 +2,15 @@ import React from 'react';
 import { Nav, Tab } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { SortableContainer } from 'react-sortable-hoc';
+import { useUIDSeed } from 'react-uid';
+import { ADD_TAB } from '../../actions';
 
 function TabBuilderForm() {
     const dispatch = useDispatch();
+    const seed = useUIDSeed();
     const global = useSelector((state) => state.compData);
 
-    const SortableProperties = SortableContainer(({ children }) => (
+    const SortableTabs = SortableContainer(({ children }) => (
         <div className="py-2">
             {children}
         </div>
@@ -16,6 +19,15 @@ function TabBuilderForm() {
     const onSortEnd = ({ oldIndex, newIndex }) => {
         console.log('sorted', oldIndex, newIndex);
         // dispatch({ type: REORDER_PROPERTY, payload: { oldIndex, newIndex } });
+    };
+
+    const addTabAction = () => {
+        const values = {
+            label: '',
+            id: `tab-${seed('tab')}`,
+            fields: [],
+        };
+        dispatch({ type: ADD_TAB, payload: values });
     };
 
     return (
@@ -41,6 +53,12 @@ function TabBuilderForm() {
                             <Tab.Pane eventKey="mainTabProperties">
                                 <div>
                                     Main tab properties
+                                </div>
+                                <div>
+                                    <button onClick={addTabAction} type="button" className="btn btn-primary">
+                                        <i className="mdi mdi-plus pr-1" />
+                                        Add Tab
+                                    </button>
                                 </div>
                             </Tab.Pane>
                             <Tab.Pane eventKey="sharedTabProperties">

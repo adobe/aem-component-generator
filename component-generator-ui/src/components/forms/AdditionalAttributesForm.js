@@ -5,7 +5,7 @@ import React from 'react';
 import { Field, Form } from 'react-final-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { FETCH_CONFIGS, ROOT_URL } from '../../actions';
+import { FETCH_CONFIGS, API_ROOT } from '../../actions';
 import wretch from '../../utils/wretch';
 
 function AdditionalAttributesForm() {
@@ -37,8 +37,8 @@ function AdditionalAttributesForm() {
         console.info('Submitting', values);
         const toastId = 'addAttrSubmit';
         try {
-            const response = await wretch.url(`${ROOT_URL}`).post({ ...values }).json();
-            const result = await wretch.url(`${ROOT_URL}`).get().json();
+            const response = await wretch.url(`${API_ROOT}`).post({ ...values }).json();
+            const result = await wretch.url(`${API_ROOT}`).get().json();
             dispatch({ type: FETCH_CONFIGS, payload: result });
             return toast(`Success!: ${response.message}`, {
                 toastId,

@@ -1,6 +1,7 @@
 /* eslint jsx-a11y/label-has-associated-control: 0 */
 /* eslint max-len: 0 */
 /* eslint jsx-a11y/anchor-is-valid: 0 */
+import React, { useState } from 'react';
 import forEach from 'lodash/forEach';
 import { faGripLines } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,9 +12,8 @@ import { useDispatch } from 'react-redux';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
 import { useUIDSeed } from 'react-uid';
-import React, { useState } from 'react';
 import { SortableHandle, SortableElement } from 'react-sortable-hoc';
-import { FETCH_CONFIGS, REMOVE_PROPERTY, ROOT_URL } from '../../../actions';
+import { FETCH_CONFIGS, REMOVE_PROPERTY, API_ROOT } from '../../../actions';
 import { FORM_TYPES } from '../../../utils/Constants';
 import wretch from '../../../utils/wretch';
 import AttributesModal from '../../modals/AttributesModal';
@@ -52,8 +52,8 @@ function SortableProperty({ index, propValues }) {
     const onSubmit = async (values) => {
         const toastId = 'attrSubmit';
         try {
-            const response = await wretch.url(`${ROOT_URL}`).post({ ...values, updateProp: true }).json();
-            const result = await wretch.url(`${ROOT_URL}`).get().json();
+            const response = await wretch.url(`${API_ROOT}`).post({ ...values, updateProp: true }).json();
+            const result = await wretch.url(`${API_ROOT}`).get().json();
             dispatch({ type: FETCH_CONFIGS, payload: result });
             return toast(`Success!: ${response.message}`, {
                 toastId,
@@ -84,10 +84,10 @@ function SortableProperty({ index, propValues }) {
             try {
                 // console.log('Submitting attributes: ', { ...propValues, attributes: { ...attributes }, updateProp: true });
                 await wretch
-                    .url(`${ROOT_URL}`)
+                    .url(`${API_ROOT}`)
                     .post({ ...propValues, attributes: { ...attributes }, updateProp: true })
                     .json();
-                const result = await wretch.url(`${ROOT_URL}`).get().json();
+                const result = await wretch.url(`${API_ROOT}`).get().json();
                 dispatch({ type: FETCH_CONFIGS, payload: result });
                 toast('Your property attributes have been saved.', { type: toast.TYPE.SUCCESS });
             } catch (err) {
@@ -109,7 +109,7 @@ function SortableProperty({ index, propValues }) {
         // animate a fade out on deletion of property
         setOutProp(false);
         await wretch
-            .url(`${ROOT_URL}`)
+            .url(`${API_ROOT}`)
             .post({ ...propValues, removeProp: true })
             .json();
         // update global state to update properties
@@ -284,10 +284,16 @@ function SortableProperty({ index, propValues }) {
                                             </button>
                                         </li>
                                         <li className="nav-item">
-                                            <a onClick={handleAttrModalShow} className="nav-link" href="#">Add/Remove Attributes</a>
+                                            <button type="button" onClick={handleAttrModalShow} className="nav-link btn btn-light" href="#">
+                                                Add/Remove Attributes
+                                                <div className="badge badge-pill badge-primary ml-2">{Object.keys(propValues.attributes).length}</div>
+                                            </button>
                                         </li>
                                         <li className="nav-item">
-                                            <a className="nav-link" href="#">Add/Remove Child Properties </a>
+                                            <button type="button" className="nav-link btn btn-light">
+                                                Add/Remove Child Properties
+                                                <div className="badge badge-pill badge-primary ml-2">{propValues.items.length}</div>
+                                            </button>
                                         </li>
                                     </ul>
                                 </form>

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { LinkContainer } from 'react-router-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagic } from '@fortawesome/free-solid-svg-icons';
-import { FETCH_CONFIGS, MOBILE_MENU_CLICK, ROOT_URL } from '../../actions';
+import { FETCH_CONFIGS, MOBILE_MENU_CLICK, API_ROOT } from '../../actions';
 import routes from '../../routes';
 import validateGlobalData from '../../utils/Utils';
 import wretch from '../../utils/wretch';
@@ -28,7 +28,7 @@ function Header() {
         const result = validateGlobalData(global);
         if (result.valid) {
             try {
-                await wretch.url(`${ROOT_URL}`).put().json();
+                await wretch.url(`${API_ROOT}`).put().json();
                 setModalTitle('Success!');
                 setModalDesc('Your component code was successfully generated.');
                 setModalShow(true);
@@ -50,7 +50,7 @@ function Header() {
     const resetAllFieldsAction = async () => {
         setConfirmShow(false);
         try {
-            const result = await wretch.url(`${ROOT_URL}`).delete().json();
+            const result = await wretch.url(`${API_ROOT}`).delete().json();
             dispatch({ type: FETCH_CONFIGS, payload: result });
         } catch (err) {
             let msg = '';
