@@ -6,15 +6,25 @@ AEM Component Generator is a java project that enables developers to generate th
 AEM component using a JSON configuration file specifying component and dialog properties and other configuration
 options.
 
-Starting with version 2.0:
+**Starting with version 2.0:**
 
 The AEM Component Generator now has graphical user interface!
-- SPA web app, with a backend api that can dynamically build json conigurations for the components
+- Features a React based SPA web app, with a backend api that can dynamically build json conigurations for the components
 
 - The backend generates the component config json structures still and can maintain multiple components
 
-- executes the code / folder structure build-out on demand 
+- Executes the code / folder structure build-out on demand from the web ui
 
+### Development environment: getting started
+
+- pre-req install yarn and Node.js (version > 12), Java 8 SDK
+
+- in the *component-generator-ui* folder run `yarn install` and then `yarn bootstrap` to produce a production build of the react app ready for the static web server that runs from the java backend.
+
+- In your  Java IDE of choice setup and run the main java class found in **AemCompGenerator.java**, this will launch a web browser by default with localhost:8080/
+
+- to run the react app separately for front-end development, navigate to the *component-generator-ui* folder and run `yarn start`; This will launch a local dev version of the react based front end on port localhost:3000/
+ 
 Generated code includes:
 - `cq:dialog` for component properties
     - `dialogshared`/`dialogglobal` for shared/global component properties
