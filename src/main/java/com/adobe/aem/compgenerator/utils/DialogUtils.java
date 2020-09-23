@@ -87,10 +87,10 @@ public class DialogUtils {
         if (null != properties && !properties.isEmpty()) {
             if (null != tabs && !tabs.isEmpty()) {
                 Node currentNode = createTabsParentNodeStructure(doc, rootElement);
-                
+
                 Map<String, Property> propertiesMap = properties.stream()
                         .collect(Collectors.toMap(Property::getField, Function.identity()));
-                
+
                 for (Tab tab : tabs) {
                     Node tabNode = createTabStructure(doc, tab, currentNode);
                     List<Property> sortedProperties = tab.getFields().stream().map(propertiesMap::get)
@@ -120,7 +120,7 @@ public class DialogUtils {
 
     /**
      * Generates the root elements of what will be the _cq_dialog/.content.xml.
-     * 
+     *
      * @param document The {@link Document} object
      * @param generationConfig The {@link GenerationConfig} object with all the populated values
      * @param dialogType The type of dialog to create (regular, shared or global)
@@ -232,7 +232,7 @@ public class DialogUtils {
 
     /**
      * Processes the attributes for a propertyNode.
-     * 
+     *
      * @param propertyNode The node to add property attributes
      * @param property The {@link Property} object contains attributes
      */
@@ -290,7 +290,7 @@ public class DialogUtils {
      * Adds the properties specific to the image node. These could all have been
      * included as attributes in the configuration json file, but they never/rarely
      * change, so hardcoding them here seems safe to do.
-     * 
+     *
      * @param imageNode The {@link Node} object
      * @param property The {@link Property} object contains attributes
      */
@@ -311,7 +311,7 @@ public class DialogUtils {
     /**
      * Adds the properties specific to the hidden image node that allows the image
      * dropzone to operate properly on dialogs.
-     * 
+     *
      * @param hiddenImageNode An {@link Element} object representing an image's
      *            hidden node
      * @param property The {@link Property} object contains attributes
@@ -378,20 +378,20 @@ public class DialogUtils {
         }
         tabElement.setAttribute(Constants.PROPERTY_JCR_TITLE, label);
         Element columnElement = createNode(document, "column", Constants.RESOURCE_TYPE_CONTAINER);
-        
+
         Element layoutElement = document.createElement("layout");
         layoutElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         layoutElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_CORAL_FIXEDCOLUMNS);
 
         tabElement.appendChild(layoutElement);
-        
+
         return node.appendChild(tabElement).appendChild(createUnStructuredNode(document, "items"))
                 .appendChild(columnElement).appendChild(createUnStructuredNode(document, "items"));
     }
 
     /**
      * Creates a node with the jcr:primaryType set to nt:unstructured.
-     * 
+     *
      * @param document The {@link Document} object
      * @param nodeName The name of the node being created
      * @return Node
@@ -419,7 +419,7 @@ public class DialogUtils {
 
     /**
      * Determine the proper sling:resourceType.
-     * 
+     *
      * @param type The sling:resourceType
      * @return String
      */
@@ -449,6 +449,8 @@ public class DialogUtils {
                 return Constants.RESOURCE_TYPE_IMAGE;
             } else if (StringUtils.equalsIgnoreCase("multifield", type)) {
                 return Constants.RESOURCE_TYPE_MULTIFIELD;
+            } else if (StringUtils.equalsIgnoreCase("tagfield", type)) {
+                return Constants.RESOURCE_TYPE_TAGFIELD;
             }
         }
         return null;

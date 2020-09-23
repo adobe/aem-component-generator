@@ -19,22 +19,18 @@
  */
 package com.adobe.aem.compgenerator.javacodemodel;
 
-import java.util.ArrayList;
+import com.adobe.aem.compgenerator.models.GenerationConfig;
+import com.adobe.aem.compgenerator.models.Property;
+import com.adobe.aem.compgenerator.utils.CommonUtils;
+import com.sun.codemodel.JCodeModel;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.w3c.dom.Node;
-
-import com.adobe.aem.compgenerator.models.GenerationConfig;
-import com.adobe.aem.compgenerator.models.Property;
-import com.adobe.aem.compgenerator.models.Tab;
-import com.adobe.aem.compgenerator.utils.CommonUtils;
-import com.sun.codemodel.JCodeModel;
 
 public abstract class JavaCodeBuilder {
 
@@ -58,7 +54,7 @@ public abstract class JavaCodeBuilder {
                 CommonUtils.getSortedPropertiesBasedOnTabs(generationConfig.getOptions().getSharedProperties(), generationConfig.getOptions().getSharedTabProperties()));
         occurredProperties.addAll(this.sharedProperties);
 
-        this.privateProperties = filterProperties(occurredProperties, 
+        this.privateProperties = filterProperties(occurredProperties,
                 CommonUtils.getSortedPropertiesBasedOnTabs(generationConfig.getOptions().getProperties(), generationConfig.getOptions().getTabProperties()));
         occurredProperties.addAll(this.privateProperties);
 
