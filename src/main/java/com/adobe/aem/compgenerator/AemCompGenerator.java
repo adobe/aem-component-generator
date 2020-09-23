@@ -22,12 +22,15 @@ package com.adobe.aem.compgenerator;
 import com.adobe.aem.compgenerator.exceptions.GeneratorException;
 import com.adobe.aem.compgenerator.utils.CommonUtils;
 import com.adobe.aem.compgenerator.web.ConfigurationReadWriteServlet;
+import com.adobe.aem.compgenerator.web.TabBuilderServlet;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
+import io.undertow.server.handlers.PathHandler;
 import io.undertow.server.handlers.resource.PathResourceManager;
 import io.undertow.server.handlers.resource.ResourceHandler;
+import io.undertow.servlet.Servlets;
 import io.undertow.servlet.api.DeploymentInfo;
 import io.undertow.servlet.api.DeploymentManager;
 import org.apache.commons.lang3.StringUtils;
@@ -64,8 +67,9 @@ public class AemCompGenerator {
     private static final Logger LOG = LogManager.getLogger(AemCompGenerator.class);
 
     public static void main(String[] args) {
+        // by default web app will run on port 8080
         int port = 8080;
-        // option to override default port
+        // optional ability to override default http port
         if (args.length > 0) {
             String portOption = args[0];
             if (StringUtils.contains(portOption, "p") &&
@@ -84,7 +88,7 @@ public class AemCompGenerator {
         // Ensure that an initial data configuration
         // JSON file exists for loading / saving data to
         String configPath = "data-config.json";
-        String configSamplePath = "data-config-sample.json";
+        String configSamplePath = "data-config-empty.json";
 
         File configFile = new File(configPath);
 
@@ -112,17 +116,21 @@ public class AemCompGenerator {
                 .setContextPath("/api")
                 .setDefaultEncoding("UTF-8")
                 .setDeploymentName("componentgen.war")
-                .addServlets(
-                        servlet("global", ConfigurationReadWriteServlet.class)
-                                .addMapping("/*"));
+                .addServlet((Servlets.servlet("global", ConfigurationReadWriteServlet.class)
+                        .addMapping("/global")))
+                .addServlet((Servlets.servlet("tabs", TabBuilderServlet.class)
+                        .addMapping("/tabs")));;
 
         DeploymentManager manager = defaultContainer().addDeployment(servletBuilder);
         manager.deploy();
         try {
-            HttpHandler servletHandler = manager.start();
+            //HttpHandler servletHandler = manager.start();
+            PathHandler servletHandler = Handlers.path(Handlers.redirect("/api"))
+                    .addPrefixPath("/api", manager.start());
             Path staticPath = Paths.get("src/main/resources/static/build");
 
             String protocol = AemCompGenerator.class.getResource("").getProtocol();
+            // if we are running the app from a Jar file... extract the static web dir
             if (Objects.equals(protocol, "jar")) {
                 try {
                     Path tempDirWithPrefix = Files.createTempDirectory("comp_gen_web");
@@ -134,7 +142,7 @@ public class AemCompGenerator {
                     e.printStackTrace();
                 }
             } else {
-                LOG.info("running in IDE / copying static files from Jar not needed");
+                LOG.info("running in IDE / copying static files from Jar is not needed");
             }
 
             ResourceHandler pathResourceManager = new ResourceHandler(

@@ -5,6 +5,10 @@ import {
     CLEAR_COMPONENT_CONFIGS,
     REMOVE_PROPERTY,
     ADD_PROPERTY,
+    ADD_TAB,
+    REMOVE_TAB,
+    UPDATE_TAB,
+    REORDER_TAB,
     REORDER_PROPERTY,
 } from '../actions';
 import { FORM_TYPES, SLING_ADAPTABLES } from '../utils/Constants';
@@ -77,6 +81,26 @@ function propertiesBuilder(propertiesPayload) {
     return propertiesArr;
 }
 
+function tabsBuilder(tabsPayload) {
+    const tabsArr = [];
+    // eslint-disable-next-line array-callback-return
+    tabsPayload.map((tab, index) => {
+        const fieldsArr = [];
+        if (tab.fields) {
+            // eslint-disable-next-line array-callback-return
+            tab.fields.map((value, ind) => {
+                fieldsArr.push({ value, label: value });
+            });
+        }
+        tabsArr.push({
+            fields: fieldsArr,
+            label: tab.label || '',
+            id: tab.id,
+        });
+    });
+    return tabsArr;
+}
+
 function optionsBuilder(optionsPayload) {
     const modelAdapters = [];
     if (optionsPayload['model-adaptables']) {
@@ -105,7 +129,7 @@ function optionsBuilder(optionsPayload) {
         properties: propertiesBuilder(optionsPayload.properties),
         propertiesGlobal: optionsPayload['properties-global'],
         propertiesShared: optionsPayload['properties-shared'],
-        propertiesTabs: optionsPayload['properties-tabs'],
+        propertiesTabs: tabsBuilder(optionsPayload['properties-tabs']),
         propertiesSharedTabs: optionsPayload['properties-shared-tabs'],
         propertiesGlobalTabs: optionsPayload['properties-global-tabs'],
     };
@@ -119,6 +143,23 @@ function propertiesRemover(state, propToRemove) {
     };
 }
 
+function tabRemover(state, tabToRemove) {
+    const removedTabArr = remove(state.options.propertiesTabs, (t) => t.id !== tabToRemove.id);
+    return {
+        ...state.options,
+        propertiesTabs: removedTabArr,
+    };
+}
+
+function tabUpdate(state, tabToUpdate) {
+    const removedTabArr = remove(state.options.propertiesTabs, (t) => t.id !== tabToUpdate.id);
+    removedTabArr.push(tabToUpdate);
+    return {
+        ...state.options,
+        propertiesTabs: removedTabArr,
+    };
+}
+
 function propertiesAdder(state, propToAdd) {
     return {
         ...state.options,
@@ -126,10 +167,25 @@ function propertiesAdder(state, propToAdd) {
     };
 }
 
+function tabsAdder(state, tabToAdd) {
+    return {
+        ...state.options,
+        propertiesTabs: state.options.propertiesTabs.concat(tabToAdd),
+    };
+}
+
 function propertiesMover(state, propToMove) {
     return {
         ...state.options,
         properties: arrayMove(state.options.properties, propToMove.oldIndex, propToMove.newIndex),
+    };
+}
+
+function tabsMover(state, tabToMove) {
+    return {
+        ...state.options,
+        // eslint-disable-next-line max-len
+        propertiesTabs: arrayMove(state.options.propertiesTabs, tabToMove.oldIndex, tabToMove.newIndex),
     };
 }
 
@@ -157,15 +213,35 @@ export default function (state = INITIAL_STATE, action) {
             ...state,
             options: propertiesRemover(state, action.payload),
         };
+    case REMOVE_TAB:
+        return {
+            ...state,
+            options: tabRemover(state, action.payload),
+        };
+    case UPDATE_TAB:
+        return {
+            ...state,
+            options: tabUpdate(state, action.payload),
+        };
     case ADD_PROPERTY:
         return {
             ...state,
             options: propertiesAdder(state, action.payload),
         };
+    case ADD_TAB:
+        return {
+            ...state,
+            options: tabsAdder(state, action.payload),
+        };
     case REORDER_PROPERTY:
         return {
             ...state,
             options: propertiesMover(state, action.payload),
+        };
+    case REORDER_TAB:
+        return {
+            ...state,
+            options: tabsMover(state, action.payload),
         };
     case CLEAR_COMPONENT_CONFIGS:
         return {

@@ -48,8 +48,8 @@ function ComponentAttributesForm() {
     const onSubmit = async (values) => {
         const toastId = 'componentAttrSubmit';
         try {
-            const response = await wretch.url(`${API_ROOT}`).post({ ...values }).json();
-            const result = await wretch.url(`${API_ROOT}`).get().json();
+            const response = await wretch.url(`${API_ROOT}/global`).post({ ...values }).json();
+            const result = await wretch.url(`${API_ROOT}/global`).get().json();
             dispatch({ type: FETCH_CONFIGS, payload: result });
             return toast(`Success!: ${response.message}`, {
                 toastId,

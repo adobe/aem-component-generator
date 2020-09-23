@@ -52,8 +52,8 @@ function SortableProperty({ index, propValues }) {
     const onSubmit = async (values) => {
         const toastId = 'attrSubmit';
         try {
-            const response = await wretch.url(`${API_ROOT}`).post({ ...values, updateProp: true }).json();
-            const result = await wretch.url(`${API_ROOT}`).get().json();
+            const response = await wretch.url(`${API_ROOT}/global`).post({ ...values, updateProp: true }).json();
+            const result = await wretch.url(`${API_ROOT}/global`).get().json();
             dispatch({ type: FETCH_CONFIGS, payload: result });
             return toast(`Success!: ${response.message}`, {
                 toastId,
@@ -84,10 +84,10 @@ function SortableProperty({ index, propValues }) {
             try {
                 // console.log('Submitting attributes: ', { ...propValues, attributes: { ...attributes }, updateProp: true });
                 await wretch
-                    .url(`${API_ROOT}`)
+                    .url(`${API_ROOT}/global`)
                     .post({ ...propValues, attributes: { ...attributes }, updateProp: true })
                     .json();
-                const result = await wretch.url(`${API_ROOT}`).get().json();
+                const result = await wretch.url(`${API_ROOT}/global`).get().json();
                 dispatch({ type: FETCH_CONFIGS, payload: result });
                 toast('Your property attributes have been saved.', { type: toast.TYPE.SUCCESS });
             } catch (err) {
@@ -109,7 +109,7 @@ function SortableProperty({ index, propValues }) {
         // animate a fade out on deletion of property
         setOutProp(false);
         await wretch
-            .url(`${API_ROOT}`)
+            .url(`${API_ROOT}/global`)
             .post({ ...propValues, removeProp: true })
             .json();
         // update global state to update properties

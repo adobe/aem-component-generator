@@ -13,7 +13,7 @@ function Root({ store }) {
         setShowLoader(true);
         const initFormData = async () => {
             try {
-                const result = await wretch.url(`${API_ROOT}`).get().json();
+                const result = await wretch.url(`${API_ROOT}/global`).get().json();
                 store.dispatch({ type: FETCH_CONFIGS, payload: result });
                 setTimeout(() => {
                     setShowLoader(false);

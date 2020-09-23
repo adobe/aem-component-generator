@@ -1,4 +1,19 @@
-export default function validateGlobalData(global) {
+export function randomId(length) {
+    const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let str = '';
+    let now = Date.now();
+    if (typeof performance === 'object' && typeof performance.now === 'function') {
+        now = performance.now().toString().replace('.', '');
+    }
+    for (let i = 0; i < length; i += 1) {
+        const rand = Math.floor(Math.random() * ALPHABET.length);
+        str += ALPHABET.substring(rand, rand + 1);
+    }
+    return str.substr(0, str.length - 1)
+        + now.toString().substr(now.toString().length - 1, now.toString().length);
+}
+
+export function validateGlobalData(global) {
     const result = { valid: true, message: 'Validation success', invalidFields: [] };
     if (!global.codeOwner) {
         result.invalidFields.push('Code owner (global configs)');

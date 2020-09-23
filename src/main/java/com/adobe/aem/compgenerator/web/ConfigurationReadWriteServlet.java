@@ -10,6 +10,7 @@ import com.adobe.aem.compgenerator.models.ProjectSettings;
 import com.adobe.aem.compgenerator.models.Property;
 import com.adobe.aem.compgenerator.utils.CommonUtils;
 import com.adobe.aem.compgenerator.utils.ComponentUtils;
+import com.adobe.aem.compgenerator.web.model.Message;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -37,8 +38,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.adobe.aem.compgenerator.Constants.NO_UPDATE_MSG;
-import static com.adobe.aem.compgenerator.Constants.UPDATED_MSG;
+import static com.adobe.aem.compgenerator.Constants.*;
 
 /**
  * ConfigurationReadWriteServlet
@@ -50,7 +50,6 @@ import static com.adobe.aem.compgenerator.Constants.UPDATED_MSG;
  */
 public class ConfigurationReadWriteServlet extends HttpServlet {
     private static final Logger LOG = LogManager.getLogger(ConfigurationReadWriteServlet.class);
-    public static final String CONFIG_PATH = "data-config.json";
 
     @Override
     public void init(final ServletConfig config) throws ServletException {
@@ -82,6 +81,8 @@ public class ConfigurationReadWriteServlet extends HttpServlet {
         resp.setContentType("application/json; charset=UTF-8");
         resp.setCharacterEncoding("UTF-8");
         File configFile = new File(CONFIG_PATH);
+        ObjectMapper mapper = new ObjectMapper();
+        Message msg = new Message(false, "");
         if (configFile.exists()) {
             boolean d = configFile.delete();
             if (d) {
@@ -100,8 +101,6 @@ public class ConfigurationReadWriteServlet extends HttpServlet {
                     File reConfigFile = new File(CONFIG_PATH);
                     GenerationConfig config = CommonUtils.getComponentData(reConfigFile);
 
-                    ObjectMapper mapper = new ObjectMapper();
-
                     PrintWriter writer = resp.getWriter();
                     writer.write(mapper.writeValueAsString(config));
                     writer.close();
@@ -113,15 +112,15 @@ public class ConfigurationReadWriteServlet extends HttpServlet {
             } else {
                 resp.setStatus(500);
                 PrintWriter writer = resp.getWriter();
-                String msg = "{ \"result\": false, \"message\" : \"" + "data-config.json could not be deleted." + "\" }";
-                writer.write(msg);
+                msg.setMessage("data-config.json could not be deleted.");
+                writer.write(mapper.writeValueAsString(msg));
                 writer.close();
             }
         } else {
             resp.setStatus(500);
             PrintWriter writer = resp.getWriter();
-            String msg = "{ \"result\": false, \"message\" : \"" + "data-config.json could not be deleted / reset because it was missing." + "\" }";
-            writer.write(msg);
+            msg.setMessage("data-config.json could not be deleted / reset because it was missing.");
+            writer.write(mapper.writeValueAsString(msg));
             writer.close();
         }
     }
@@ -136,12 +135,14 @@ public class ConfigurationReadWriteServlet extends HttpServlet {
 
         File configFile = new File(CONFIG_PATH);
         GenerationConfig config = CommonUtils.getComponentData(configFile);
+        ObjectMapper mapper = new ObjectMapper();
+        Message msg = new Message(false, "");
 
         if (!config.isValid() || !CommonUtils.isModelValid(config.getProjectSettings())) {
             resp.setStatus(500);
             PrintWriter writer = resp.getWriter();
-            String msg = "{ \"result\": false, \"message\" : \"" + "Validation of config file failed, required fields are missing." + "\" }";
-            writer.write(msg);
+            msg.setMessage("Validation of config file failed, required fields are missing.");
+            writer.write(mapper.writeValueAsString(msg));
             writer.close();
         } else {
             String compDir = config.getProjectSettings().getAppsPath() + "/"
@@ -160,14 +161,15 @@ public class ConfigurationReadWriteServlet extends HttpServlet {
             } catch (Exception e) {
                 resp.setStatus(500);
                 PrintWriter writer = resp.getWriter();
-                String msg = "{ \"result\": false, \"message\" : \"" + "Validation of config file failed, required fields are missing." + "\" }";
-                writer.write(msg);
+                msg.setMessage("Validation of config file failed, required fields are missing.");
+                writer.write(mapper.writeValueAsString(msg));
                 writer.close();
             }
 
             PrintWriter writer = resp.getWriter();
-            String msg = "{ \"result\": true, \"message\" : \"" + "Code generated successfully" + "\" }";
-            writer.write(msg);
+            msg.setResult(true);
+            msg.setMessage("Code generated successfully!");
+            writer.write(mapper.writeValueAsString(msg));
             writer.close();
         }
     }
@@ -177,6 +179,7 @@ public class ConfigurationReadWriteServlet extends HttpServlet {
         resp.setContentType("application/json; charset=UTF-8");
         resp.setCharacterEncoding("UTF-8");
         boolean updated = false;
+        ObjectMapper mapper = new ObjectMapper();
         File configFile = new File(CONFIG_PATH);
         GenerationConfig config = CommonUtils.getComponentData(configFile);
         ProjectSettings projectSettings = config.getProjectSettings();
@@ -186,7 +189,7 @@ public class ConfigurationReadWriteServlet extends HttpServlet {
         } else {
             // get config params as json from request body
             String body = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-            ObjectMapper mapper = new ObjectMapper();
+
             JsonNode reConfig = mapper.readTree(body);
 
             if (reConfig.has("removeProp")) {
@@ -467,8 +470,8 @@ public class ConfigurationReadWriteServlet extends HttpServlet {
         }
 
         PrintWriter writer = resp.getWriter();
-        String msg = "{ \"message\" : \"" + (updated ? UPDATED_MSG : NO_UPDATE_MSG) + "\" }";
-        writer.write(msg);
+        Message msg = new Message(true, updated ? UPDATED_MSG : NO_UPDATE_MSG);
+        writer.write(mapper.writeValueAsString(msg));
         writer.close();
     }
 }

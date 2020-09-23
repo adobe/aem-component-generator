@@ -92,4 +92,5 @@ public class Constants {
 
     public static final int JUNIT_VERSION_5 = 5;
     public static final int JUNIT_VERSION_4 = 4;
+    public static final String CONFIG_PATH = "data-config.json";
 }

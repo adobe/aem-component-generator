@@ -2,29 +2,30 @@ import React from 'react';
 import { Nav, Tab } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { SortableContainer } from 'react-sortable-hoc';
-import { useUIDSeed } from 'react-uid';
-import { ADD_TAB } from '../../actions';
+import { ADD_TAB, API_ROOT, REORDER_TAB } from '../../actions';
+import SortableTab from './helper/SortableTab';
+import { randomId } from '../../utils/Utils';
+import wretch from '../../utils/wretch';
 
 function TabBuilderForm() {
     const dispatch = useDispatch();
-    const seed = useUIDSeed();
     const global = useSelector((state) => state.compData);
 
-    const SortableTabs = SortableContainer(({ children }) => (
+    const SortableTabsContainer = SortableContainer(({ children }) => (
         <div className="py-2">
             {children}
         </div>
     ));
 
-    const onSortEnd = ({ oldIndex, newIndex }) => {
-        console.log('sorted', oldIndex, newIndex);
-        // dispatch({ type: REORDER_PROPERTY, payload: { oldIndex, newIndex } });
+    const onSortEnd = async ({ oldIndex, newIndex }) => {
+        await wretch.url(`${API_ROOT}/tabs`).post({ oldIndex, newIndex, moveTab: true }).json();
+        dispatch({ type: REORDER_TAB, payload: { oldIndex, newIndex } });
     };
 
     const addTabAction = () => {
         const values = {
             label: '',
-            id: `tab-${seed('tab')}`,
+            id: `tab-${randomId(5)}`,
             fields: [],
         };
         dispatch({ type: ADD_TAB, payload: values });
@@ -52,7 +53,11 @@ function TabBuilderForm() {
                         <Tab.Content>
                             <Tab.Pane eventKey="mainTabProperties">
                                 <div>
-                                    Main tab properties
+                                    <SortableTabsContainer onSortEnd={onSortEnd} useDragHandle>
+                                        {global.options.propertiesTabs.map((value, index) => (
+                                            <SortableTab key={`item-${value.id}`} index={index} propValues={value} />
+                                        ))}
+                                    </SortableTabsContainer>
                                 </div>
                                 <div>
                                     <button onClick={addTabAction} type="button" className="btn btn-primary">
