@@ -35,6 +35,7 @@
                     "textfieldTest",
                     "checkTest",
                     "pathfieldTest",
+                    "tagfieldTest",
                     "textareaTest",
                     "dateTest",
                     "selectTest",
@@ -93,6 +94,15 @@
                 "json-expose": true,
                 "attributes": {
                     "rootPath": "/content"
+                }
+            },
+            {
+                "field": "tagfieldTest",
+                "type": "tagfield",
+                "label": "Tags Test",
+                "json-expose": true,
+                "attributes": {
+                    "multiple": "{Boolean}true"
                 }
             },
             {

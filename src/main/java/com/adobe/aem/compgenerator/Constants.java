@@ -39,6 +39,7 @@ public class Constants {
     public static final String RESOURCE_TYPE_SECTION = "granite/ui/components/foundation/section";
     public static final String RESOURCE_TYPE_SELECT = "granite/ui/components/coral/foundation/form/select";
     public static final String RESOURCE_TYPE_TABS = "granite/ui/components/coral/foundation/tabs";
+    public static final String RESOURCE_TYPE_TAGFIELD = "cq/gui/components/coral/common/form/tagfield";
     public static final String RESOURCE_TYPE_TEXTAREA = "granite/ui/components/coral/foundation/form/textarea";
     public static final String RESOURCE_TYPE_TEXTFIELD = "granite/ui/components/coral/foundation/form/textfield";
     public static final String RESOURCE_TYPE_CORAL_FIXEDCOLUMNS = "granite/ui/components/coral/foundation/fixedcolumns";
@@ -48,6 +49,7 @@ public class Constants {
     public static final String TYPE_IMAGE = "image";
     public static final String TYPE_MULTIFIELD = "multifield";
     public static final String TYPE_HIDDEN = "hidden";
+    public static final String TYPE_TAGFIELD = "tagfield";
 
     public static final String STYLE_SYSTEM_TAB_PATH = "/mnt/overlay/cq/gui/components/authoring/dialog/style/tab_design/styletab";
 

@@ -178,7 +178,8 @@ public class JavaCodeModel {
             return "java.util.Calendar";
         } else if (type.equalsIgnoreCase("image")) {
             return "com.adobe.cq.wcm.core.components.models.Image";
-        } else if (type.equalsIgnoreCase("multifield")) {
+        } else if (type.equalsIgnoreCase("multifield")
+                || type.equalsIgnoreCase("tagfield")) {
             return "java.util.List";
         }
         return type;

@@ -174,9 +174,14 @@ public class ImplementationBuilder extends JavaCodeBuilder {
     private void addPropertyAsPrivateField(JDefinedClass jc, Property property, final String propertyType) {
         String fieldType = JavaCodeModel.getFieldType(property);
 
-        JClass fieldClass = property.getType().equalsIgnoreCase("multifield")
-                ? codeModel.ref(fieldType).narrow(codeModel.ref(JavaCodeModel.getFieldType(property.getItems().get(0))))
-                : codeModel.ref(fieldType);
+        JClass fieldClass = null;
+        if (property.getType().equalsIgnoreCase("multifield")) {
+            fieldClass = codeModel.ref(fieldType).narrow(codeModel.ref(JavaCodeModel.getFieldType(property.getItems().get(0))));
+        } else if (property.getType().equalsIgnoreCase("tagfield")) {
+            fieldClass = codeModel.ref(fieldType).narrow(String.class);
+        } else {
+            fieldClass = codeModel.ref(fieldType);
+        }
         JFieldVar jFieldVar = jc.field(PRIVATE, fieldClass, property.getField());
 
         if (StringUtils.equalsIgnoreCase(property.getType(), "image")) {
