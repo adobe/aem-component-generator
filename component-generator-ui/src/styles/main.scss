@@ -14,6 +14,19 @@
 .help i {
     font-size: 18pt;
 }
+.is-sortable-modal {
+    z-index: 1051;
+}
+
+.scrollable-modal {
+    .modal-dialog{
+        overflow-y: initial !important
+    }
+    .modal-body{
+        height: 70vh;
+        overflow-y: auto;
+    }
+}
 
 .loader-overlay {
     background: #000;

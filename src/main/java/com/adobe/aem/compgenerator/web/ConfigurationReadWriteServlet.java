@@ -181,6 +181,15 @@ public class ConfigurationReadWriteServlet extends HttpServlet {
         boolean updated = false;
         ObjectMapper mapper = new ObjectMapper();
         File configFile = new File(CONFIG_PATH);
+        // sanity check for config file existence
+        if (!configFile.exists()) {
+            resp.setStatus(500);
+            PrintWriter writer = resp.getWriter();
+            Message msg = new Message(false, MISSING_CONFIG_MSG);
+            writer.write(mapper.writeValueAsString(msg));
+            writer.close();
+            return;
+        }
         GenerationConfig config = CommonUtils.getComponentData(configFile);
         ProjectSettings projectSettings = config.getProjectSettings();
         Options options = config.getOptions();
@@ -189,134 +198,7 @@ public class ConfigurationReadWriteServlet extends HttpServlet {
         } else {
             // get config params as json from request body
             String body = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-
             JsonNode reConfig = mapper.readTree(body);
-
-            if (reConfig.has("removeProp")) {
-                updated = true;
-                String id = reConfig.get("id").asText();
-                LOG.info("Remove dialog property with ID " + id);
-                List<Property> newProps = options.getProperties()
-                        .stream()
-                        .filter(property -> !property.getId().equals(id))
-                        .collect(Collectors.toList());
-                options.setProperties(newProps);
-            }
-            // if this is an updated property handle it
-            else if (reConfig.has("updateProp")) {
-                updated = true;
-                // find if existing property to update
-                String id = reConfig.get("id").asText();
-                LOG.info("Attempting update of dialog property with ID " + id);
-                List<Property> existingProperty = options.getProperties()
-                        .stream()
-                        .filter(property -> property.getId().equals(id))
-                        .collect(Collectors.toList());
-                if (existingProperty.isEmpty()) {
-                    LOG.info("no existing property with that id -> creating new one");
-                    List<Property> existingProps = options.getProperties();
-                    Property newProp = new Property();
-                    newProp.setId(id);
-                    if (reConfig.has("field")) {
-                        newProp.setField(reConfig.get("field").asText());
-                    }
-                    if (reConfig.has("label") && !reConfig.get("label").isNull()) {
-                        newProp.setLabel(reConfig.get("label").asText());
-                    }
-                    if (reConfig.has("description") && !reConfig.get("description").isNull()) {
-                        if (StringUtils.isNotEmpty(reConfig.get("description").asText())) {
-                            newProp.setDescription(reConfig.get("description").asText());
-                        }
-                    }
-                    if (reConfig.has("javadoc") && !reConfig.get("javadoc").isNull()) {
-                        newProp.setJavadoc(reConfig.get("javadoc").asText());
-                    }
-                    if (reConfig.has("jsonExpose") && !reConfig.get("jsonExpose").isNull()) {
-                        newProp.setShouldExporterExpose(reConfig.get("jsonExpose").asBoolean());
-                    }
-                    if (reConfig.has("useExistingModel")) {
-                        newProp.setUseExistingModel(reConfig.get("useExistingModel").asBoolean());
-                    }
-                    if (reConfig.has("jsonProperty")) {
-                        newProp.setJsonProperty(reConfig.get("jsonProperty").asText());
-                    }
-                    if (reConfig.has("modelName")) {
-                        newProp.setModelName(reConfig.get("modelName").asText());
-                    }
-                    if (reConfig.has("type")) {
-                        JsonNode type = reConfig.get("type");
-                        String value = type.get("value").textValue();
-                        newProp.setType(value);
-                    }
-                    if (reConfig.has("attributes")) {
-                        Map<String, String> updatedAttributes = new HashMap<>();
-                        Iterator<Map.Entry<String, JsonNode>> attribsIter = reConfig.get("attributes").fields();
-                        while (attribsIter.hasNext()) {
-                            Map.Entry<String, JsonNode> entry = attribsIter.next();
-                            updatedAttributes.put(entry.getKey(), entry.getValue().textValue());
-                        }
-                        newProp.setAttributes(updatedAttributes);
-                    }
-                    // TODO add items saving
-                    if (reConfig.has("items")) {
-                        LOG.info("properties attempting to save updated items: ", reConfig.get("items"));
-                    } else {
-                        newProp.setItems(new ArrayList<>());
-                    }
-                    existingProps.add(newProp);
-                    options.setProperties(existingProps);
-                } else {
-                    updated = true;
-                    options.getProperties().forEach(property -> {
-                        if (property.getId().equals(id)) {
-                            if (reConfig.has("field")) {
-                                property.setField(reConfig.get("field").asText());
-                            }
-                            if (reConfig.has("label") && !reConfig.get("label").isNull()) {
-                                property.setLabel(reConfig.get("label").asText());
-                            }
-                            if (reConfig.has("description") && !reConfig.get("description").isNull()) {
-                                if (StringUtils.isNotEmpty(reConfig.get("description").asText())) {
-                                    property.setDescription(reConfig.get("description").asText());
-                                }
-                            }
-                            if (reConfig.has("javadoc") && !reConfig.get("javadoc").isNull()) {
-                                property.setJavadoc(reConfig.get("javadoc").asText());
-                            }
-                            if (reConfig.has("jsonExpose") && !reConfig.get("jsonExpose").isNull()) {
-                                property.setShouldExporterExpose(reConfig.get("jsonExpose").asBoolean());
-                            }
-                            if (reConfig.has("useExistingModel")) {
-                                property.setUseExistingModel(reConfig.get("useExistingModel").asBoolean());
-                            }
-                            if (reConfig.has("jsonProperty")) {
-                                property.setJsonProperty(reConfig.get("jsonProperty").asText());
-                            }
-                            if (reConfig.has("modelName")) {
-                                property.setModelName(reConfig.get("modelName").asText());
-                            }
-                            if (reConfig.has("type")) {
-                                JsonNode type = reConfig.get("type");
-                                String value = type.get("value").textValue();
-                                property.setType(value);
-                            }
-                            if (reConfig.has("attributes")) {
-                                Map<String, String> updatedAttributes = new HashMap<>();
-                                Iterator<Map.Entry<String, JsonNode>> attribsIter = reConfig.get("attributes").fields();
-                                while (attribsIter.hasNext()) {
-                                    Map.Entry<String, JsonNode> entry = attribsIter.next();
-                                    updatedAttributes.put(entry.getKey(), entry.getValue().textValue());
-                                }
-                                property.setAttributes(updatedAttributes);
-                            }
-                            // TODO add items saving
-                            if (reConfig.has("items")) {
-                                LOG.info("properties attempting to save updated items: ", reConfig.get("items"));
-                            }
-                        }
-                    });
-                }
-            }
 
             if (reConfig.has("codeOwner")) {
                 updated = true;

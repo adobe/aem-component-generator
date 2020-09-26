@@ -132,6 +132,7 @@
                 "items": [
                     {
                         "field": "option1",
+                        "id": "20144069-b72c-464a-b7bf-e3698d36f0f5",
                         "attributes": {
                             "selected": "true",
                             "text": "Option 1",
@@ -140,6 +141,7 @@
                     },
                     {
                         "field": "option2",
+                        "id": "30124069-b72c-464a-b7bf-e3698d36f0f5",
                         "attributes": {
                             "text": "Option 2",
                             "value": "opt2"
@@ -160,6 +162,7 @@
                     {
                         "field": "radio1",
                         "type": "radio",
+                        "id": "50144069-b72c-464a-b7bf-e3698d36f0f5",
                         "attributes": {
                             "checked": "{Boolean}true",
                             "name": "radioTest",
@@ -170,6 +173,7 @@
                     {
                         "field": "radio2",
                         "type": "radio",
+                        "id": "50144069-b72c-464a-b7bf-e3698d36f0f4",
                         "attributes": {
                             "checked": "{Boolean}true",
                             "name": "radioTest",
@@ -216,6 +220,7 @@
                 "items": [
                     {
                         "type": "textfield",
+                        "id": "70144069-b72c-464a-b7bf-e3698d36f0f5",
                         "label": "Color"
                     }
                 ]
@@ -234,12 +239,14 @@
                         "type": "pathfield",
                         "label": "Path",
                         "description": "Path to the page",
+                        "id": "80245069-b72c-464a-b7bf-e3698d36f0f5",
                         "json-expose": true
                     },
                     {
                         "field": "label",
                         "type": "textfield",
                         "label": "Label",
+                        "id": "70245069-b72c-464a-b7bf-e3698d36f0f5",
                         "description": "Label to display on the link",
                         "json-expose": true
                     }

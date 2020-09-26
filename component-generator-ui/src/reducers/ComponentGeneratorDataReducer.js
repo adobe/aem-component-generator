@@ -50,6 +50,45 @@ const INITIAL_STATE = {
     },
 };
 
+function childAttrBuilder(attributes) {
+    const attributesArr = [];
+    if (attributes && Object.keys(attributes).length > 0) {
+        Object.keys(attributes).map((keyName, keyIndex) => {
+            attributesArr.push({ key: keyName, value: attributes[keyName] });
+        });
+    }
+    return attributesArr;
+}
+
+function itemsBuilder(items) {
+    const itemsArr = [];
+    items.map((prop, index) => {
+        let formTypesArr = {};
+        if (prop.type) {
+            // eslint-disable-next-line array-callback-return
+            FORM_TYPES.map((values, ind) => {
+                if (prop.type === values.value) {
+                    formTypesArr = { label: values.label, value: values.value };
+                }
+            });
+        }
+        itemsArr.push({
+            field: prop.field || '',
+            description: prop.description || '',
+            javadoc: prop.javadoc || '',
+            type: formTypesArr,
+            label: prop.label || '',
+            id: prop.id,
+            modelName: prop['model-name'] || '',
+            jsonExpose: prop['json-expose'] || false,
+            useExistingModel: prop['use-existing-model'] || false,
+            attributes: childAttrBuilder(prop.attributes || []),
+            jsonProperty: prop['json-property'] || '',
+        });
+    });
+    return itemsArr;
+}
+
 function propertiesBuilder(propertiesPayload) {
     const propertiesArr = [];
     // eslint-disable-next-line array-callback-return
@@ -63,6 +102,15 @@ function propertiesBuilder(propertiesPayload) {
                 }
             });
         }
+        // convert attributes object to key value array
+        const attributesArr = [];
+        if (prop.attributes) {
+            if (Object.keys(prop.attributes).length > 0) {
+                Object.keys(prop.attributes).map((keyName, keyIndex) => {
+                    attributesArr.push({ key: keyName, value: prop.attributes[keyName] });
+                });
+            }
+        }
         propertiesArr.push({
             field: prop.field || '',
             description: prop.description || '',
@@ -73,9 +121,9 @@ function propertiesBuilder(propertiesPayload) {
             modelName: prop['model-name'] || '',
             jsonExpose: prop['json-expose'] || false,
             useExistingModel: prop['use-existing-model'] || false,
-            attributes: prop.attributes || {},
+            attributes: attributesArr,
             jsonProperty: prop['json-property'] || '',
-            items: prop.items || [],
+            items: itemsBuilder(prop.items || []),
         });
     });
     return propertiesArr;
@@ -87,8 +135,7 @@ function tabsBuilder(tabsPayload) {
     tabsPayload.map((tab, index) => {
         const fieldsArr = [];
         if (tab.fields) {
-            // eslint-disable-next-line array-callback-return
-            tab.fields.map((value, ind) => {
+            tab.fields.forEach((value) => {
                 fieldsArr.push({ value, label: value });
             });
         }
@@ -104,8 +151,7 @@ function tabsBuilder(tabsPayload) {
 function optionsBuilder(optionsPayload) {
     const modelAdapters = [];
     if (optionsPayload['model-adaptables']) {
-        // eslint-disable-next-line array-callback-return
-        optionsPayload['model-adaptables'].map((value) => {
+        optionsPayload['model-adaptables'].forEach((value) => {
             if (value === 'request') {
                 modelAdapters.push(SLING_ADAPTABLES[1]);
             } else if (value === 'resource') {

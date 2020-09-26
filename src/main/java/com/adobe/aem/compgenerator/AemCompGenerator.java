@@ -21,7 +21,9 @@ package com.adobe.aem.compgenerator;
 
 import com.adobe.aem.compgenerator.exceptions.GeneratorException;
 import com.adobe.aem.compgenerator.utils.CommonUtils;
+import com.adobe.aem.compgenerator.web.ChildPropBuilderServlet;
 import com.adobe.aem.compgenerator.web.ConfigurationReadWriteServlet;
+import com.adobe.aem.compgenerator.web.PropertyBuilderServlet;
 import com.adobe.aem.compgenerator.web.TabBuilderServlet;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
@@ -118,8 +120,12 @@ public class AemCompGenerator {
                 .setDeploymentName("componentgen.war")
                 .addServlet((Servlets.servlet("global", ConfigurationReadWriteServlet.class)
                         .addMapping("/global")))
+                .addServlet((Servlets.servlet("properties", PropertyBuilderServlet.class)
+                        .addMapping("/properties")))
+                .addServlet((Servlets.servlet("child-properties", ChildPropBuilderServlet.class)
+                        .addMapping("/child-properties")))
                 .addServlet((Servlets.servlet("tabs", TabBuilderServlet.class)
-                        .addMapping("/tabs")));;
+                        .addMapping("/tabs")));
 
         DeploymentManager manager = defaultContainer().addDeployment(servletBuilder);
         manager.deploy();
@@ -155,6 +161,8 @@ public class AemCompGenerator {
                             Handlers.path()
                                     .addPrefixPath("/servlet", servletHandler)
                                     .addPrefixPath("/", pathResourceManager)
+                                    .addPrefixPath("/help", pathResourceManager)
+                                    .addPrefixPath("/about", pathResourceManager)
                                     .addPrefixPath("/config", pathResourceManager)
                                     .addPrefixPath("/comp-config", pathResourceManager)
                                     .addPrefixPath("/dialog-properties", pathResourceManager)

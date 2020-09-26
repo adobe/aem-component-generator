@@ -3,8 +3,9 @@ import { Nav, Tab } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { SortableContainer } from 'react-sortable-hoc';
 import { v4 as uuidv4 } from 'uuid';
-import { ADD_PROPERTY, REORDER_PROPERTY } from '../../actions';
+import { ADD_PROPERTY, API_ROOT, REORDER_PROPERTY } from '../../actions';
 import SortableProperty from './helper/SortableProperty';
+import wretch from '../../utils/wretch';
 
 function PropertyBuilderForm() {
     const dispatch = useDispatch();
@@ -16,7 +17,8 @@ function PropertyBuilderForm() {
         </div>
     ));
 
-    const onSortEnd = ({ oldIndex, newIndex }) => {
+    const onSortEnd = async ({ oldIndex, newIndex }) => {
+        await wretch.url(`${API_ROOT}/properties`).post({ oldIndex, newIndex, moveProp: true }).json();
         dispatch({ type: REORDER_PROPERTY, payload: { oldIndex, newIndex } });
     };
 
@@ -30,7 +32,7 @@ function PropertyBuilderForm() {
             jsonExpose: false,
             useExistingModel: false,
             id: uuidv4(),
-            attributes: {},
+            attributes: [],
             items: [],
         };
         dispatch({ type: ADD_PROPERTY, payload: values });

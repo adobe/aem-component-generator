@@ -7,6 +7,7 @@ export const FORM_TYPES = [
     { value: 'textarea', label: 'textarea' },
     { value: 'pathfield', label: 'Pathfield' },
     { value: 'radiogroup', label: 'radiogroup' },
+    { value: 'radio', label: 'radio' },
     { value: 'image', label: 'image' },
     { value: 'multifield', label: 'multifield' },
     { value: 'hidden', label: 'hidden' },

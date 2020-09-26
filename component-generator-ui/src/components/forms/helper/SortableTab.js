@@ -181,7 +181,7 @@ function SortableTab({ index, propValues }) {
                                         <li className="nav-item">
                                             <button title="Remove this tab" type="button" onClick={removeTabAction} className="nav-link active bg-danger">
                                                 <i className="mdi mdi-delete pr-1" />
-                                                Remove
+                                                Remove tab
                                             </button>
                                         </li>
                                     </ul>

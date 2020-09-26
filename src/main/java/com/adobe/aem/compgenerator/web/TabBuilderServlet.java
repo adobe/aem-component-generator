@@ -25,6 +25,23 @@ import static com.adobe.aem.compgenerator.Constants.*;
 public class TabBuilderServlet extends HttpServlet {
     private static final Logger LOG = LogManager.getLogger(TabBuilderServlet.class);
 
+    private void updateTabProperties(JsonNode reConfig, Tab tab) {
+        if (reConfig.has("label")) {
+            tab.setLabel(reConfig.get("label").asText());
+        }
+        if (reConfig.has("fields")) {
+            List<String> updatedFields = new ArrayList<>();
+            JsonNode val = reConfig.get("fields");
+            if (val.isArray()) {
+                for (JsonNode jsonNode : val) {
+                    String field = jsonNode.get("value").asText();
+                    updatedFields.add(field);
+                }
+            }
+            tab.setFields(updatedFields);
+        }
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json; charset=UTF-8");
@@ -48,8 +65,7 @@ public class TabBuilderServlet extends HttpServlet {
         if (!configFile.exists()) {
             resp.setStatus(500);
             PrintWriter writer = resp.getWriter();
-            Message msg = new Message(false, "Configuration file is missing: " + CONFIG_PATH + "" +
-                    ", create a new one before trying to save new values to it.");
+            Message msg = new Message(false, MISSING_CONFIG_MSG);
             writer.write(mapper.writeValueAsString(msg));
             writer.close();
             return;
@@ -95,20 +111,7 @@ public class TabBuilderServlet extends HttpServlet {
                     List<Tab> existingTabs = options.getTabProperties();
                     Tab tab = new Tab();
                     tab.setId(id);
-                    if (reConfig.has("label")) {
-                        tab.setLabel(reConfig.get("label").asText());
-                    }
-                    if (reConfig.has("fields")) {
-                        List<String> updatedFields = new ArrayList<>();
-                        JsonNode val = reConfig.get("fields");
-                        if (val.isArray()) {
-                            for (JsonNode jsonNode : val) {
-                                String field = jsonNode.get("value").asText();
-                                updatedFields.add(field);
-                            }
-                        }
-                        tab.setFields(updatedFields);
-                    }
+                    updateTabProperties(reConfig, tab);
                     existingTabs.add(tab);
                     options.setTabProperties(existingTabs);
                 } else {
@@ -116,20 +119,7 @@ public class TabBuilderServlet extends HttpServlet {
                     // update the existing tabs properties...
                     options.getTabProperties().forEach(tab -> {
                         if (tab.getId().equals(id)) {
-                            if (reConfig.has("label")) {
-                                tab.setLabel(reConfig.get("label").asText());
-                            }
-                            if (reConfig.has("fields")) {
-                                List<String> updatedFields = new ArrayList<>();
-                                JsonNode val = reConfig.get("fields");
-                                if (val.isArray()) {
-                                    for (JsonNode jsonNode : val) {
-                                        String field = jsonNode.get("value").asText();
-                                        updatedFields.add(field);
-                                    }
-                                }
-                                tab.setFields(updatedFields);
-                            }
+                            updateTabProperties(reConfig, tab);
                         }
                     });
                 }
