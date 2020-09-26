@@ -49,6 +49,7 @@
                 "label": "Tab 2",
                 "fields": [
                     "imageTest",
+                    "headingTest",
                     "colors",
                     "links"
                 ]
@@ -205,6 +206,11 @@
                 "type": "image",
                 "label": "Image Test",
                 "json-expose": true
+            },
+            {
+                "field": "headingTest",
+                "type": "heading",
+                "label": "Heading Test"
             },
             {
                 "field": "colors",

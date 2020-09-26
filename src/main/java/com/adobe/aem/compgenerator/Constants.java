@@ -27,6 +27,7 @@ public class Constants {
     public static final String RESOURCE_TYPE_DIALOG = "cq/gui/components/authoring/dialog";
     public static final String RESOURCE_TYPE_FIELDSET = "granite/ui/components/foundation/form/fieldset";
     public static final String RESOURCE_TYPE_FIXEDCOLUMNS = "granite/ui/components/foundation/layouts/fixedcolumns";
+    public static final String RESOURCE_TYPE_HEADING = "granite/ui/components/coral/foundation/heading";
     public static final String RESOURCE_TYPE_HIDDEN = "granite/ui/components/coral/foundation/form/hidden";
     public static final String RESOURCE_TYPE_IMAGE = "cq/gui/components/authoring/dialog/fileupload";
     public static final String RESOURCE_TYPE_IMAGE_HIDDEN_TYPE = "core/wcm/components/image/v2/image";
@@ -46,6 +47,7 @@ public class Constants {
 
     public static final String TYPE_CHECKBOX = "checkbox";
     public static final String TYPE_DATEPICKER = "datepicker";
+    public static final String TYPE_HEADING = "heading";
     public static final String TYPE_IMAGE = "image";
     public static final String TYPE_MULTIFIELD = "multifield";
     public static final String TYPE_HIDDEN = "hidden";
@@ -68,6 +70,7 @@ public class Constants {
     public static final String PROPERTY_FIELDLABEL = "fieldLabel";
     public static final String PROPERTY_FIELDDESC = "fieldDescription";
     public static final String PROPERTY_NAME = "name";
+    public static final String PROPERTY_TEXT = "text";
     public static final String PROPERTY_COMPOSITE = "composite";
     public static final String PROPERTY_CQ_MSM_LOCKABLE = "cq-msm-lockable";
 
