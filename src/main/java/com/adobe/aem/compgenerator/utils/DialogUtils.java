@@ -70,7 +70,7 @@ public class DialogUtils {
             doc.appendChild(rootElement);
             XMLUtils.transformDomToFile(doc, dialogPath + "/" + Constants.FILENAME_CONTENT_XML);
         } catch (Exception e) {
-            throw new GeneratorException("Exception while creating Dialog xml : " + dialogPath);
+            throw new GeneratorException("Exception while creating Dialog xml : " + dialogPath, e);
         }
     }
 

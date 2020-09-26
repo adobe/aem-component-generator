@@ -50,6 +50,7 @@ public class XMLUtils {
         document.appendChild(document.createComment(templateString));
         Element rootElement = document.createElement(Constants.JCR_ROOT_NODE);
         rootElement.setAttribute("xmlns:sling", "http://sling.apache.org/jcr/sling/1.0");
+        rootElement.setAttribute("xmlns:granite", "http://www.adobe.com/jcr/granite/1.0");
         rootElement.setAttribute("xmlns:cq", "http://www.day.com/jcr/cq/1.0");
         rootElement.setAttribute("xmlns:jcr", "http://www.jcp.org/jcr/1.0");
         rootElement.setAttribute("xmlns:nt", "http://www.jcp.org/jcr/nt/1.0");
@@ -81,7 +82,7 @@ public class XMLUtils {
             tr.transform(source, result);
 
         } catch (Exception e) {
-            throw new GeneratorException("Exception while DOM conversion to file : " + filePath);
+            throw new GeneratorException("Exception while DOM conversion to file : " + filePath, e);
         }
     }
 }

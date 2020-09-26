@@ -59,7 +59,7 @@ public class CommonUtils {
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 return mapper.readValue(jsonDataFile, GenerationConfig.class);
             } catch (IOException e) {
-                throw new GeneratorException(String.format("Exception while reading config file. %n %s", e.getMessage()));
+                throw new GeneratorException(String.format("Exception while reading config file. %n %s", e.getMessage()), e);
             }
         }
         return null;
@@ -246,8 +246,8 @@ public class CommonUtils {
         }
         return null;
     }
-    
-    
+
+
     /**
      * Gets the Sorted properties based on tabs. If the tabs are not present, all properties will be considered.
      *

@@ -128,8 +128,7 @@ public class ComponentUtils {
                 }
             }
         } catch (Exception e) {
-            LOG.error(e);
-            throw new GeneratorException("Exception while creating clientLibs : " + clientLibDirPath);
+            throw new GeneratorException("Exception while creating clientLibs : " + clientLibDirPath, e);
         }
     }
 
