@@ -164,6 +164,7 @@ public class JavaCodeModel {
     public static String getFieldType(Property property) {
         String type = property.getType();
         if (type.equalsIgnoreCase("textfield")
+                || type.equalsIgnoreCase("pagefield")
                 || type.equalsIgnoreCase("pathfield")
                 || type.equalsIgnoreCase("textarea")
                 || type.equalsIgnoreCase("hidden")

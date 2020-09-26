@@ -95,6 +95,10 @@ public class InterfaceBuilder extends JavaCodeBuilder {
             properties.stream()
                     .filter(Objects::nonNull)
                     .forEach(property -> {
+                        if (property.getType().equalsIgnoreCase(Constants.TYPE_HEADING)) {
+                            return;
+                        }
+
                         JMethod method = jc.method(NONE, getGetterMethodReturnType(property), Constants.STRING_GET + property.getFieldGetterName());
                         addJavadocToMethod(method, property);
 

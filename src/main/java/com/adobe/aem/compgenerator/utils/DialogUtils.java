@@ -163,9 +163,10 @@ public class DialogUtils {
         // Some of the properties are optional based on the different types available.
         addBasicProperties(propertyNode, property);
 
-        if (StringUtils.isNotEmpty(property.getField()) && (!property.getType().equalsIgnoreCase("radiogroup"))
-                || !property.getType().equalsIgnoreCase("image")
-                        && !property.getType().equalsIgnoreCase("multifield")) {
+        if (StringUtils.isNotEmpty(property.getField())
+                && !property.getType().equalsIgnoreCase("image")
+                && !property.getType().equalsIgnoreCase("multifield")
+                && !property.getType().equalsIgnoreCase(Constants.TYPE_HEADING)) {
             propertyNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
             propertyNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
         }
@@ -279,7 +280,11 @@ public class DialogUtils {
      */
     private static void addBasicProperties(Element propertyNode, Property property) {
         if (StringUtils.isNotEmpty(property.getLabel())) {
-            propertyNode.setAttribute(Constants.PROPERTY_FIELDLABEL, property.getLabel());
+            if (property.getType().equalsIgnoreCase(Constants.TYPE_HEADING)) {
+                propertyNode.setAttribute(Constants.PROPERTY_TEXT, property.getLabel());
+            } else {
+                propertyNode.setAttribute(Constants.PROPERTY_FIELDLABEL, property.getLabel());
+            }
         }
         if (StringUtils.isNotEmpty(property.getDescription())) {
             propertyNode.setAttribute(Constants.PROPERTY_FIELDDESC, property.getDescription());
@@ -431,6 +436,8 @@ public class DialogUtils {
                 return Constants.RESOURCE_TYPE_NUMBER;
             } else if (StringUtils.equalsIgnoreCase("checkbox", type)) {
                 return Constants.RESOURCE_TYPE_CHECKBOX;
+            } else if (StringUtils.equalsIgnoreCase("pagefield", type)) {
+                return Constants.RESOURCE_TYPE_PAGEFIELD;
             } else if (StringUtils.equalsIgnoreCase("pathfield", type)) {
                 return Constants.RESOURCE_TYPE_PATHFIELD;
             } else if (StringUtils.equalsIgnoreCase("textarea", type)) {
@@ -451,6 +458,8 @@ public class DialogUtils {
                 return Constants.RESOURCE_TYPE_MULTIFIELD;
             } else if (StringUtils.equalsIgnoreCase("tagfield", type)) {
                 return Constants.RESOURCE_TYPE_TAGFIELD;
+            } else if (StringUtils.equalsIgnoreCase(Constants.TYPE_HEADING, type)) {
+                return Constants.RESOURCE_TYPE_HEADING;
             }
         }
         return null;

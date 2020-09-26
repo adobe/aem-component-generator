@@ -39,7 +39,7 @@ public class HTMLUtils {
             } else if (Constants.TYPE_MULTIFIELD.equals(prop.getType())
                         || Constants.TYPE_TAGFIELD.equals(prop.getType())) {
                 renderedHtml.append(generateListHtml(prop, slingModel));
-            } else {
+            } else if (!Constants.TYPE_HEADING.equals(prop.getType())) {
                 renderedHtml.append(generateParagraphHtml(label,
                         prop.getField(),
                         slingModel,
