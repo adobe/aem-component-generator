@@ -164,7 +164,6 @@ public class DialogUtils {
         addBasicProperties(propertyNode, property);
 
         if (StringUtils.isNotEmpty(property.getField())
-                && !property.getType().equalsIgnoreCase("radiogroup")
                 && !property.getType().equalsIgnoreCase("image")
                 && !property.getType().equalsIgnoreCase("multifield")
                 && !property.getType().equalsIgnoreCase(Constants.TYPE_HEADING)) {
