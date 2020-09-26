@@ -437,6 +437,8 @@ public class DialogUtils {
                 return Constants.RESOURCE_TYPE_NUMBER;
             } else if (StringUtils.equalsIgnoreCase("checkbox", type)) {
                 return Constants.RESOURCE_TYPE_CHECKBOX;
+            } else if (StringUtils.equalsIgnoreCase("pagefield", type)) {
+                return Constants.RESOURCE_TYPE_PAGEFIELD;
             } else if (StringUtils.equalsIgnoreCase("pathfield", type)) {
                 return Constants.RESOURCE_TYPE_PATHFIELD;
             } else if (StringUtils.equalsIgnoreCase("textarea", type)) {

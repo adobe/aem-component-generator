@@ -35,6 +35,7 @@
                     "textfieldTest",
                     "checkTest",
                     "pathfieldTest",
+                    "pagefieldTest",
                     "tagfieldTest",
                     "textareaTest",
                     "dateTest",
@@ -92,6 +93,15 @@
                 "field": "pathfieldTest",
                 "type": "pathfield",
                 "label": "Pathfield Test",
+                "json-expose": true,
+                "attributes": {
+                    "rootPath": "/content"
+                }
+            },
+            {
+                "field": "pagefieldTest",
+                "type": "pagefield",
+                "label": "Pagefield Test",
                 "json-expose": true,
                 "attributes": {
                     "rootPath": "/content"
