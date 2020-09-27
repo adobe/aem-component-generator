@@ -277,7 +277,7 @@ function SortableProperty({ index, propValues }) {
                                                 <i className="mdi mdi-plus pr-1" />
                                                 Add Attribute
                                             </button>
-                                            <button type="button" onClick={() => pop('attributes')} disabled={pristine}>
+                                            <button type="button" onClick={() => pop('attributes')}>
                                                 <i className="mdi mdi-minus pr-1" />
                                                 Remove Attribute
                                             </button>
@@ -299,12 +299,12 @@ function SortableProperty({ index, propValues }) {
                                                         placeholder="Attribute key"
                                                     />
                                                     <Field
-                                                        className="form-control form-control-sm"
+                                                        className="form-control form-control-sm mr-3"
                                                         name={`${name}.value`}
                                                         component="input"
                                                         placeholder="Attribute value"
                                                     />
-                                                    <span tabIndex="0" role="button" className="pl-2" onClick={() => fields.remove(index)} style={{ cursor: 'pointer' }}>
+                                                    <span aria-label="remove attribute button" title="remove attribute" tabIndex="0" role="button" className="attr-delete-btn" onClick={() => fields.remove(index)}>
                                                         <i className="mdi mdi-delete-circle" />
                                                     </span>
                                                 </div>

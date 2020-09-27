@@ -18,6 +18,33 @@
     z-index: 1051;
 }
 
+.attr-delete-btn {
+    cursor: pointer;
+    width: 20px;
+    font-size: 16pt;
+    color: red;
+}
+
+.accordion {
+    .card {
+        .card-header {
+            h5 {
+                a {
+                    color: #4d83ff;
+                    i {
+                        position: absolute;
+                        right: 7px;
+                        top: 0;
+                        font-size: 18px;
+                        display: block;
+                    }
+                }
+
+            }
+        }
+    }
+}
+
 .scrollable-modal {
     .modal-dialog{
         overflow-y: initial !important
