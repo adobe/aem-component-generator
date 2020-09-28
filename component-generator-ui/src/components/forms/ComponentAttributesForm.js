@@ -1,6 +1,3 @@
-/* eslint jsx-a11y/label-has-associated-control: 0 */
-/* eslint jsx-a11y/label-has-for: 0 */
-/* eslint react/jsx-props-no-spreading: 0 */
 /* eslint max-len: 0 */
 import React from 'react';
 import { FORM_ERROR } from 'final-form';

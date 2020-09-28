@@ -10,7 +10,8 @@ function About() {
                     <div className="card-body">
                         <h4 className="card-title">About</h4>
                         <p className="card-text">
-                            The AEM component generator is an open source project hosted on Github. See the&nbsp;
+                            The AEM component generator is an open source project&nbsp;
+                            hosted on Github. See the&nbsp;
                             <a rel="noreferrer noopener" target="_blank" href="https://github.com/adobe/aem-component-generator">Github project page</a>
                             &nbsp;for more information.
                         </p>

@@ -1,5 +1,3 @@
-/* eslint jsx-a11y/label-has-associated-control: 0 */
-/* eslint jsx-a11y/label-has-for: 0 */
 import { FORM_ERROR } from 'final-form';
 import React from 'react';
 import { Field, Form } from 'react-final-form';
@@ -66,8 +64,9 @@ function AdditionalAttributesForm() {
                                     <div className="col-md-6">
                                         <div className="form-group">
                                             <div className="form-check">
-                                                <label className="form-check-label">
+                                                <label htmlFor={ADD_ATTR_FIELDS.js} className="form-check-label">
                                                     <Field
+                                                        id={ADD_ATTR_FIELDS.js}
                                                         name={`${ADD_ATTR_FIELDS.js}`}
                                                         component="input"
                                                         type="checkbox"
@@ -77,8 +76,9 @@ function AdditionalAttributesForm() {
                                                 </label>
                                             </div>
                                             <div className="form-check">
-                                                <label className="form-check-label">
+                                                <label htmlFor={ADD_ATTR_FIELDS.jsTxt} className="form-check-label">
                                                     <Field
+                                                        id={ADD_ATTR_FIELDS.jsTxt}
                                                         name={`${ADD_ATTR_FIELDS.jsTxt}`}
                                                         component="input"
                                                         type="checkbox"
@@ -88,8 +88,9 @@ function AdditionalAttributesForm() {
                                                 </label>
                                             </div>
                                             <div className="form-check">
-                                                <label className="form-check-label">
+                                                <label htmlFor={ADD_ATTR_FIELDS.css} className="form-check-label">
                                                     <Field
+                                                        id={ADD_ATTR_FIELDS.css}
                                                         name={`${ADD_ATTR_FIELDS.css}`}
                                                         component="input"
                                                         type="checkbox"
@@ -99,8 +100,9 @@ function AdditionalAttributesForm() {
                                                 </label>
                                             </div>
                                             <div className="form-check">
-                                                <label className="form-check-label">
+                                                <label htmlFor={ADD_ATTR_FIELDS.cssTxt} className="form-check-label">
                                                     <Field
+                                                        id={ADD_ATTR_FIELDS.cssTxt}
                                                         name={`${ADD_ATTR_FIELDS.cssTxt}`}
                                                         component="input"
                                                         type="checkbox"
@@ -110,8 +112,9 @@ function AdditionalAttributesForm() {
                                                 </label>
                                             </div>
                                             <div className="form-check">
-                                                <label className="form-check-label">
+                                                <label htmlFor={ADD_ATTR_FIELDS.html} className="form-check-label">
                                                     <Field
+                                                        id={ADD_ATTR_FIELDS.html}
                                                         name={`${ADD_ATTR_FIELDS.html}`}
                                                         component="input"
                                                         type="checkbox"
@@ -121,8 +124,9 @@ function AdditionalAttributesForm() {
                                                 </label>
                                             </div>
                                             <div className="form-check">
-                                                <label className="form-check-label">
+                                                <label htmlFor={ADD_ATTR_FIELDS.htmlContent} className="form-check-label">
                                                     <Field
+                                                        id={ADD_ATTR_FIELDS.htmlContent}
                                                         name={`${ADD_ATTR_FIELDS.htmlContent}`}
                                                         component="input"
                                                         type="checkbox"
@@ -136,8 +140,9 @@ function AdditionalAttributesForm() {
                                     <div className="col-md-6">
                                         <div className="form-group">
                                             <div className="form-check">
-                                                <label className="form-check-label">
+                                                <label htmlFor={ADD_ATTR_FIELDS.slingModel} className="form-check-label">
                                                     <Field
+                                                        id={ADD_ATTR_FIELDS.slingModel}
                                                         name={`${ADD_ATTR_FIELDS.slingModel}`}
                                                         component="input"
                                                         type="checkbox"
@@ -147,8 +152,9 @@ function AdditionalAttributesForm() {
                                                 </label>
                                             </div>
                                             <div className="form-check">
-                                                <label className="form-check-label">
+                                                <label htmlFor={ADD_ATTR_FIELDS.testClass} className="form-check-label">
                                                     <Field
+                                                        id={ADD_ATTR_FIELDS.testClass}
                                                         name={`${ADD_ATTR_FIELDS.testClass}`}
                                                         component="input"
                                                         type="checkbox"
@@ -158,8 +164,9 @@ function AdditionalAttributesForm() {
                                                 </label>
                                             </div>
                                             <div className="form-check">
-                                                <label className="form-check-label">
+                                                <label htmlFor={ADD_ATTR_FIELDS.genericJavadoc} className="form-check-label">
                                                     <Field
+                                                        id={ADD_ATTR_FIELDS.genericJavadoc}
                                                         name={`${ADD_ATTR_FIELDS.genericJavadoc}`}
                                                         component="input"
                                                         type="checkbox"
@@ -169,8 +176,9 @@ function AdditionalAttributesForm() {
                                                 </label>
                                             </div>
                                             <div className="form-check">
-                                                <label className="form-check-label">
+                                                <label htmlFor={ADD_ATTR_FIELDS.contentExporter} className="form-check-label">
                                                     <Field
+                                                        id={ADD_ATTR_FIELDS.contentExporter}
                                                         name={`${ADD_ATTR_FIELDS.contentExporter}`}
                                                         component="input"
                                                         type="checkbox"

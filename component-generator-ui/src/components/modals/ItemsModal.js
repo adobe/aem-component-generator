@@ -1,5 +1,3 @@
-/* eslint jsx-a11y/label-has-associated-control: 0 */
-/* eslint react/forbid-prop-types: 0 */
 import React, { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
@@ -124,6 +122,7 @@ ItemsModal.propTypes = {
     onHide: func.isRequired,
     onConfirm: func.isRequired,
     show: bool.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
     items: array.isRequired,
     propertyId: string.isRequired,
 };
