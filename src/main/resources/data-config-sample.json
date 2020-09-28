@@ -106,6 +106,7 @@
                 "field": "pagefieldTest",
                 "type": "pagefield",
                 "label": "Pagefield Test",
+                "id": "e8173cb7-c2c9-471c-bc03-83ae2f531025",
                 "json-expose": true,
                 "attributes": {
                     "rootPath": "/content"
@@ -115,6 +116,7 @@
                 "field": "tagfieldTest",
                 "type": "tagfield",
                 "label": "Tags Test",
+                "id": "e8173cb7-c2c9-471c-bc03-83ae2f531022",
                 "json-expose": true,
                 "attributes": {
                     "multiple": "{Boolean}true"
@@ -235,6 +237,7 @@
             {
                 "field": "headingTest",
                 "type": "heading",
+                "id": "e8c982f2-85d3-497d-82db-7c0f9eea2e83",
                 "label": "Heading Test"
             },
             {

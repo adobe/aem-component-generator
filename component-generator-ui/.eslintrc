@@ -6,6 +6,21 @@
   "rules": {
     "indent": ["error", 4, {
     }],
+    "jsx-a11y/label-has-for": [ 2, {
+      "required": {
+        "every": [ "id" ]
+      }
+    }],
+    "react/jsx-props-no-spreading": [2, {
+      "html": "enforce",
+      "custom": "enforce",
+      "explicitSpread": "enforce",
+      "exceptions": [ "input", "Select" ]
+    }],
+    "jsx-a11y/label-has-associated-control": [ 2, {
+      "assert": "either",
+      "depth": 3
+    }],
     "react/jsx-indent" : ["error", 4],
     "react/jsx-indent-props": "off",
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }]

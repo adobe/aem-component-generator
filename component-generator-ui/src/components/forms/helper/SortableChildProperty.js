@@ -1,4 +1,3 @@
-/* eslint jsx-a11y/label-has-associated-control: 0 */
 /* eslint max-len: 0 */
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -142,8 +141,9 @@ function SortableChildProperty({
                                     </Field>
                                     <div className="form-group row">
                                         <div className="form-check offset-26">
-                                            <label className="form-check-label">
+                                            <label htmlFor={`${seed(COMP_PROP_FIELDS.jsonExpose)}`} className="form-check-label">
                                                 <Field
+                                                    id={`${seed(COMP_PROP_FIELDS.jsonExpose)}`}
                                                     name={`${COMP_PROP_FIELDS.jsonExpose}`}
                                                     component="input"
                                                     type="checkbox"
@@ -172,13 +172,14 @@ function SortableChildProperty({
                                     <FieldArray name="attributes">
                                         {({ fields }) => fields.map((name, index) => (
                                             <div className="form-group row offset-3" key={name}>
-                                                <label className="col-sm-2 pt-2">
+                                                <label htmlFor={seed(`child-attribute${index}-key`)} className="col-sm-2 pt-2">
                                                     Attribute #
                                                     {index + 1}
                                                     :
                                                 </label>
                                                 <div className="col-sm-10 form-inline">
                                                     <Field
+                                                        id={seed(`child-attribute${index}-key`)}
                                                         className="mr-3 form-control form-control-sm "
                                                         name={`${name}.key`}
                                                         component="input"
@@ -190,7 +191,7 @@ function SortableChildProperty({
                                                         component="input"
                                                         placeholder="Attribute value"
                                                     />
-                                                    <span title="remove attribute" tabIndex="0" role="button" className="attr-delete-btn" onClick={() => fields.remove(index)}>
+                                                    <span title="remove attribute" tabIndex="0" role="button" className="attr-delete-btn" onKeyPress={(event) => event.key === 'Enter' && fields.remove(index)} onClick={() => fields.remove(index)}>
                                                         <i className="mdi mdi-delete-circle" />
                                                     </span>
                                                 </div>

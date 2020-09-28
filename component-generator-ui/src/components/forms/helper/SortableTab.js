@@ -1,4 +1,3 @@
-/* eslint jsx-a11y/label-has-associated-control: 0 */
 /* eslint max-len: 0 */
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
