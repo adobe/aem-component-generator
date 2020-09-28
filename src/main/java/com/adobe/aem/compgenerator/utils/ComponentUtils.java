@@ -128,8 +128,7 @@ public class ComponentUtils {
                 }
             }
         } catch (Exception e) {
-            LOG.error(e);
-            throw new GeneratorException("Exception while creating clientLibs : " + clientLibDirPath);
+            throw new GeneratorException("Exception while creating clientLibs : " + clientLibDirPath, e);
         }
     }
 
@@ -163,7 +162,7 @@ public class ComponentUtils {
             doc.appendChild(rootElement);
             XMLUtils.transformDomToFile(doc, folderPath + "/" + Constants.FILENAME_CONTENT_XML);
         } catch (Exception e) {
-            throw new GeneratorException("Exception while creating Folder/xml : " + path);
+            throw new GeneratorException("Exception while creating Folder/xml : " + path, e);
         }
     }
 
@@ -175,7 +174,7 @@ public class ComponentUtils {
             CommonUtils.createFileWithCopyRight(generationConfig.getCompDir()
                     + "/" + generationConfig.getName() + ".html", generationConfig);
         } catch (Exception e) {
-            throw new GeneratorException("Exception while creating HTML : " + generationConfig.getCompDir());
+            throw new GeneratorException("Exception while creating HTML : " + generationConfig.getCompDir(), e);
         }
     }
 }

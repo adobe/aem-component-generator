@@ -37,11 +37,9 @@ import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
-import com.sun.codemodel.JOp;
 import com.sun.codemodel.JPackage;
 import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JExpression;
-import com.sun.codemodel.JConditional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -155,6 +153,10 @@ public class ImplementationBuilder extends JavaCodeBuilder {
      */
     private void addFieldVar(JDefinedClass jc, Property property, final String propertyType) {
         if (property != null && StringUtils.isNotBlank(property.getField())) {
+            if (property.getType().equalsIgnoreCase(Constants.TYPE_HEADING)) {
+                return;
+            }
+
             if (!property.getType().equalsIgnoreCase("multifield")) { // non multifield properties
                 addPropertyAsPrivateField(jc, property, propertyType);
             } else if (property.getItems().size() == 1) { // multifield with single property
@@ -174,9 +176,14 @@ public class ImplementationBuilder extends JavaCodeBuilder {
     private void addPropertyAsPrivateField(JDefinedClass jc, Property property, final String propertyType) {
         String fieldType = JavaCodeModel.getFieldType(property);
 
-        JClass fieldClass = property.getType().equalsIgnoreCase("multifield")
-                ? codeModel.ref(fieldType).narrow(codeModel.ref(JavaCodeModel.getFieldType(property.getItems().get(0))))
-                : codeModel.ref(fieldType);
+        JClass fieldClass = null;
+        if (property.getType().equalsIgnoreCase("multifield")) {
+            fieldClass = codeModel.ref(fieldType).narrow(codeModel.ref(JavaCodeModel.getFieldType(property.getItems().get(0))));
+        } else if (property.getType().equalsIgnoreCase("tagfield")) {
+            fieldClass = codeModel.ref(fieldType).narrow(String.class);
+        } else {
+            fieldClass = codeModel.ref(fieldType);
+        }
         JFieldVar jFieldVar = jc.field(PRIVATE, fieldClass, property.getField());
 
         if (StringUtils.equalsIgnoreCase(property.getType(), "image")) {

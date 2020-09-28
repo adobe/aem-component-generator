@@ -164,6 +164,7 @@ public class JavaCodeModel {
     public static String getFieldType(Property property) {
         String type = property.getType();
         if (type.equalsIgnoreCase("textfield")
+                || type.equalsIgnoreCase("pagefield")
                 || type.equalsIgnoreCase("pathfield")
                 || type.equalsIgnoreCase("textarea")
                 || type.equalsIgnoreCase("hidden")
@@ -178,7 +179,8 @@ public class JavaCodeModel {
             return "java.util.Calendar";
         } else if (type.equalsIgnoreCase("image")) {
             return "com.adobe.cq.wcm.core.components.models.Image";
-        } else if (type.equalsIgnoreCase("multifield")) {
+        } else if (type.equalsIgnoreCase("multifield")
+                || type.equalsIgnoreCase("tagfield")) {
             return "java.util.List";
         }
         return type;

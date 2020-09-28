@@ -36,6 +36,8 @@
                     "textfieldTest",
                     "checkTest",
                     "pathfieldTest",
+                    "pagefieldTest",
+                    "tagfieldTest",
                     "textareaTest",
                     "dateTest",
                     "selectTest",
@@ -49,6 +51,7 @@
                 "label": "Tab 2",
                 "fields": [
                     "imageTest",
+                    "headingTest",
                     "colors",
                     "links"
                 ]
@@ -97,6 +100,24 @@
                 "json-expose": true,
                 "attributes": {
                     "rootPath": "/content"
+                }
+            },
+            {
+                "field": "pagefieldTest",
+                "type": "pagefield",
+                "label": "Pagefield Test",
+                "json-expose": true,
+                "attributes": {
+                    "rootPath": "/content"
+                }
+            },
+            {
+                "field": "tagfieldTest",
+                "type": "tagfield",
+                "label": "Tags Test",
+                "json-expose": true,
+                "attributes": {
+                    "multiple": "{Boolean}true"
                 }
             },
             {
@@ -210,6 +231,11 @@
                 "label": "Image Test",
                 "id": "e9c982f2-85d3-497d-82db-7c0f9eea2e83",
                 "json-expose": true
+            },
+            {
+                "field": "headingTest",
+                "type": "heading",
+                "label": "Heading Test"
             },
             {
                 "field": "colors",

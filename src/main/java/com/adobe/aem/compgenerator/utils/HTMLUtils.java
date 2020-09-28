@@ -36,9 +36,10 @@ public class HTMLUtils {
                 ));
             } else if (Constants.TYPE_IMAGE.equals(prop.getType())) {
                 renderedHtml.append(generateImageHtml(label, prop.getField(), slingModel));
-            } else if (Constants.TYPE_MULTIFIELD.equals(prop.getType())) {
+            } else if (Constants.TYPE_MULTIFIELD.equals(prop.getType())
+                        || Constants.TYPE_TAGFIELD.equals(prop.getType())) {
                 renderedHtml.append(generateListHtml(prop, slingModel));
-            } else {
+            } else if (!Constants.TYPE_HEADING.equals(prop.getType())) {
                 renderedHtml.append(generateParagraphHtml(label,
                         prop.getField(),
                         slingModel,
@@ -82,7 +83,7 @@ public class HTMLUtils {
                 "." +
                 prop.getField() +
                 "}\">\n        <p>";
-        if (prop.getItems().size() > 1) {
+        if (prop.getItems() != null && prop.getItems().size() > 1) {
             StringBuilder items = new StringBuilder(initialListHtml);
             int index = 1;
             for (Property property : prop.getItems()) {

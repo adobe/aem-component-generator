@@ -27,27 +27,32 @@ public class Constants {
     public static final String RESOURCE_TYPE_DIALOG = "cq/gui/components/authoring/dialog";
     public static final String RESOURCE_TYPE_FIELDSET = "granite/ui/components/foundation/form/fieldset";
     public static final String RESOURCE_TYPE_FIXEDCOLUMNS = "granite/ui/components/foundation/layouts/fixedcolumns";
+    public static final String RESOURCE_TYPE_HEADING = "granite/ui/components/coral/foundation/heading";
     public static final String RESOURCE_TYPE_HIDDEN = "granite/ui/components/coral/foundation/form/hidden";
     public static final String RESOURCE_TYPE_IMAGE = "cq/gui/components/authoring/dialog/fileupload";
     public static final String RESOURCE_TYPE_IMAGE_HIDDEN_TYPE = "core/wcm/components/image/v2/image";
     public static final String RESOURCE_TYPE_INCLUDE = "granite/ui/components/coral/foundation/include";
     public static final String RESOURCE_TYPE_MULTIFIELD = "granite/ui/components/coral/foundation/form/multifield";
     public static final String RESOURCE_TYPE_NUMBER = "granite/ui/components/coral/foundation/form/numberfield";
+    public static final String RESOURCE_TYPE_PAGEFIELD = "cq/gui/components/coral/common/form/pagefield";
     public static final String RESOURCE_TYPE_PATHFIELD = "granite/ui/components/coral/foundation/form/pathfield";
     public static final String RESOURCE_TYPE_RADIO = "granite/ui/components/coral/foundation/form/radio";
     public static final String RESOURCE_TYPE_RADIOGROUP = "granite/ui/components/coral/foundation/form/radiogroup";
     public static final String RESOURCE_TYPE_SECTION = "granite/ui/components/foundation/section";
     public static final String RESOURCE_TYPE_SELECT = "granite/ui/components/coral/foundation/form/select";
     public static final String RESOURCE_TYPE_TABS = "granite/ui/components/coral/foundation/tabs";
+    public static final String RESOURCE_TYPE_TAGFIELD = "cq/gui/components/coral/common/form/tagfield";
     public static final String RESOURCE_TYPE_TEXTAREA = "granite/ui/components/coral/foundation/form/textarea";
     public static final String RESOURCE_TYPE_TEXTFIELD = "granite/ui/components/coral/foundation/form/textfield";
     public static final String RESOURCE_TYPE_CORAL_FIXEDCOLUMNS = "granite/ui/components/coral/foundation/fixedcolumns";
 
     public static final String TYPE_CHECKBOX = "checkbox";
     public static final String TYPE_DATEPICKER = "datepicker";
+    public static final String TYPE_HEADING = "heading";
     public static final String TYPE_IMAGE = "image";
     public static final String TYPE_MULTIFIELD = "multifield";
     public static final String TYPE_HIDDEN = "hidden";
+    public static final String TYPE_TAGFIELD = "tagfield";
 
     public static final String STYLE_SYSTEM_TAB_PATH = "/mnt/overlay/cq/gui/components/authoring/dialog/style/tab_design/styletab";
 
@@ -66,6 +71,7 @@ public class Constants {
     public static final String PROPERTY_FIELDLABEL = "fieldLabel";
     public static final String PROPERTY_FIELDDESC = "fieldDescription";
     public static final String PROPERTY_NAME = "name";
+    public static final String PROPERTY_TEXT = "text";
     public static final String PROPERTY_COMPOSITE = "composite";
     public static final String PROPERTY_CQ_MSM_LOCKABLE = "cq-msm-lockable";
 

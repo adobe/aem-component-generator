@@ -46,7 +46,7 @@ public class DesignDialogUtils extends DialogUtils {
             doc.appendChild(rootElement);
             XMLUtils.transformDomToFile(doc, designDialogPath + "/" + Constants.FILENAME_CONTENT_XML);
         } catch (Exception e) {
-            throw new GeneratorException("Exception while creating Design Dialog xml.");
+            throw new GeneratorException("Exception while creating Design Dialog xml.", e);
         }
     }
 

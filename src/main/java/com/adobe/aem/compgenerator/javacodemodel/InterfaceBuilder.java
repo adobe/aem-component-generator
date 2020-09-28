@@ -95,6 +95,10 @@ public class InterfaceBuilder extends JavaCodeBuilder {
             properties.stream()
                     .filter(Objects::nonNull)
                     .forEach(property -> {
+                        if (property.getType().equalsIgnoreCase(Constants.TYPE_HEADING)) {
+                            return;
+                        }
+
                         JMethod method = jc.method(NONE, getGetterMethodReturnType(property), Constants.STRING_GET + property.getFieldGetterName());
                         addJavadocToMethod(method, property);
 
@@ -162,7 +166,7 @@ public class InterfaceBuilder extends JavaCodeBuilder {
      */
     private JType getGetterMethodReturnType(final Property property) {
         String fieldType = getFieldType(property);
-        if (property.getType().equalsIgnoreCase("multifield")) {
+        if (property.getType().equalsIgnoreCase(Constants.TYPE_MULTIFIELD)) {
             if (property.getItems().size() == 1) {
                 return codeModel.ref(fieldType).narrow(codeModel.ref(getFieldType(property.getItems().get(0))));
             } else {
@@ -170,6 +174,8 @@ public class InterfaceBuilder extends JavaCodeBuilder {
                         CaseUtils.toCamelCase(property.getField(), true) + "Multifield");
                 return codeModel.ref(fieldType).narrow(codeModel.ref(narrowedClassName));
             }
+        } else if (property.getType().equalsIgnoreCase(Constants.TYPE_TAGFIELD)) {
+            return codeModel.ref(fieldType).narrow(String.class);
         } else {
             return codeModel.ref(fieldType);
         }
