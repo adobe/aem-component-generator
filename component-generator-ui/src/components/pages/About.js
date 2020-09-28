@@ -9,9 +9,13 @@ function About() {
                 <div className="card">
                     <div className="card-body">
                         <h4 className="card-title">About</h4>
-                        <p className="card-text">More about this project.</p>
+                        <p className="card-text">
+                            The AEM component generator is an open source project hosted on Github. See the&nbsp;
+                            <a rel="noreferrer noopener" target="_blank" href="https://github.com/adobe/aem-component-generator">Github project page</a>
+                            &nbsp;for more information.
+                        </p>
                         <LinkContainer to={`${routes.home}`}>
-                            <button className="m-2 btn btn-primary" type="button">Go back home</button>
+                            <button className="mt-5 btn btn-primary" type="button">Go back home</button>
                         </LinkContainer>
                     </div>
                 </div>

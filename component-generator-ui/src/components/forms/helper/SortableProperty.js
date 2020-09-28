@@ -210,7 +210,7 @@ function SortableProperty({ index, propValues }) {
                                     <Field name={`${COMP_PROP_FIELDS.type}`}>
                                         {({ input, meta }) => (
                                             <div className={`form-group row ${(meta.error) && meta.touched ? 'has-danger' : ''}`}>
-                                                <label className="col-sm-3" htmlFor={`${seed(COMP_PROP_FIELDS.type)}`}>Form type: </label>
+                                                <label className="col-sm-3" htmlFor={`${seed(COMP_PROP_FIELDS.type)}`}>Field type: </label>
                                                 <div className="col-sm-9">
                                                     <Select {...input} options={FORM_TYPES} searchable />
                                                     {(meta.error)

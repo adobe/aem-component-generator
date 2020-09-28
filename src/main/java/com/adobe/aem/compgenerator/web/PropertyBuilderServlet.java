@@ -134,6 +134,7 @@ public class PropertyBuilderServlet extends HttpServlet {
                         .filter(property -> !property.getId().equals(id))
                         .collect(Collectors.toList());
                 options.setProperties(newProps);
+                // remove the now deleted property from any dialog tabs:
                 List<Tab> updatedTabs = options.getTabProperties();
                 updatedTabs.forEach(tab -> {
                     tab.setFields(tab.getFields().stream().filter(f -> !f.equals(field)).collect(Collectors.toList()));

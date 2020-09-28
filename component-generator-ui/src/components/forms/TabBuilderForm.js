@@ -78,11 +78,29 @@ function TabBuilderForm() {
                                 </div>
                             </Tab.Pane>
                             <Tab.Pane eventKey="sharedTabProperties">
+                                {global.options.propertiesShared.length <= 0
+                                && (
+                                    <Alert variant="danger">
+                                        You still need to define your shared&nbsp;
+                                        <Link to={`${routes.dialogProperties}`}>dialog properties </Link>
+                                        before you can add them to your
+                                        dialog&apos;s tabs.
+                                    </Alert>
+                                )}
                                 <div>
                                     test2
                                 </div>
                             </Tab.Pane>
                             <Tab.Pane eventKey="globalTabProperties">
+                                {global.options.propertiesGlobal.length <= 0
+                                && (
+                                    <Alert variant="danger">
+                                        You still need to define your global&nbsp;
+                                        <Link to={`${routes.dialogProperties}`}>dialog properties </Link>
+                                        before you can add them to your
+                                        dialog&apos;s tabs.
+                                    </Alert>
+                                )}
                                 <div>
                                     test3
                                 </div>

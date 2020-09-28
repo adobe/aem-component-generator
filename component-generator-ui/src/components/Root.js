@@ -33,6 +33,7 @@ function Root({ store }) {
     return (
         <Provider store={store}>
             <div className={`loader-overlay ${showLoader ? 'd-visible' : ''}`}>
+                <div className="loader-message">Loading configuration file...</div>
                 <div className={`spinner ${showLoader ? 'd-visible' : ''}`} />
             </div>
             <ToastContainer position="top-center" autoClose={4000} closeOnClick draggable pauseOnHover />

@@ -1,3 +1,4 @@
+/* eslint max-len: 0 */
 import React from 'react';
 import { LinkContainer } from 'react-router-bootstrap';
 import routes from '../../routes';
@@ -109,7 +110,25 @@ function Home() {
                                                     </div>
                                                     <div className="col">
                                                         <LinkContainer to={`${routes.help}`}>
-                                                            <button className="m-2 btn btn-secondary" type="button">Help</button>
+                                                            <button className="m-2 btn btn-secondary" type="button">Help!</button>
+                                                        </LinkContainer>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="card-body p-3">
+                                            <div className="media">
+                                                <i className="mdi icon-sm align-self-center mr-3 mdi-information-outline" />
+                                                <div className="media-body row">
+                                                    <div className="col">
+                                                        <h6 className="mb-1">About page</h6>
+                                                        <p className="mb-0 text-muted">
+                                                            About this project
+                                                        </p>
+                                                    </div>
+                                                    <div className="col">
+                                                        <LinkContainer to={`${routes.about}`}>
+                                                            <button className="m-2 btn btn-secondary" type="button">About</button>
                                                         </LinkContainer>
                                                     </div>
                                                 </div>

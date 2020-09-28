@@ -54,9 +54,6 @@ function Help() {
                                     </h5>
                                 </div>
                                 <Card>
-                                    <Card.Header>
-                                        Options
-                                    </Card.Header>
                                     <Card.Body name="accordion-0">
                                         <ul>
                                             <li>
@@ -135,10 +132,38 @@ function Help() {
                                         </Card.Header>
                                         <Accordion.Collapse eventKey="9">
                                             <Card.Body name="accordion-9">
+                                                <p>
+                                                    The main properties area is used to define the dialog fields / properties
+                                                    that are included in the AEM component you&apos;re building.
+                                                    The fields will be assigned to an&nbsp;
+                                                    <strong>AEM Granite UI field type.&nbsp;</strong>
+                                                    You can read more about the types of fields from the&nbsp;
+                                                    <a target="_blank" rel="nofollow noreferrer" href="https://helpx.adobe.com/experience-manager/6-5/sites/developing/using/reference-materials/granite-ui/api/jcr_root/libs/granite/ui/index.html">
+                                                        Adobe Granite UI docs
+                                                        <i className="mdi mdi-open-in-new" />
+                                                    </a>
+                                                    .
+                                                </p>
                                                 <ul>
                                                     <li>
                                                         <strong>Field node name: </strong>
                                                         <span>the property node name and java variable name.</span>
+                                                    </li>
+                                                    <li>
+                                                        <strong>Field label: </strong>
+                                                        <span>The visible label displayed in the component dialog.</span>
+                                                    </li>
+                                                    <li>
+                                                        <strong>Field description: </strong>
+                                                        <span>Optional description of the field.</span>
+                                                    </li>
+                                                    <li>
+                                                        <strong>Java doc: </strong>
+                                                        <span>The help text added to the backing java code describing this field property.</span>
+                                                    </li>
+                                                    <li>
+                                                        <strong>Field type: </strong>
+                                                        <span>The corresponding Granite UI field type (see above link).</span>
                                                     </li>
                                                 </ul>
                                             </Card.Body>
@@ -150,11 +175,15 @@ function Help() {
                                         </Card.Header>
                                         <Accordion.Collapse eventKey="10">
                                             <Card.Body name="accordion-10">
-                                                Define properties here to create a shared dialog for this component. If empty, no shared dialog will be created.
+                                                Define properties here to create shared dialog fields for your component. If empty, no shared dialog will be created / generated.
                                                 <br />
-                                                See&nbsp;
-                                                <a href="https://adobe-consulting-services.github.io/acs-aem-commons/features/shared-component-properties/index.html">Shared Component Properties</a>
-                                                &nbsp;for more information on how shared dialog properties work.
+                                                <br />
+                                                See the&nbsp;
+                                                <a href="https://adobe-consulting-services.github.io/acs-aem-commons/features/shared-component-properties/index.html">
+                                                    Shared Component Properties
+                                                    <i className="mdi mdi-open-in-new" />
+                                                </a>
+                                                &nbsp; page for more information on how shared dialog properties work.
                                             </Card.Body>
                                         </Accordion.Collapse>
                                     </Card>
