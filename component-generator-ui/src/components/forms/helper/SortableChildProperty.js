@@ -1,6 +1,6 @@
 /* eslint jsx-a11y/label-has-associated-control: 0 */
 /* eslint max-len: 0 */
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { SortableElement, SortableHandle } from 'react-sortable-hoc';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

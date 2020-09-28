@@ -3,6 +3,7 @@ package com.adobe.aem.compgenerator.web;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.adobe.aem.compgenerator.models.Options;
 import com.adobe.aem.compgenerator.models.Property;
+import com.adobe.aem.compgenerator.models.Tab;
 import com.adobe.aem.compgenerator.utils.CommonUtils;
 import com.adobe.aem.compgenerator.web.model.Message;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
@@ -126,12 +127,18 @@ public class PropertyBuilderServlet extends HttpServlet {
             } else if (reConfig.has("removeProp")) {
                 updated = true;
                 String id = reConfig.get("id").asText();
-                LOG.info("Remove dialog property with ID " + id);
+                String field = reConfig.get("field").asText();
+                LOG.info("Removing dialog property field " + field + " with ID " + id);
                 List<Property> newProps = options.getProperties()
                         .stream()
                         .filter(property -> !property.getId().equals(id))
                         .collect(Collectors.toList());
                 options.setProperties(newProps);
+                List<Tab> updatedTabs = options.getTabProperties();
+                updatedTabs.forEach(tab -> {
+                    tab.setFields(tab.getFields().stream().filter(f -> !f.equals(field)).collect(Collectors.toList()));
+                });
+                options.setTabProperties(updatedTabs);
             } else {
                 // else update/new property action
                 updated = true;

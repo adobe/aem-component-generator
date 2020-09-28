@@ -1,11 +1,13 @@
 import React from 'react';
-import { Nav, Tab } from 'react-bootstrap';
+import { Nav, Tab, Alert } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { SortableContainer } from 'react-sortable-hoc';
 import { ADD_TAB, API_ROOT, REORDER_TAB } from '../../actions';
 import SortableTab from './helper/SortableTab';
 import { randomId } from '../../utils/Utils';
 import wretch from '../../utils/wretch';
+import { Link } from 'react-router-dom';
+import routes from '../../routes';
 
 function TabBuilderForm() {
     const dispatch = useDispatch();
@@ -52,6 +54,15 @@ function TabBuilderForm() {
                         </Nav>
                         <Tab.Content>
                             <Tab.Pane eventKey="mainTabProperties">
+                                {global.options.properties.length <= 0
+                                    && (
+                                        <Alert variant="danger">
+                                            You still need to define your&nbsp;
+                                            <Link to={`${routes.dialogProperties}`}>dialog properties </Link>
+                                            before you can add them to your
+                                            dialog&apos;s tabs.
+                                        </Alert>
+                                    )}
                                 <div>
                                     <SortableTabsContainer onSortEnd={onSortEnd} useDragHandle>
                                         {global.options.propertiesTabs.map((value, index) => (

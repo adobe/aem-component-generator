@@ -28,7 +28,7 @@ function Root({ store }) {
         };
 
         initFormData();
-    }, []);
+    }, [store]);
 
     return (
         <Provider store={store}>

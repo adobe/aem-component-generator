@@ -1,3 +1,4 @@
+/* eslint max-len: 0 */
 import remove from 'lodash/remove';
 import arrayMove from 'array-move';
 import {
@@ -53,7 +54,7 @@ const INITIAL_STATE = {
 function childAttrBuilder(attributes) {
     const attributesArr = [];
     if (attributes && Object.keys(attributes).length > 0) {
-        Object.keys(attributes).map((keyName, keyIndex) => {
+        Object.keys(attributes).forEach((keyName) => {
             attributesArr.push({ key: keyName, value: attributes[keyName] });
         });
     }
@@ -62,11 +63,10 @@ function childAttrBuilder(attributes) {
 
 function itemsBuilder(items) {
     const itemsArr = [];
-    items.map((prop, index) => {
+    items.forEach((prop) => {
         let formTypesArr = {};
         if (prop.type) {
-            // eslint-disable-next-line array-callback-return
-            FORM_TYPES.map((values, ind) => {
+            FORM_TYPES.forEach((values) => {
                 if (prop.type === values.value) {
                     formTypesArr = { label: values.label, value: values.value };
                 }
@@ -91,12 +91,11 @@ function itemsBuilder(items) {
 
 function propertiesBuilder(propertiesPayload) {
     const propertiesArr = [];
-    // eslint-disable-next-line array-callback-return
-    propertiesPayload.map((prop, index) => {
+    propertiesPayload.forEach((prop) => {
         let formTypesArr = {};
         if (prop.type) {
             // eslint-disable-next-line array-callback-return
-            FORM_TYPES.map((values, ind) => {
+            FORM_TYPES.forEach((values) => {
                 if (prop.type === values.value) {
                     formTypesArr = { label: values.label, value: values.value };
                 }
@@ -106,7 +105,7 @@ function propertiesBuilder(propertiesPayload) {
         const attributesArr = [];
         if (prop.attributes) {
             if (Object.keys(prop.attributes).length > 0) {
-                Object.keys(prop.attributes).map((keyName, keyIndex) => {
+                Object.keys(prop.attributes).forEach((keyName) => {
                     attributesArr.push({ key: keyName, value: prop.attributes[keyName] });
                 });
             }
@@ -183,9 +182,14 @@ function optionsBuilder(optionsPayload) {
 
 function propertiesRemover(state, propToRemove) {
     const removedPropArr = remove(state.options.properties, (p) => p.id !== propToRemove.id);
+    const propertiesTabUpdate = state.options.propertiesTabs;
+    propertiesTabUpdate.forEach((tab, index) => {
+        propertiesTabUpdate[index].fields = remove(tab.fields, (f) => f.value !== propToRemove.field);
+    });
     return {
         ...state.options,
         properties: removedPropArr,
+        propertiesTabs: propertiesTabUpdate,
     };
 }
 
@@ -198,11 +202,15 @@ function tabRemover(state, tabToRemove) {
 }
 
 function tabUpdate(state, tabToUpdate) {
-    const removedTabArr = remove(state.options.propertiesTabs, (t) => t.id !== tabToUpdate.id);
-    removedTabArr.push(tabToUpdate);
+    const propertiesTabUpdate = state.options.propertiesTabs;
+    propertiesTabUpdate.forEach((tab, index) => {
+        if (tab.id === tabToUpdate.id) {
+            propertiesTabUpdate[index].fields = tabToUpdate.fields;
+        }
+    });
     return {
         ...state.options,
-        propertiesTabs: removedTabArr,
+        propertiesTabs: propertiesTabUpdate,
     };
 }
 

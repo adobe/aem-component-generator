@@ -61,7 +61,7 @@ function SortableTab({ index, propValues }) {
         const assignedProps = new Set();
         if (result && result.options.properties) {
             if (global.options.propertiesTabs) {
-                global.options.propertiesTabs.map((tab, ind) => {
+                global.options.propertiesTabs.forEach((tab) => {
                     if (tab.fields) {
                         tab.fields.forEach((p) => {
                             assignedProps.add(p.value);
@@ -69,7 +69,7 @@ function SortableTab({ index, propValues }) {
                     }
                 });
             }
-            result.options.properties.map((prop, ind) => {
+            result.options.properties.forEach((prop) => {
                 if (!assignedProps.has(prop.field)) {
                     fieldOps.push({ value: prop.field, label: prop.field });
                 }

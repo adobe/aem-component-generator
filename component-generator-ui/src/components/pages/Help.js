@@ -48,83 +48,70 @@ function Help() {
                                     <h5 className="mb-0">
                                         What are the
                                         {' '}
-                                        <Link to={`${routes.config}`}>Global Config</Link>
+                                        <Link to={routes.config}>Global Config</Link>
                                         {' '}
                                         properties?
                                     </h5>
                                 </div>
-                                <Accordion defaultActiveKey="0">
-                                    <Card>
-                                        <Card.Header>
-                                            <ContextAwareToggle eventKey="0">
-                                                Code Owner
-                                            </ContextAwareToggle>
-                                        </Card.Header>
-                                        <Accordion.Collapse eventKey="0">
-                                            <Card.Body name="accordion-0">
-                                                The name of the company/user this code base belongs to - will replace &#36;&#123;CODEOWNER&#125; in the template files with this configured value
-                                            </Card.Body>
-                                        </Accordion.Collapse>
-                                    </Card>
-                                    <Card>
-                                        <Card.Header>
-                                            <ContextAwareToggle eventKey="1">Bundle Path</ContextAwareToggle>
-                                        </Card.Header>
-                                        <Accordion.Collapse eventKey="1">
-                                            <Card.Body name="accordion-1">
-                                                The relative path to the java code of your main bundle. e.g. core/src/main/java
-                                            </Card.Body>
-                                        </Accordion.Collapse>
-                                    </Card>
-                                    <Card>
-                                        <Card.Header>
-                                            <ContextAwareToggle eventKey="2">Test Path</ContextAwareToggle>
-                                        </Card.Header>
-                                        <Accordion.Collapse eventKey="2">
-                                            <Card.Body name="accordion-2">
-                                                The relative path to the java code of your test cases. E.g. core/src/test/java
-                                            </Card.Body>
-                                        </Accordion.Collapse>
-                                    </Card>
-                                    <Card>
-                                        <Card.Header>
-                                            <ContextAwareToggle eventKey="3">Apps Path</ContextAwareToggle>
-                                        </Card.Header>
-                                        <Accordion.Collapse eventKey="3">
-                                            <Card.Body name="accordion-3">
-                                                The relative path to the /apps root of your project: e.g. ui.apps/src/main/content/jcr_root/apps
-                                            </Card.Body>
-                                        </Accordion.Collapse>
-                                    </Card>
-                                    <Card>
-                                        <Card.Header>
-                                            <ContextAwareToggle eventKey="4">Component Path</ContextAwareToggle>
-                                        </Card.Header>
-                                        <Accordion.Collapse eventKey="4">
-                                            <Card.Body name="accordion-4">The path to the project&apos;s components directory, relative to the /apps folder</Card.Body>
-                                        </Accordion.Collapse>
-                                    </Card>
-                                    <Card>
-                                        <Card.Header>
-                                            <ContextAwareToggle eventKey="5">Model interface package</ContextAwareToggle>
-                                        </Card.Header>
-                                        <Accordion.Collapse eventKey="5">
-                                            <Card.Body name="accordion-5">
-                                                The Java package for the interface model objects
-                                            </Card.Body>
-                                        </Accordion.Collapse>
-                                    </Card>
-                                    <Card>
-                                        <Card.Header>
-                                            <ContextAwareToggle eventKey="6">Model implementation package</ContextAwareToggle>
-                                        </Card.Header>
-                                        <Accordion.Collapse eventKey="6">
-                                            <Card.Body name="accordion-6">
-                                                Java package for the implementation model objects
-                                            </Card.Body>
-                                        </Accordion.Collapse>
-                                    </Card>
-                                </Accordion>
+                                <Card>
+                                    <Card.Header>
+                                        Options
+                                    </Card.Header>
+                                    <Card.Body name="accordion-0">
+                                        <ul>
+                                            <li>
+                                                <strong>Code owner: </strong>
+                                                <span>
+                                                    The name of the company/user this code base belongs to - will replace
+                                                    {' ${'}
+                                                    CODEOWNER&#125; in the template files with this configured value
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <strong>Bundle Path: </strong>
+                                                <span>
+                                                    The relative path to the java code of your main bundle. e.g. core/src/main/java
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <strong>Test Path </strong>
+                                                <span>
+                                                    The relative path to the java code of your test cases. E.g. core/src/test/java
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <strong>Apps Path </strong>
+                                                <span>
+                                                    The relative path to the /apps root of your project: e.g. ui.apps/src/main/content/jcr_root/apps
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <strong>Component Path </strong>
+                                                <span>
+                                                    The path to the project&apos;s components directory, relative to the /apps folder
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <strong>Model interface package </strong>
+                                                <span>
+                                                    The Java package for the interface model objects
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <strong>Model implementation package </strong>
+                                                <span>
+                                                    Java package for the implementation model objects
+                                                </span>
+                                            </li>
+                                            <li>
+                                                <strong>Copyright year </strong>
+                                                <span>
+                                                    The year you want set for the generated copyright text
+                                                </span>
+                                            </li>
+                                        </ul>
+                                    </Card.Body>
+                                </Card>
                             </div>
                         </div>
                     </div>
@@ -135,7 +122,7 @@ function Help() {
                                     <h5 className="mb-0">
                                         What are the component
                                         {' '}
-                                        <Link to={`${routes.dialogProperties}`}>Dialog Properties?</Link>
+                                        <Link to={routes.dialogProperties}>Dialog Properties?</Link>
                                         {' '}
                                     </h5>
                                 </div>
@@ -151,7 +138,7 @@ function Help() {
                                                 <ul>
                                                     <li>
                                                         <strong>Field node name: </strong>
-                                                        <span>s</span>
+                                                        <span>the property node name and java variable name.</span>
                                                     </li>
                                                 </ul>
                                             </Card.Body>
@@ -163,12 +150,11 @@ function Help() {
                                         </Card.Header>
                                         <Accordion.Collapse eventKey="10">
                                             <Card.Body name="accordion-10">
-                                                <ul>
-                                                    <li>
-                                                        <strong>Add js: </strong>
-                                                        <span>whether to create an empty JS client library for the component (shared with CSS lib)</span>
-                                                    </li>
-                                                </ul>
+                                                Define properties here to create a shared dialog for this component. If empty, no shared dialog will be created.
+                                                <br />
+                                                See&nbsp;
+                                                <a href="https://adobe-consulting-services.github.io/acs-aem-commons/features/shared-component-properties/index.html">Shared Component Properties</a>
+                                                &nbsp;for more information on how shared dialog properties work.
                                             </Card.Body>
                                         </Accordion.Collapse>
                                     </Card>
@@ -185,7 +171,7 @@ function Help() {
                                     <h5 className="mb-0">
                                         What are the
                                         {' '}
-                                        <Link to={`${routes.compConfig}`}>Component Config</Link>
+                                        <Link to={routes.compConfig}>Component Config</Link>
                                         {' '}
                                         properties?
                                     </h5>

@@ -1,8 +1,6 @@
 /* eslint jsx-a11y/label-has-associated-control: 0 */
 /* eslint max-len: 0 */
-/* eslint jsx-a11y/anchor-is-valid: 0 */
 import React, { useState } from 'react';
-import forEach from 'lodash/forEach';
 import { faGripLines } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FORM_ERROR } from 'final-form';
@@ -13,12 +11,12 @@ import Select from 'react-select';
 import { toast } from 'react-toastify';
 import { useUIDSeed } from 'react-uid';
 import { SortableHandle, SortableElement } from 'react-sortable-hoc';
+import arrayMutators from 'final-form-arrays';
+import { FieldArray } from 'react-final-form-arrays';
 import { FETCH_CONFIGS, REMOVE_PROPERTY, API_ROOT } from '../../../actions';
 import { FORM_TYPES } from '../../../utils/Constants';
 import wretch from '../../../utils/wretch';
 import ItemsModal from '../../modals/ItemsModal';
-import arrayMutators from 'final-form-arrays';
-import { FieldArray } from 'react-final-form-arrays';
 
 function SortableProperty({ index, propValues }) {
     const [outProp, setOutProp] = useState(true);
@@ -72,7 +70,7 @@ function SortableProperty({ index, propValues }) {
     };
 
     const onConfirmChildProps = async (values, propertyId) => {
-        setItemsModalShow(false)
+        setItemsModalShow(false);
         const toastId = 'childPropsConfirm';
         try {
             const result = await wretch.url(`${API_ROOT}/global`).get().json();
@@ -235,7 +233,7 @@ function SortableProperty({ index, propValues }) {
                                                 <i className="input-helper" />
                                             </label>
                                         </div>
-                                        <Condition when={`${COMP_PROP_FIELDS.jsonExpose}`} is={true}>
+                                        <Condition when={`${COMP_PROP_FIELDS.jsonExpose}`} is>
                                             <div className="form-check ml-1">
                                                 <Field
                                                     name={`${COMP_PROP_FIELDS.jsonProperty}`}
