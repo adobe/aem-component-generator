@@ -2,12 +2,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { randomId } from './Utils';
 
 export const FORM_TYPES = [
-    { value: 'checkbox', label: 'checkbox' },
-    { value: 'datepicker', label: 'date picker' },
-    { value: 'heading', label: 'Heading field' },
-    { value: 'hidden', label: 'hidden field' },
-    { value: 'image', label: 'image field' },
-    { value: 'multifield', label: 'multifield' },
+    { value: 'checkbox', label: 'Checkbox' },
+    { value: 'datepicker', label: 'Date picker' },
+    // { value: 'heading', label: 'Heading field' },
+    { value: 'hidden', label: 'Hidden field' },
+    { value: 'image', label: 'Image field' },
+    { value: 'multifield', label: 'Multifield' },
     { value: 'numberfield', label: 'Number field' },
     { value: 'pagefield', label: 'Page Field' },
     { value: 'pathfield', label: 'Path field' },

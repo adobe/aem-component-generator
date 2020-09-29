@@ -96,7 +96,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <finalName>component-generator-1.0</finalName>
+                    <finalName>component-generator-2.0</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>

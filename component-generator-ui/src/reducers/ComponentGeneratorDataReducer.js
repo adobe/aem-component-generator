@@ -266,6 +266,9 @@ function tabUpdate(state, tabToUpdate) {
         const propertiesTabUpdate = state.options.propertiesTabs;
         propertiesTabUpdate.forEach((tab, index) => {
             if (tab.id === tabToUpdate.id) {
+                if (tabToUpdate.label) {
+                    propertiesTabUpdate[index].label = tabToUpdate.label;
+                }
                 propertiesTabUpdate[index].fields = tabToUpdate.fields;
             }
         });
@@ -278,6 +281,9 @@ function tabUpdate(state, tabToUpdate) {
         const propertiesTabUpdate = state.options.propertiesSharedTabs;
         propertiesTabUpdate.forEach((tab, index) => {
             if (tab.id === tabToUpdate.id) {
+                if (tabToUpdate.label) {
+                    propertiesTabUpdate[index].label = tabToUpdate.label;
+                }
                 propertiesTabUpdate[index].fields = tabToUpdate.fields;
             }
         });
@@ -290,6 +296,9 @@ function tabUpdate(state, tabToUpdate) {
         const propertiesTabUpdate = state.options.propertiesGlobalTabs;
         propertiesTabUpdate.forEach((tab, index) => {
             if (tab.id === tabToUpdate.id) {
+                if (tabToUpdate.label) {
+                    propertiesTabUpdate[index].label = tabToUpdate.label;
+                }
                 propertiesTabUpdate[index].fields = tabToUpdate.fields;
             }
         });

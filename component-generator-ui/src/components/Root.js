@@ -36,7 +36,7 @@ function Root({ store }) {
                 <div className="loader-message">Loading configuration file...</div>
                 <div className={`spinner ${showLoader ? 'd-visible' : ''}`} />
             </div>
-            <ToastContainer position="top-center" autoClose={4000} closeOnClick draggable pauseOnHover />
+            <ToastContainer position="top-center" autoClose={3000} closeOnClick draggable pauseOnHover />
             <div className="container-scroller">
                 <Routes />
             </div>

@@ -34,6 +34,12 @@ function SortableTab({ index, propValues, type }) {
         return options;
     };
 
+    const onBlurUpdate = async (event) => {
+        const updatedTab = { ...propValues, label: event.target.value };
+        dispatch({ type: UPDATE_TAB, payload: { ...updatedTab, type } });
+        await wretch.url(`${API_ROOT}/tabs`).post({ ...updatedTab, tabType: type }).json();
+    };
+
     const onValidate = (values) => {
         const errors = {};
         if (!values.label) {
@@ -182,7 +188,7 @@ function SortableTab({ index, propValues, type }) {
                                             <div className={`form-group row ${(meta.error) && meta.touched ? 'has-danger' : ''}`}>
                                                 <label className="col-sm-3" htmlFor={`${seed(COMP_TAB_FIELDS.label)}`}>Tab label: </label>
                                                 <div className="col-sm-9">
-                                                    <input {...input} id={`${seed(COMP_TAB_FIELDS.label)}`} type="text" placeholder="" className={`form-control form-control-sm ${(meta.error) && meta.touched ? 'form-control-danger' : ''}`} />
+                                                    <input {...input} id={`${seed(COMP_TAB_FIELDS.label)}`} onBlur={onBlurUpdate} type="text" placeholder="" className={`form-control form-control-sm ${(meta.error) && meta.touched ? 'form-control-danger' : ''}`} />
                                                     {(meta.error)
                                                     && meta.touched && (
                                                         <label htmlFor={`${COMP_TAB_FIELDS.label}`} className="error mt-2 text-danger">{meta.error}</label>
@@ -220,7 +226,7 @@ function SortableTab({ index, propValues, type }) {
                                         )}
                                     </Field>
                                     <ul className="nav nav-pills nav-fill mt-5">
-                                        <li className="nav-item">
+                                        <li className="nav-item d-none">
                                             <button type="submit" className="btn btn-primary" disabled={submitting || pristine}>
                                                 <i className="mdi mdi-floppy menu-icon" />
                                                 <span className="pl-1">Save changes</span>
