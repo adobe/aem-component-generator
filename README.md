@@ -26,9 +26,9 @@ The AEM Component Generator now has graphical user interface!
            the generator is executed, which can be different from where the jar file is located.
 - Step 4: To generate launch the component generator user interface, navigate to the main folder of your AEM project and execute the following command.
 
-          ```sh
-          $ java -jar <jarfile>
-          ```
+```sh
+$ java -jar <jarfile>
+```
 - A new web browser tab will be launched containing the AEM component generator UI! Follow the instructions in the app to configure your new component. By default the app will bind to localhost:8080, you can override this by passing an argument `-p={port]`
 
 ### Development environment: getting started
