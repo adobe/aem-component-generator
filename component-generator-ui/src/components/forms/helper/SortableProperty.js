@@ -17,7 +17,7 @@ import { FORM_TYPES } from '../../../utils/Constants';
 import wretch from '../../../utils/wretch';
 import ItemsModal from '../../modals/ItemsModal';
 
-function SortableProperty({ index, propValues }) {
+function SortableProperty({ index, propValues, type }) {
     const [outProp, setOutProp] = useState(true);
     const [itemsModalShow, setItemsModalShow] = useState(false);
     const dispatch = useDispatch();
@@ -56,7 +56,7 @@ function SortableProperty({ index, propValues }) {
     const onSubmit = async (values) => {
         const toastId = 'attrSubmit';
         try {
-            const response = await wretch.url(`${API_ROOT}/properties`).post({ ...values, updateProp: true }).json();
+            const response = await wretch.url(`${API_ROOT}/properties`).post({ ...values, updateProp: true, propType: type }).json();
             const result = await wretch.url(`${API_ROOT}/global`).get().json();
             dispatch({ type: FETCH_CONFIGS, payload: result });
             return toast(`Success!: ${response.message}`, {
@@ -98,11 +98,11 @@ function SortableProperty({ index, propValues }) {
         setOutProp(false);
         await wretch
             .url(`${API_ROOT}/properties`)
-            .post({ ...propValues, removeProp: true })
+            .post({ ...propValues, removeProp: true, propType: type })
             .json();
         // update global state to update properties
         setTimeout(() => {
-            dispatch({ type: REMOVE_PROPERTY, payload: propValues });
+            dispatch({ type: REMOVE_PROPERTY, payload: { ...propValues, type } });
         }, 550);
     };
 
@@ -119,6 +119,7 @@ function SortableProperty({ index, propValues }) {
                 onConfirm={onConfirmChildProps}
                 show={itemsModalShow}
                 propertyId={propValues.id}
+                type={type}
                 items={propValues.items || []}
             />
             <div className="card-body p-3">
@@ -354,6 +355,7 @@ SortableProperty.propTypes = {
     index: PropTypes.number.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     propValues: PropTypes.object.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 export default SortableProperty;

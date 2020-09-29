@@ -6,13 +6,17 @@ import {
     CLEAR_COMPONENT_CONFIGS,
     REMOVE_PROPERTY,
     ADD_PROPERTY,
+    ADD_SHARED_PROPERTY,
+    ADD_GLOBAL_PROPERTY,
     ADD_TAB,
     REMOVE_TAB,
     UPDATE_TAB,
     REORDER_TAB,
+    REORDER_SHARED_PROPERTY,
+    REORDER_GLOBAL_PROPERTY,
     REORDER_PROPERTY,
 } from '../actions';
-import { FORM_TYPES, SLING_ADAPTABLES } from '../utils/Constants';
+import { FORM_TYPES, SHARED, MAIN, GLOBAL, SLING_ADAPTABLES } from '../utils/Constants';
 
 const INITIAL_STATE = {
     codeOwner: 'NewCo Incorporated',
@@ -94,7 +98,6 @@ function propertiesBuilder(propertiesPayload) {
     propertiesPayload.forEach((prop) => {
         let formTypesArr = {};
         if (prop.type) {
-            // eslint-disable-next-line array-callback-return
             FORM_TYPES.forEach((values) => {
                 if (prop.type === values.value) {
                     formTypesArr = { label: values.label, value: values.value };
@@ -130,8 +133,7 @@ function propertiesBuilder(propertiesPayload) {
 
 function tabsBuilder(tabsPayload) {
     const tabsArr = [];
-    // eslint-disable-next-line array-callback-return
-    tabsPayload.map((tab, index) => {
+    tabsPayload.forEach((tab) => {
         const fieldsArr = [];
         if (tab.fields) {
             tab.fields.forEach((value) => {
@@ -172,25 +174,58 @@ function optionsBuilder(optionsPayload) {
         contentExporter: optionsPayload['content-exporter'],
         modelAdaptables: modelAdapters,
         properties: propertiesBuilder(optionsPayload.properties),
-        propertiesGlobal: optionsPayload['properties-global'],
-        propertiesShared: optionsPayload['properties-shared'],
+        propertiesGlobal: propertiesBuilder(optionsPayload['properties-global']),
+        propertiesShared: propertiesBuilder(optionsPayload['properties-shared']),
         propertiesTabs: tabsBuilder(optionsPayload['properties-tabs']),
-        propertiesSharedTabs: optionsPayload['properties-shared-tabs'],
-        propertiesGlobalTabs: optionsPayload['properties-global-tabs'],
+        propertiesSharedTabs: tabsBuilder(optionsPayload['properties-shared-tabs']),
+        propertiesGlobalTabs: tabsBuilder(optionsPayload['properties-global-tabs']),
     };
 }
 
 function propertiesRemover(state, propToRemove) {
-    const removedPropArr = remove(state.options.properties, (p) => p.id !== propToRemove.id);
-    const propertiesTabUpdate = state.options.propertiesTabs;
-    propertiesTabUpdate.forEach((tab, index) => {
-        propertiesTabUpdate[index].fields = remove(tab.fields, (f) => f.value !== propToRemove.field);
-    });
-    return {
-        ...state.options,
-        properties: removedPropArr,
-        propertiesTabs: propertiesTabUpdate,
-    };
+    const { type } = propToRemove;
+    switch (type) {
+    case MAIN: {
+        const removedPropArr = remove(state.options.properties, (p) => p.id !== propToRemove.id);
+        const propertiesTabUpdate = state.options.propertiesTabs;
+        propertiesTabUpdate.forEach((tab, index) => {
+            propertiesTabUpdate[index].fields = remove(tab.fields, (f) => f.value !== propToRemove.field);
+        });
+        return {
+            ...state.options,
+            properties: removedPropArr,
+            propertiesTabs: propertiesTabUpdate,
+        };
+    }
+    case SHARED: {
+        const removedSharedPropArr = remove(state.options.propertiesShared, (p) => p.id !== propToRemove.id);
+        const propertiesTabUpdate = state.options.propertiesSharedTabs;
+        propertiesTabUpdate.forEach((tab, index) => {
+            propertiesTabUpdate[index].fields = remove(tab.fields, (f) => f.value !== propToRemove.field);
+        });
+        return {
+            ...state.options,
+            propertiesShared: removedSharedPropArr,
+            propertiesSharedTabs: propertiesTabUpdate,
+        };
+    }
+    case GLOBAL: {
+        const removedGlobalPropArr = remove(state.options.propertiesGlobal, (p) => p.id !== propToRemove.id);
+        const propertiesGlobalTabUpdate = state.options.propertiesGlobalTabs;
+        propertiesGlobalTabUpdate.forEach((tab, index) => {
+            propertiesGlobalTabUpdate[index].fields = remove(tab.fields, (f) => f.value !== propToRemove.field);
+        });
+        return {
+            ...state.options,
+            propertiesGlobal: removedGlobalPropArr,
+            propertiesGlobalTabs: propertiesGlobalTabUpdate,
+        };
+    }
+    default:
+        return {
+            ...state.options,
+        };
+    }
 }
 
 function tabRemover(state, tabToRemove) {
@@ -221,6 +256,20 @@ function propertiesAdder(state, propToAdd) {
     };
 }
 
+function propertiesSharedAdder(state, propToAdd) {
+    return {
+        ...state.options,
+        propertiesShared: state.options.propertiesShared.concat(propToAdd),
+    };
+}
+
+function propertiesGlobalAdder(state, propToAdd) {
+    return {
+        ...state.options,
+        propertiesGlobal: state.options.propertiesGlobal.concat(propToAdd),
+    };
+}
+
 function tabsAdder(state, tabToAdd) {
     return {
         ...state.options,
@@ -235,10 +284,23 @@ function propertiesMover(state, propToMove) {
     };
 }
 
+function propertiesMoverShared(state, propToMove) {
+    return {
+        ...state.options,
+        propertiesShared: arrayMove(state.options.propertiesShared, propToMove.oldIndex, propToMove.newIndex),
+    };
+}
+
+function propertiesMoverGlobal(state, propToMove) {
+    return {
+        ...state.options,
+        propertiesGlobal: arrayMove(state.options.propertiesGlobal, propToMove.oldIndex, propToMove.newIndex),
+    };
+}
+
 function tabsMover(state, tabToMove) {
     return {
         ...state.options,
-        // eslint-disable-next-line max-len
         propertiesTabs: arrayMove(state.options.propertiesTabs, tabToMove.oldIndex, tabToMove.newIndex),
     };
 }
@@ -282,6 +344,16 @@ export default function (state = INITIAL_STATE, action) {
             ...state,
             options: propertiesAdder(state, action.payload),
         };
+    case ADD_SHARED_PROPERTY:
+        return {
+            ...state,
+            options: propertiesSharedAdder(state, action.payload),
+        };
+    case ADD_GLOBAL_PROPERTY:
+        return {
+            ...state,
+            options: propertiesGlobalAdder(state, action.payload),
+        };
     case ADD_TAB:
         return {
             ...state,
@@ -291,6 +363,16 @@ export default function (state = INITIAL_STATE, action) {
         return {
             ...state,
             options: propertiesMover(state, action.payload),
+        };
+    case REORDER_SHARED_PROPERTY:
+        return {
+            ...state,
+            options: propertiesMoverShared(state, action.payload),
+        };
+    case REORDER_GLOBAL_PROPERTY:
+        return {
+            ...state,
+            options: propertiesMoverGlobal(state, action.payload),
         };
     case REORDER_TAB:
         return {

@@ -138,7 +138,7 @@ function Help() {
                                                     The fields will be assigned to an&nbsp;
                                                     <strong>AEM Granite UI field type.&nbsp;</strong>
                                                     You can read more about the types of fields from the&nbsp;
-                                                    <a target="_blank" rel="nofollow noreferrer" href="https://helpx.adobe.com/experience-manager/6-5/sites/developing/using/reference-materials/granite-ui/api/jcr_root/libs/granite/ui/index.html">
+                                                    <a target="_blank" rel="noopener noreferrer" href="https://helpx.adobe.com/experience-manager/6-5/sites/developing/using/reference-materials/granite-ui/api/jcr_root/libs/granite/ui/index.html">
                                                         Adobe Granite UI docs
                                                         <i className="mdi mdi-open-in-new" />
                                                     </a>

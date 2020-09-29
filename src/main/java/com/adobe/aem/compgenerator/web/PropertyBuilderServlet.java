@@ -120,50 +120,150 @@ public class PropertyBuilderServlet extends HttpServlet {
                 updated = true;
                 int oldIndex = reConfig.get("oldIndex").asInt();
                 int newIndex = reConfig.get("newIndex").asInt();
-                LOG.info("Moving property with indexes " + oldIndex + ", " + newIndex);
-                List<Property> existingProperties = options.getProperties();
-                Collections.swap(existingProperties, oldIndex, newIndex);
-                options.setProperties(existingProperties);
+                String type = reConfig.get(PROP_TYPE).asText();
+                LOG.info("Moving " + type + " property with indexes " + oldIndex + ", " + newIndex);
+                switch (type) {
+                    case MAIN: {
+                        List<Property> existingProperties = options.getProperties();
+                        Collections.swap(existingProperties, oldIndex, newIndex);
+                        options.setProperties(existingProperties);
+                        break;
+                    }
+                    case SHARED: {
+                        List<Property> existingProperties = options.getSharedProperties();
+                        Collections.swap(existingProperties, oldIndex, newIndex);
+                        options.setSharedProperties(existingProperties);
+                        break;
+                    }
+                    case GLOBAL: {
+                        List<Property> existingProperties = options.getGlobalProperties();
+                        Collections.swap(existingProperties, oldIndex, newIndex);
+                        options.setGlobalProperties(existingProperties);
+                        break;
+                    }
+                }
             } else if (reConfig.has("removeProp")) {
                 updated = true;
                 String id = reConfig.get("id").asText();
                 String field = reConfig.get("field").asText();
-                LOG.info("Removing dialog property field " + field + " with ID " + id);
-                List<Property> newProps = options.getProperties()
-                        .stream()
-                        .filter(property -> !property.getId().equals(id))
-                        .collect(Collectors.toList());
-                options.setProperties(newProps);
-                // remove the now deleted property from any dialog tabs:
-                List<Tab> updatedTabs = options.getTabProperties();
-                updatedTabs.forEach(tab -> {
-                    tab.setFields(tab.getFields().stream().filter(f -> !f.equals(field)).collect(Collectors.toList()));
-                });
-                options.setTabProperties(updatedTabs);
+                String type = reConfig.get(PROP_TYPE).asText();
+                LOG.info("Removing " + type + " dialog property field " + field + " with ID " + id);
+                switch (type) {
+                    case MAIN: {
+                        List<Property> newProps = options.getProperties()
+                                .stream()
+                                .filter(property -> !property.getId().equals(id))
+                                .collect(Collectors.toList());
+                        options.setProperties(newProps);
+                        // remove the now deleted property from any dialog tabs:
+                        List<Tab> updatedTabs = options.getTabProperties();
+                        updatedTabs.forEach(tab -> {
+                            tab.setFields(tab.getFields().stream().filter(f -> !f.equals(field)).collect(Collectors.toList()));
+                        });
+                        options.setTabProperties(updatedTabs);
+                        break;
+                    }
+                    case SHARED: {
+                        List<Property> newProps = options.getSharedProperties()
+                                .stream()
+                                .filter(property -> !property.getId().equals(id))
+                                .collect(Collectors.toList());
+                        options.setSharedProperties(newProps);
+                        List<Tab> updatedTabs = options.getSharedTabProperties();
+                        updatedTabs.forEach(tab -> {
+                            tab.setFields(tab.getFields().stream().filter(f -> !f.equals(field)).collect(Collectors.toList()));
+                        });
+                        options.setSharedTabProperties(updatedTabs);
+                        break;
+                    }
+                    case GLOBAL: {
+                        List<Property> newProps = options.getGlobalProperties()
+                                .stream()
+                                .filter(property -> !property.getId().equals(id))
+                                .collect(Collectors.toList());
+                        options.setGlobalProperties(newProps);
+                        List<Tab> updatedTabs = options.getGlobalTabProperties();
+                        updatedTabs.forEach(tab -> {
+                            tab.setFields(tab.getFields().stream().filter(f -> !f.equals(field)).collect(Collectors.toList()));
+                        });
+                        options.setGlobalTabProperties(updatedTabs);
+                        break;
+                    }
+                }
             } else {
                 // else update/new property action
                 updated = true;
                 // find if this is an existing property to update
                 String id = reConfig.get("id").asText();
-                LOG.info("Attempting update of dialog property with ID " + id);
-                List<Property> existingProperty = options.getProperties()
-                        .stream()
-                        .filter(property -> property.getId().equals(id))
-                        .collect(Collectors.toList());
-                if (existingProperty.isEmpty()) {
-                    LOG.info("No existing property exists with that id -> creating new one.");
-                    List<Property> existingProps = options.getProperties();
-                    Property newProp = updateOrCreatePropertyFromRequest(id, reConfig, null);
-                    existingProps.add(newProp);
-                    options.setProperties(existingProps);
-                } else {
-                    // update existing property...
-                    updated = true;
-                    options.getProperties().forEach(property -> {
-                        if (property.getId().equals(id)) {
-                           updateOrCreatePropertyFromRequest(id, reConfig, property);
+                String type = reConfig.get(PROP_TYPE).asText();
+                LOG.info("Attempting update of " + type + " dialog property with ID " + id);
+                switch (type) {
+                    case MAIN: {
+                        List<Property> existingProperty = options.getProperties()
+                                .stream()
+                                .filter(property -> property.getId().equals(id))
+                                .collect(Collectors.toList());
+                        if (existingProperty.isEmpty()) {
+                            LOG.info("No main property exists with that id -> creating new one.");
+                            List<Property> existingProps = options.getProperties();
+                            Property newProp = updateOrCreatePropertyFromRequest(id, reConfig, null);
+                            existingProps.add(newProp);
+                            options.setProperties(existingProps);
+                        } else {
+                            // update existing property...
+                            updated = true;
+                            options.getProperties().forEach(property -> {
+                                if (property.getId().equals(id)) {
+                                    updateOrCreatePropertyFromRequest(id, reConfig, property);
+                                }
+                            });
                         }
-                    });
+                        break;
+                    }
+                    case SHARED: {
+                        List<Property> existingProperty = options.getSharedProperties()
+                                .stream()
+                                .filter(property -> property.getId().equals(id))
+                                .collect(Collectors.toList());
+                        if (existingProperty.isEmpty()) {
+                            LOG.info("No shared property exists with that id -> creating new one.");
+                            List<Property> existingProps = options.getSharedProperties();
+                            Property newProp = updateOrCreatePropertyFromRequest(id, reConfig, null);
+                            existingProps.add(newProp);
+                            options.setSharedProperties(existingProps);
+                        } else {
+                            // update existing property...
+                            updated = true;
+                            options.getSharedProperties().forEach(property -> {
+                                if (property.getId().equals(id)) {
+                                    updateOrCreatePropertyFromRequest(id, reConfig, property);
+                                }
+                            });
+                        }
+                        break;
+                    }
+                    case GLOBAL: {
+                        List<Property> existingProperty = options.getGlobalProperties()
+                                .stream()
+                                .filter(property -> property.getId().equals(id))
+                                .collect(Collectors.toList());
+                        if (existingProperty.isEmpty()) {
+                            LOG.info("No global property exists with that id -> creating new one.");
+                            List<Property> existingProps = options.getGlobalProperties();
+                            Property newProp = updateOrCreatePropertyFromRequest(id, reConfig, null);
+                            existingProps.add(newProp);
+                            options.setGlobalProperties(existingProps);
+                        } else {
+                            // update existing property...
+                            updated = true;
+                            options.getGlobalProperties().forEach(property -> {
+                                if (property.getId().equals(id)) {
+                                    updateOrCreatePropertyFromRequest(id, reConfig, property);
+                                }
+                            });
+                        }
+                        break;
+                    }
                 }
             }
 

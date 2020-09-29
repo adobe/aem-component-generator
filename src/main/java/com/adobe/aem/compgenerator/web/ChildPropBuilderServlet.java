@@ -3,14 +3,12 @@ package com.adobe.aem.compgenerator.web;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.adobe.aem.compgenerator.models.Options;
 import com.adobe.aem.compgenerator.models.Property;
-import com.adobe.aem.compgenerator.models.Tab;
 import com.adobe.aem.compgenerator.utils.CommonUtils;
 import com.adobe.aem.compgenerator.web.model.Message;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,10 +20,22 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.adobe.aem.compgenerator.Constants.*;
+import static com.adobe.aem.compgenerator.Constants.CONFIG_PATH;
+import static com.adobe.aem.compgenerator.Constants.GLOBAL;
+import static com.adobe.aem.compgenerator.Constants.MAIN;
+import static com.adobe.aem.compgenerator.Constants.MISSING_CONFIG_MSG;
+import static com.adobe.aem.compgenerator.Constants.NO_UPDATE_MSG;
+import static com.adobe.aem.compgenerator.Constants.PROP_TYPE;
+import static com.adobe.aem.compgenerator.Constants.SHARED;
+import static com.adobe.aem.compgenerator.Constants.UPDATED_MSG;
 
 public class ChildPropBuilderServlet extends HttpServlet {
     private static final Logger LOG = LogManager.getLogger(ChildPropBuilderServlet.class);
@@ -57,10 +67,12 @@ public class ChildPropBuilderServlet extends HttpServlet {
         if (reConfig.has("modelName")) {
             property.setModelName(reConfig.get("modelName").asText());
         }
-        if (reConfig.has("type")) {
+        if (reConfig.has("type") && !reConfig.get("type").isNull()) {
             JsonNode type = reConfig.get("type");
-            String value = type.get("value").textValue();
-            property.setType(value);
+            if (type.has("values")) {
+                String value = type.get("value").textValue();
+                property.setType(value);
+            }
         }
         if (reConfig.has("attributes")) {
             Map<String, String> updatedAttributes = new HashMap<>();
@@ -116,7 +128,7 @@ public class ChildPropBuilderServlet extends HttpServlet {
 
     @Override
     /*
-     * Handles updates to the child items of properties
+     * Handles updates to the child items of dialog properties
      */
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json; charset=UTF-8");
@@ -147,44 +159,147 @@ public class ChildPropBuilderServlet extends HttpServlet {
                 String propertyId = reConfig.get("propertyId").asText();
                 int oldIndex = reConfig.get("oldIndex").asInt();
                 int newIndex = reConfig.get("newIndex").asInt();
-                LOG.info("Moving child property with indexes " + oldIndex + ", " + newIndex);
-                int index = getIndexOfPropertyById(options.getProperties(), propertyId);
-                List<Property> existingProperties = options.getProperties().get(index).getItems();
-                Collections.swap(existingProperties, oldIndex, newIndex);
-                options.getProperties().get(index).setItems(existingProperties);
+                String type = reConfig.get(PROP_TYPE).asText();
+                LOG.info("Moving " + type + " child property with indexes " + oldIndex + ", " + newIndex);
+                switch (type) {
+                    case MAIN: {
+                        int index = getIndexOfPropertyById(options.getProperties(), propertyId);
+                        List<Property> existingProperties = options.getProperties().get(index).getItems();
+                        Collections.swap(existingProperties, oldIndex, newIndex);
+                        options.getProperties().get(index).setItems(existingProperties);
+                        break;
+                    }
+                    case SHARED: {
+                        int index = getIndexOfPropertyById(options.getSharedProperties(), propertyId);
+                        List<Property> existingProperties = options.getSharedProperties().get(index).getItems();
+                        Collections.swap(existingProperties, oldIndex, newIndex);
+                        options.getSharedProperties().get(index).setItems(existingProperties);
+                        break;
+                    }
+                    case GLOBAL: {
+                        int index = getIndexOfPropertyById(options.getGlobalProperties(), propertyId);
+                        List<Property> existingProperties = options.getGlobalProperties().get(index).getItems();
+                        Collections.swap(existingProperties, oldIndex, newIndex);
+                        options.getGlobalProperties().get(index).setItems(existingProperties);
+                        break;
+                    }
+                }
             } else if (reConfig.has("removeProp")) {
                 String id = reConfig.get("id").asText();
                 String propertyId = reConfig.get("propertyId").asText();
+                String type = reConfig.get(PROP_TYPE).asText();
                 updated = true;
-                LOG.info("Removing child prop with ID " + id);
-                int index = getIndexOfPropertyById(options.getProperties(), propertyId);
-                List<Property> newProps = options.getProperties().get(index).getItems()
-                        .stream()
-                        .filter(property -> !property.getId().equals(id))
-                        .collect(Collectors.toList());
-                options.getProperties().get(index).setItems(newProps);
+                LOG.info("Removing " + type + " child property with ID " + id);
+                switch (type) {
+                    case MAIN: {
+                        int index = getIndexOfPropertyById(options.getProperties(), propertyId);
+                        List<Property> newProps = options.getProperties().get(index).getItems()
+                                .stream()
+                                .filter(property -> !property.getId().equals(id))
+                                .collect(Collectors.toList());
+                        options.getProperties().get(index).setItems(newProps);
+                        break;
+                    }
+                    case SHARED: {
+                        int index = getIndexOfPropertyById(options.getSharedProperties(), propertyId);
+                        List<Property> newProps = options.getSharedProperties().get(index).getItems()
+                                .stream()
+                                .filter(property -> !property.getId().equals(id))
+                                .collect(Collectors.toList());
+                        options.getSharedProperties().get(index).setItems(newProps);
+                        break;
+                    }
+                    case GLOBAL: {
+                        int index = getIndexOfPropertyById(options.getGlobalProperties(), propertyId);
+                        List<Property> newProps = options.getGlobalProperties().get(index).getItems()
+                                .stream()
+                                .filter(property -> !property.getId().equals(id))
+                                .collect(Collectors.toList());
+                        options.getGlobalProperties().get(index).setItems(newProps);
+                        break;
+                    }
+                }
             } else {
                 String id = reConfig.get("id").asText();
                 String propertyId = reConfig.get("propertyId").asText();
-                LOG.info("Attempting update of child property with ID " + id);
-                List<Property> existingPropertyList = getExistingChildPropertyFromConfig(options.getProperties(), id, propertyId);
-                // is this a new child property? -> create it
-                if (existingPropertyList.isEmpty()) {
-                    updated = true;
-                    LOG.info("No existing child property exists with that id -> creating new one.");
-                    Property newProp = new Property();
-                    newProp.setId(id);
-                    updatePropertyFromRequest(reConfig, newProp);
-                    int index = getIndexOfPropertyById(options.getProperties(), propertyId);
-                    List<Property> newPropList = new ArrayList<>();
-                    newPropList.add(newProp);
-                    options.getProperties().get(index).setItems(newPropList);
-                } else {
-                    updated = true;
-                    // update the existing tabs properties...
-                    int index = getIndexOfPropertyById(options.getProperties(), propertyId);
-                    int childIndex = getIndexOfPropertyById(options.getProperties().get(index).getItems(), id);
-                    updatePropertyFromRequest(reConfig, options.getProperties().get(index).getItems().get(childIndex));
+                String type = reConfig.get(PROP_TYPE).asText();
+                LOG.info("Attempting update of " + type + " child property with ID " + id);
+                switch (type) {
+                    case MAIN: {
+                        List<Property> existingPropertyList = getExistingChildPropertyFromConfig(options.getProperties(), id, propertyId);
+                        // is this a new child property? -> create it
+                        if (existingPropertyList.isEmpty()) {
+                            updated = true;
+                            LOG.info("No existing child property exists with that id -> creating new one.");
+                            Property newProp = new Property();
+                            newProp.setId(id);
+                            updatePropertyFromRequest(reConfig, newProp);
+                            int index = getIndexOfPropertyById(options.getProperties(), propertyId);
+                            List<Property> existingProps = options.getProperties().get(index).getItems();
+                            if (Objects.isNull(existingProps)) {
+                                existingProps = new ArrayList<>();
+                            }
+                            existingProps.add(newProp);
+                            options.getProperties().get(index).setItems(existingProps);
+                        } else {
+                            updated = true;
+                            // update the existing tabs properties...
+                            int index = getIndexOfPropertyById(options.getProperties(), propertyId);
+                            int childIndex = getIndexOfPropertyById(options.getProperties().get(index).getItems(), id);
+                            updatePropertyFromRequest(reConfig, options.getProperties().get(index).getItems().get(childIndex));
+                        }
+                        break;
+                    }
+                    case SHARED: {
+                        List<Property> existingPropertyList = getExistingChildPropertyFromConfig(options.getSharedProperties(), id, propertyId);
+                        // is this a new child property? -> create it
+                        if (existingPropertyList.isEmpty()) {
+                            updated = true;
+                            LOG.info("No existing child property exists with that id -> creating new one.");
+                            Property newProp = new Property();
+                            newProp.setId(id);
+                            updatePropertyFromRequest(reConfig, newProp);
+                            int index = getIndexOfPropertyById(options.getSharedProperties(), propertyId);
+                            List<Property> existingProps = options.getSharedProperties().get(index).getItems();
+                            if (Objects.isNull(existingProps)) {
+                                existingProps = new ArrayList<>();
+                            }
+                            existingProps.add(newProp);
+                            options.getSharedProperties().get(index).setItems(existingProps);
+                        } else {
+                            updated = true;
+                            // update the existing tabs properties...
+                            int index = getIndexOfPropertyById(options.getSharedProperties(), propertyId);
+                            int childIndex = getIndexOfPropertyById(options.getSharedProperties().get(index).getItems(), id);
+                            updatePropertyFromRequest(reConfig, options.getSharedProperties().get(index).getItems().get(childIndex));
+                        }
+                        break;
+                    }
+                    case GLOBAL: {
+                        List<Property> existingPropertyList = getExistingChildPropertyFromConfig(options.getGlobalProperties(), id, propertyId);
+                        // is this a new child property? -> create it
+                        if (existingPropertyList.isEmpty()) {
+                            updated = true;
+                            LOG.info("No existing child property exists with that id -> creating new one.");
+                            Property newProp = new Property();
+                            newProp.setId(id);
+                            updatePropertyFromRequest(reConfig, newProp);
+                            int index = getIndexOfPropertyById(options.getGlobalProperties(), propertyId);
+                            List<Property> existingProps = options.getGlobalProperties().get(index).getItems();
+                            if (Objects.isNull(existingProps)) {
+                                existingProps = new ArrayList<>();
+                            }
+                            existingProps.add(newProp);
+                            options.getGlobalProperties().get(index).setItems(existingProps);
+                        } else {
+                            updated = true;
+                            // update the existing tabs properties...
+                            int index = getIndexOfPropertyById(options.getGlobalProperties(), propertyId);
+                            int childIndex = getIndexOfPropertyById(options.getGlobalProperties().get(index).getItems(), id);
+                            updatePropertyFromRequest(reConfig, options.getGlobalProperties().get(index).getItems().get(childIndex));
+                        }
+                        break;
+                    }
                 }
             }
 

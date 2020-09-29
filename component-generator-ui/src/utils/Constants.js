@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 export const FORM_TYPES = [
     { value: 'checkbox', label: 'checkbox' },
     { value: 'datepicker', label: 'date picker' },
@@ -19,3 +21,18 @@ export const SLING_ADAPTABLES = [
     { value: 'resource', label: 'Resource' },
     { value: 'request', label: 'SlingHttpServletRequest' },
 ];
+export const EMPTY_PROP = {
+    field: '',
+    description: '',
+    javadoc: '',
+    type: '',
+    label: '',
+    jsonExpose: false,
+    useExistingModel: false,
+    id: uuidv4(),
+    attributes: [],
+    items: [],
+};
+export const MAIN = 'main';
+export const SHARED = 'shared';
+export const GLOBAL = 'global';

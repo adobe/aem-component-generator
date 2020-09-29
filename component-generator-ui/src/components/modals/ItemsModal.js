@@ -17,7 +17,7 @@ import { API_ROOT } from '../../actions';
 function ItemsModal(props) {
     const seed = useUIDSeed();
     const {
-        onHide, onConfirm, show, items, propertyId,
+        onHide, onConfirm, show, items, propertyId, type,
     } = props;
     const [inputFields, setInputFields] = useState(items);
 
@@ -28,7 +28,7 @@ function ItemsModal(props) {
     const onSaveChild = async (values) => {
         const toastId = 'childPropSave';
         try {
-            const response = await wretch.url(`${API_ROOT}/child-properties`).post({ ...values, propertyId }).json();
+            const response = await wretch.url(`${API_ROOT}/child-properties`).post({ ...values, propertyId, propType: type }).json();
             return toast(`Success!: ${response.message}`, {
                 toastId,
                 type: toast.TYPE.SUCCESS,
@@ -42,7 +42,7 @@ function ItemsModal(props) {
         await wretch
             .url(`${API_ROOT}/child-properties`)
             .post({
-                oldIndex, newIndex, propertyId, moveProp: true,
+                oldIndex, newIndex, propertyId, moveProp: true, propType: type,
             })
             .json();
         setInputFields(arrayMove(inputFields, oldIndex, newIndex));
@@ -63,7 +63,9 @@ function ItemsModal(props) {
     const onRemoveChild = async (index) => {
         await wretch
             .url(`${API_ROOT}/child-properties`)
-            .post({ id: inputFields[index].id, propertyId, removeProp: true })
+            .post({
+                id: inputFields[index].id, propertyId, removeProp: true, propType: type,
+            })
             .json();
         if (inputFields.length > 1) {
             setInputFields(inputFields.splice(index, 1));
@@ -125,6 +127,7 @@ ItemsModal.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     items: array.isRequired,
     propertyId: string.isRequired,
+    type: string.isRequired,
 };
 
 export default ItemsModal;
