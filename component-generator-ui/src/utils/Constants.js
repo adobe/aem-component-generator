@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { randomId } from './Utils';
 
 export const FORM_TYPES = [
     { value: 'checkbox', label: 'checkbox' },
@@ -32,6 +33,11 @@ export const EMPTY_PROP = {
     id: uuidv4(),
     attributes: [],
     items: [],
+};
+export const EMPTY_TAB = {
+    label: '',
+    id: `tab-${randomId(5)}`,
+    fields: [],
 };
 export const MAIN = 'main';
 export const SHARED = 'shared';

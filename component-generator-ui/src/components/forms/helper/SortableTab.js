@@ -11,9 +11,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useUIDSeed } from 'react-uid';
 import AsyncSelect from 'react-select/async';
 import wretch from '../../../utils/wretch';
-import { API_ROOT, FETCH_CONFIGS, REMOVE_TAB, UPDATE_TAB } from '../../../actions';
+import {
+    API_ROOT, FETCH_CONFIGS, REMOVE_TAB, UPDATE_TAB,
+} from '../../../actions';
+import { GLOBAL, MAIN, SHARED } from '../../../utils/Constants';
 
-function SortableTab({ index, propValues }) {
+function SortableTab({ index, propValues, type }) {
     const [removedTab, setRemovedTab] = useState(false);
     const global = useSelector((state) => state.compData);
     const seed = useUIDSeed();
@@ -26,8 +29,8 @@ function SortableTab({ index, propValues }) {
 
     const onPropSelectChange = async (options) => {
         const updatedTab = { ...propValues, fields: options };
-        dispatch({ type: UPDATE_TAB, payload: updatedTab });
-        await wretch.url(`${API_ROOT}/tabs`).post({ ...updatedTab }).json();
+        dispatch({ type: UPDATE_TAB, payload: { ...updatedTab, type } });
+        await wretch.url(`${API_ROOT}/tabs`).post({ ...updatedTab, tabType: type }).json();
         return options;
     };
 
@@ -42,7 +45,7 @@ function SortableTab({ index, propValues }) {
     const onSubmit = async (values) => {
         const toastId = 'tabSubmit';
         try {
-            const response = await wretch.url(`${API_ROOT}/tabs`).post({ ...values }).json();
+            const response = await wretch.url(`${API_ROOT}/tabs`).post({ ...values, tabType: type }).json();
             const result = await wretch.url(`${API_ROOT}/global`).get().json();
             dispatch({ type: FETCH_CONFIGS, payload: result });
             return toast(`Success!: ${response.message}`, {
@@ -58,23 +61,69 @@ function SortableTab({ index, propValues }) {
         const result = await wretch.url(`${API_ROOT}/global`).get().json();
         const fieldOps = [];
         const assignedProps = new Set();
-        if (result && result.options.properties) {
-            if (global.options.propertiesTabs) {
-                global.options.propertiesTabs.forEach((tab) => {
-                    if (tab.fields) {
-                        tab.fields.forEach((p) => {
-                            assignedProps.add(p.value);
-                        });
+        switch (type) {
+        case MAIN: {
+            if (result && result.options.properties) {
+                if (global.options.propertiesTabs) {
+                    global.options.propertiesTabs.forEach((tab) => {
+                        if (tab.fields) {
+                            tab.fields.forEach((p) => {
+                                assignedProps.add(p.value);
+                            });
+                        }
+                    });
+                }
+                result.options.properties.forEach((prop) => {
+                    if (!assignedProps.has(prop.field)) {
+                        fieldOps.push({ value: prop.field, label: prop.field });
                     }
                 });
             }
-            result.options.properties.forEach((prop) => {
-                if (!assignedProps.has(prop.field)) {
-                    fieldOps.push({ value: prop.field, label: prop.field });
-                }
-            });
+            return fieldOps.filter((i) => i.label.toLowerCase().includes(inputValue.toLowerCase()));
         }
-        return fieldOps.filter((i) => i.label.toLowerCase().includes(inputValue.toLowerCase()));
+        case SHARED: {
+            if (result && result.options['properties-shared']) {
+                if (global.options.propertiesSharedTabs) {
+                    global.options.propertiesSharedTabs.forEach((tab) => {
+                        if (tab.fields) {
+                            tab.fields.forEach((p) => {
+                                assignedProps.add(p.value);
+                            });
+                        }
+                    });
+                }
+                result.options['properties-shared'].forEach((prop) => {
+                    if (!assignedProps.has(prop.field)) {
+                        fieldOps.push({ value: prop.field, label: prop.field });
+                    }
+                });
+            }
+            return fieldOps.filter((i) => i.label.toLowerCase().includes(inputValue.toLowerCase()));
+        }
+        case GLOBAL: {
+            if (result && result.options['properties-global']) {
+                if (global.options.propertiesGlobalTabs) {
+                    global.options.propertiesGlobalTabs.forEach((tab) => {
+                        if (tab.fields) {
+                            tab.fields.forEach((p) => {
+                                assignedProps.add(p.value);
+                            });
+                        }
+                    });
+                }
+                result.options['properties-global'].forEach((prop) => {
+                    if (!assignedProps.has(prop.field)) {
+                        fieldOps.push({ value: prop.field, label: prop.field });
+                    }
+                });
+            }
+            return fieldOps.filter((i) => i.label.toLowerCase().includes(inputValue.toLowerCase()));
+        }
+        default:
+            return {
+                ...fieldOps,
+            };
+        }
     };
 
     const promiseOptions = (inputValue) => {
@@ -93,7 +142,7 @@ function SortableTab({ index, propValues }) {
         // animate a fade out on deletion of property
         setRemovedTab(true);
         try {
-            await wretch.url(`${API_ROOT}/tabs`).post({ ...propValues, removeTab: true }).json();
+            await wretch.url(`${API_ROOT}/tabs`).post({ ...propValues, removeTab: true, tabType: type }).json();
         } catch (err) {
             let msg = '';
             if (err && err.message) {
@@ -103,7 +152,7 @@ function SortableTab({ index, propValues }) {
         }
         // update global state to update properties
         setTimeout(() => {
-            dispatch({ type: REMOVE_TAB, payload: propValues });
+            dispatch({ type: REMOVE_TAB, payload: { ...propValues, type } });
         }, 550);
     };
 
@@ -202,6 +251,7 @@ SortableTab.propTypes = {
     index: PropTypes.number.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     propValues: PropTypes.object.isRequired,
+    type: PropTypes.string.isRequired,
 };
 
 export default SortableTab;

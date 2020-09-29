@@ -3,7 +3,13 @@ import React from 'react';
 import { Nav, Tab } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { SortableContainer } from 'react-sortable-hoc';
-import { EMPTY_PROP } from '../../utils/Constants';
+import { v4 as uuidv4 } from 'uuid';
+import {
+    EMPTY_PROP,
+    GLOBAL,
+    MAIN,
+    SHARED,
+} from '../../utils/Constants';
 import {
     ADD_PROPERTY,
     ADD_SHARED_PROPERTY,
@@ -39,30 +45,30 @@ function PropertyBuilderForm() {
     ));
 
     const onSortEnd = async ({ oldIndex, newIndex }) => {
-        await wretch.url(`${API_ROOT}/properties`).post({ oldIndex, newIndex, moveProp: true, propType: 'main' }).json();
+        await wretch.url(`${API_ROOT}/properties`).post({ oldIndex, newIndex, moveProp: true, propType: MAIN }).json();
         dispatch({ type: REORDER_PROPERTY, payload: { oldIndex, newIndex } });
     };
 
     const onSortEndShared = async ({ oldIndex, newIndex }) => {
-        await wretch.url(`${API_ROOT}/properties`).post({ oldIndex, newIndex, moveProp: true, propType: 'shared' }).json();
+        await wretch.url(`${API_ROOT}/properties`).post({ oldIndex, newIndex, moveProp: true, propType: SHARED }).json();
         dispatch({ type: REORDER_SHARED_PROPERTY, payload: { oldIndex, newIndex } });
     };
 
     const onSortEndGlobal = async ({ oldIndex, newIndex }) => {
-        await wretch.url(`${API_ROOT}/properties`).post({ oldIndex, newIndex, moveProp: true, propType: 'global' }).json();
+        await wretch.url(`${API_ROOT}/properties`).post({ oldIndex, newIndex, moveProp: true, propType: GLOBAL }).json();
         dispatch({ type: REORDER_GLOBAL_PROPERTY, payload: { oldIndex, newIndex } });
     };
 
     const addPropAction = () => {
-        dispatch({ type: ADD_PROPERTY, payload: EMPTY_PROP });
+        dispatch({ type: ADD_PROPERTY, payload: { ...EMPTY_PROP, id: uuidv4() } });
     };
 
     const addSharedPropAction = () => {
-        dispatch({ type: ADD_SHARED_PROPERTY, payload: EMPTY_PROP });
+        dispatch({ type: ADD_SHARED_PROPERTY, payload: { ...EMPTY_PROP, id: uuidv4() } });
     };
 
     const addGlobalPropAction = () => {
-        dispatch({ type: ADD_GLOBAL_PROPERTY, payload: EMPTY_PROP });
+        dispatch({ type: ADD_GLOBAL_PROPERTY, payload: { ...EMPTY_PROP, id: uuidv4() } });
     };
 
     return (
@@ -89,7 +95,7 @@ function PropertyBuilderForm() {
                                 <div>
                                     <SortableProperties onSortEnd={onSortEnd} useDragHandle>
                                         {global.options.properties.map((value, index) => (
-                                            <SortableProperty key={`item-${value.field}`} index={index} propValues={value} type="main" />
+                                            <SortableProperty key={`item-${value.id}`} index={index} propValues={value} type={MAIN} />
                                         ))}
                                     </SortableProperties>
                                 </div>
@@ -104,7 +110,7 @@ function PropertyBuilderForm() {
                                 <div>
                                     <SortableSharedProperties onSortEnd={onSortEndShared} useDragHandle>
                                         {global.options.propertiesShared.map((value, index) => (
-                                            <SortableProperty key={`item-${value.field}`} index={index} propValues={value} type="shared" />
+                                            <SortableProperty key={`item-${value.id}`} index={index} propValues={value} type={SHARED} />
                                         ))}
                                     </SortableSharedProperties>
                                 </div>
@@ -119,7 +125,7 @@ function PropertyBuilderForm() {
                                 <div>
                                     <SortableGlobalProperties onSortEnd={onSortEndGlobal} useDragHandle>
                                         {global.options.propertiesGlobal.map((value, index) => (
-                                            <SortableProperty key={`item-${value.field}`} index={index} propValues={value} type="global" />
+                                            <SortableProperty key={`item-${value.id}`} index={index} propValues={value} type={GLOBAL} />
                                         ))}
                                     </SortableGlobalProperties>
                                 </div>

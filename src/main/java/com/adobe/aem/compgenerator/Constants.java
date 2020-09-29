@@ -99,6 +99,7 @@ public class Constants {
     public static final String MISSING_CONFIG_MSG = "Configuration json file is missing: " + CONFIG_PATH +
             ", create a new one before trying to save new values to it.";
     public static final String PROP_TYPE = "propType";
+    public static final String TAB_TYPE = "tabType";
     public static final String MAIN = "main";
     public static final String SHARED = "shared";
     public static final String GLOBAL = "global";

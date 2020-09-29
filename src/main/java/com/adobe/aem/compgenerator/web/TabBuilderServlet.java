@@ -84,44 +84,142 @@ public class TabBuilderServlet extends HttpServlet {
                 updated = true;
                 int oldIndex = reConfig.get("oldIndex").asInt();
                 int newIndex = reConfig.get("newIndex").asInt();
-                LOG.info("Moving dialog tabs with indexes " + oldIndex + ", " + newIndex);
-                List<Tab> existingTabs = options.getTabProperties();
-                Collections.swap(existingTabs, oldIndex, newIndex);
-                options.setTabProperties(existingTabs);
+                String type = reConfig.get(TAB_TYPE).asText();
+                LOG.info("Moving " + type + " dialog tabs with indexes " + oldIndex + ", " + newIndex);
+                switch (type) {
+                    case MAIN: {
+                        List<Tab> existingTabs = options.getTabProperties();
+                        Collections.swap(existingTabs, oldIndex, newIndex);
+                        options.setTabProperties(existingTabs);
+                        break;
+                    }
+                    case SHARED: {
+                        List<Tab> existingTabs = options.getSharedTabProperties();
+                        Collections.swap(existingTabs, oldIndex, newIndex);
+                        options.setSharedTabProperties(existingTabs);
+                        break;
+                    }
+                    case GLOBAL: {
+                        List<Tab> existingTabs = options.getGlobalTabProperties();
+                        Collections.swap(existingTabs, oldIndex, newIndex);
+                        options.setGlobalTabProperties(existingTabs);
+                        break;
+                    }
+                }
             } else if (reConfig.has("removeTab")) {
                 String id = reConfig.get("id").asText();
+                String type = reConfig.get(TAB_TYPE).asText();
                 updated = true;
-                LOG.info("Remove dialog tab with ID " + id);
-                List<Tab> newTabs = options.getTabProperties()
-                        .stream()
-                        .filter(tab -> !tab.getId().equals(id))
-                        .collect(Collectors.toList());
-                options.setTabProperties(newTabs);
+                LOG.info("Remove " + type + " dialog tab with ID " + id);
+                switch (type) {
+                    case MAIN: {
+                        List<Tab> newTabs = options.getTabProperties()
+                                .stream()
+                                .filter(tab -> !tab.getId().equals(id))
+                                .collect(Collectors.toList());
+                        options.setTabProperties(newTabs);
+                        break;
+                    }
+                    case SHARED: {
+                        List<Tab> newTabs = options.getSharedTabProperties()
+                                .stream()
+                                .filter(tab -> !tab.getId().equals(id))
+                                .collect(Collectors.toList());
+                        options.setSharedTabProperties(newTabs);
+                        break;
+                    }
+                    case GLOBAL: {
+                        List<Tab> newTabs = options.getGlobalTabProperties()
+                                .stream()
+                                .filter(tab -> !tab.getId().equals(id))
+                                .collect(Collectors.toList());
+                        options.setGlobalTabProperties(newTabs);
+                        break;
+                    }
+                }
             } else {
                 String id = reConfig.get("id").asText();
-                LOG.info("Attempting update of dialog tab with ID " + id);
-                List<Tab> existingTab = options.getTabProperties()
-                        .stream()
-                        .filter(tab -> tab.getId().equals(id))
-                        .collect(Collectors.toList());
-                // is this a new tab? > create it
-                if (existingTab.isEmpty()) {
-                    updated = true;
-                    LOG.info("no existing tab with that id -> creating new one");
-                    List<Tab> existingTabs = options.getTabProperties();
-                    Tab tab = new Tab();
-                    tab.setId(id);
-                    updateTabProperties(reConfig, tab);
-                    existingTabs.add(tab);
-                    options.setTabProperties(existingTabs);
-                } else {
-                    updated = true;
-                    // update the existing tabs properties...
-                    options.getTabProperties().forEach(tab -> {
-                        if (tab.getId().equals(id)) {
+                String type = reConfig.get(TAB_TYPE).asText();
+                LOG.info("Attempting update of " + type + " dialog tab with ID " + id);
+                switch (type) {
+                    case MAIN: {
+                        List<Tab> existingTab = options.getTabProperties()
+                                .stream()
+                                .filter(tab -> tab.getId().equals(id))
+                                .collect(Collectors.toList());
+                        // is this a new tab? > create it
+                        if (existingTab.isEmpty()) {
+                            updated = true;
+                            LOG.info("no existing tab with that id -> creating new one");
+                            List<Tab> existingTabs = options.getTabProperties();
+                            Tab tab = new Tab();
+                            tab.setId(id);
                             updateTabProperties(reConfig, tab);
+                            existingTabs.add(tab);
+                            options.setTabProperties(existingTabs);
+                        } else {
+                            updated = true;
+                            // update the existing tabs properties...
+                            options.getTabProperties().forEach(tab -> {
+                                if (tab.getId().equals(id)) {
+                                    updateTabProperties(reConfig, tab);
+                                }
+                            });
                         }
-                    });
+                        break;
+                    }
+                    case SHARED: {
+                        List<Tab> existingTab = options.getSharedTabProperties()
+                                .stream()
+                                .filter(tab -> tab.getId().equals(id))
+                                .collect(Collectors.toList());
+                        // is this a new tab? > create it
+                        if (existingTab.isEmpty()) {
+                            updated = true;
+                            LOG.info("no existing " + type + " tab with that id -> creating new one");
+                            List<Tab> existingTabs = options.getSharedTabProperties();
+                            Tab tab = new Tab();
+                            tab.setId(id);
+                            updateTabProperties(reConfig, tab);
+                            existingTabs.add(tab);
+                            options.setSharedTabProperties(existingTabs);
+                        } else {
+                            updated = true;
+                            // update the existing tabs properties...
+                            options.getSharedTabProperties().forEach(tab -> {
+                                if (tab.getId().equals(id)) {
+                                    updateTabProperties(reConfig, tab);
+                                }
+                            });
+                        }
+                        break;
+                    }
+                    case GLOBAL: {
+                        List<Tab> existingTab = options.getGlobalTabProperties()
+                                .stream()
+                                .filter(tab -> tab.getId().equals(id))
+                                .collect(Collectors.toList());
+                        // is this a new tab? > create it
+                        if (existingTab.isEmpty()) {
+                            updated = true;
+                            LOG.info("no existing " + type + " tab with that id -> creating new one");
+                            List<Tab> existingTabs = options.getGlobalTabProperties();
+                            Tab tab = new Tab();
+                            tab.setId(id);
+                            updateTabProperties(reConfig, tab);
+                            existingTabs.add(tab);
+                            options.setGlobalTabProperties(existingTabs);
+                        } else {
+                            updated = true;
+                            // update the existing tabs properties...
+                            options.getGlobalTabProperties().forEach(tab -> {
+                                if (tab.getId().equals(id)) {
+                                    updateTabProperties(reConfig, tab);
+                                }
+                            });
+                        }
+                        break;
+                    }
                 }
             }
 

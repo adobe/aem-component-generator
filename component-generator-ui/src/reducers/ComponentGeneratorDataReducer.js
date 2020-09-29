@@ -229,24 +229,80 @@ function propertiesRemover(state, propToRemove) {
 }
 
 function tabRemover(state, tabToRemove) {
-    const removedTabArr = remove(state.options.propertiesTabs, (t) => t.id !== tabToRemove.id);
-    return {
-        ...state.options,
-        propertiesTabs: removedTabArr,
-    };
+    const { type } = tabToRemove;
+    switch (type) {
+    case MAIN: {
+        const removedTabArr = remove(state.options.propertiesTabs, (t) => t.id !== tabToRemove.id);
+        return {
+            ...state.options,
+            propertiesTabs: removedTabArr,
+        };
+    }
+    case SHARED: {
+        const removedTabArr = remove(state.options.propertiesSharedTabs, (t) => t.id !== tabToRemove.id);
+        return {
+            ...state.options,
+            propertiesSharedTabs: removedTabArr,
+        };
+    }
+    case GLOBAL: {
+        const removedTabArr = remove(state.options.propertiesGlobalTabs, (t) => t.id !== tabToRemove.id);
+        return {
+            ...state.options,
+            propertiesGlobalTabs: removedTabArr,
+        };
+    }
+    default:
+        return {
+            ...state.options,
+        };
+    }
 }
 
 function tabUpdate(state, tabToUpdate) {
-    const propertiesTabUpdate = state.options.propertiesTabs;
-    propertiesTabUpdate.forEach((tab, index) => {
-        if (tab.id === tabToUpdate.id) {
-            propertiesTabUpdate[index].fields = tabToUpdate.fields;
-        }
-    });
-    return {
-        ...state.options,
-        propertiesTabs: propertiesTabUpdate,
-    };
+    const { type } = tabToUpdate;
+    switch (type) {
+    case MAIN: {
+        const propertiesTabUpdate = state.options.propertiesTabs;
+        propertiesTabUpdate.forEach((tab, index) => {
+            if (tab.id === tabToUpdate.id) {
+                propertiesTabUpdate[index].fields = tabToUpdate.fields;
+            }
+        });
+        return {
+            ...state.options,
+            propertiesTabs: propertiesTabUpdate,
+        };
+    }
+    case SHARED: {
+        const propertiesTabUpdate = state.options.propertiesSharedTabs;
+        propertiesTabUpdate.forEach((tab, index) => {
+            if (tab.id === tabToUpdate.id) {
+                propertiesTabUpdate[index].fields = tabToUpdate.fields;
+            }
+        });
+        return {
+            ...state.options,
+            propertiesSharedTabs: propertiesTabUpdate,
+        };
+    }
+    case GLOBAL: {
+        const propertiesTabUpdate = state.options.propertiesGlobalTabs;
+        propertiesTabUpdate.forEach((tab, index) => {
+            if (tab.id === tabToUpdate.id) {
+                propertiesTabUpdate[index].fields = tabToUpdate.fields;
+            }
+        });
+        return {
+            ...state.options,
+            propertiesGlobalTabs: propertiesTabUpdate,
+        };
+    }
+    default:
+        return {
+            ...state.options,
+        };
+    }
 }
 
 function propertiesAdder(state, propToAdd) {
@@ -271,10 +327,31 @@ function propertiesGlobalAdder(state, propToAdd) {
 }
 
 function tabsAdder(state, tabToAdd) {
-    return {
-        ...state.options,
-        propertiesTabs: state.options.propertiesTabs.concat(tabToAdd),
-    };
+    const { type } = tabToAdd;
+    switch (type) {
+    case MAIN: {
+        return {
+            ...state.options,
+            propertiesTabs: state.options.propertiesTabs.concat(tabToAdd),
+        };
+    }
+    case SHARED: {
+        return {
+            ...state.options,
+            propertiesSharedTabs: state.options.propertiesSharedTabs.concat(tabToAdd),
+        };
+    }
+    case GLOBAL: {
+        return {
+            ...state.options,
+            propertiesGlobalTabs: state.options.propertiesGlobalTabs.concat(tabToAdd),
+        };
+    }
+    default:
+        return {
+            ...state.options,
+        };
+    }
 }
 
 function propertiesMover(state, propToMove) {
