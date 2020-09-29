@@ -9,11 +9,11 @@ options.
 **Starting with version 2.0:**
 
 The AEM Component Generator now has graphical user interface!
-- Features a React based SPA web app, with a backend api that can dynamically build json conigurations for the components
+- Features a React based SPA web app, with a backend API that can dynamically build out the code and configurations for AEM components
 
-- The backend generates the component config json structures still and can maintain multiple components
+- The backend generates a component configuration JSON structure that the backend then utilizes to build out the code structure.
 
-- Executes the code / folder structure build-out on demand from the web ui
+- Executes the code / folder structure build-out on demand from the web ui.
 
 ### How to use
 
