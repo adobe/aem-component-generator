@@ -69,7 +69,7 @@ public class ChildPropBuilderServlet extends HttpServlet {
         }
         if (reConfig.has("type") && !reConfig.get("type").isNull()) {
             JsonNode type = reConfig.get("type");
-            if (type.has("values")) {
+            if (type.has("value")) {
                 String value = type.get("value").textValue();
                 property.setType(value);
             }
