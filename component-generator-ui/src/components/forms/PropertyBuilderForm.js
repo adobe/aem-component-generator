@@ -81,13 +81,22 @@ function PropertyBuilderForm() {
                     <Tab.Container id="properties-builder-tabs" defaultActiveKey="mainProperties">
                         <Nav className="nav nav-tabs" role="tablist">
                             <Nav.Item>
-                                <Nav.Link eventKey="mainProperties">Main Properties</Nav.Link>
+                                <Nav.Link eventKey="mainProperties">
+                                    Main Properties
+                                    <span title="number of properties defined" className="badge badge-pill badge-primary ml-2">{global.options.properties.length || 0}</span>
+                                </Nav.Link>
                             </Nav.Item>
                             <Nav.Item>
-                                <Nav.Link eventKey="sharedProperties">Shared Properties</Nav.Link>
+                                <Nav.Link eventKey="sharedProperties">
+                                    Shared Properties
+                                    <span title="number of shared properties defined" className="badge badge-pill badge-primary ml-2">{global.options.propertiesShared.length || 0}</span>
+                                </Nav.Link>
                             </Nav.Item>
                             <Nav.Item>
-                                <Nav.Link eventKey="globalProperties">Global Properties</Nav.Link>
+                                <Nav.Link eventKey="globalProperties">
+                                    Global Properties
+                                    <span title="number of global properties defined" className="badge badge-pill badge-primary ml-2">{global.options.propertiesGlobal.length || 0}</span>
+                                </Nav.Link>
                             </Nav.Item>
                         </Nav>
                         <Tab.Content>
