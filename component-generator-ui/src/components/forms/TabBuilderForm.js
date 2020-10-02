@@ -63,13 +63,22 @@ function TabBuilderForm() {
                     <Tab.Container id="tab-builder-ui" defaultActiveKey="mainTabProperties">
                         <Nav className="nav nav-tabs" role="tablist">
                             <Nav.Item>
-                                <Nav.Link eventKey="mainTabProperties">Main Tab(s)</Nav.Link>
+                                <Nav.Link eventKey="mainTabProperties">
+                                    Main Tab(s)
+                                    <span title="number of tabs" className="badge badge-pill badge-primary ml-2">{global.options.propertiesTabs.length || 0}</span>
+                                </Nav.Link>
                             </Nav.Item>
                             <Nav.Item>
-                                <Nav.Link eventKey="sharedTabProperties">Shared Tab(s)</Nav.Link>
+                                <Nav.Link eventKey="sharedTabProperties">
+                                    Shared Tab(s)
+                                    <span title="number of shared tabs" className="badge badge-pill badge-primary ml-2">{global.options.propertiesSharedTabs.length || 0}</span>
+                                </Nav.Link>
                             </Nav.Item>
                             <Nav.Item>
-                                <Nav.Link eventKey="globalTabProperties">Global Tab(s)</Nav.Link>
+                                <Nav.Link eventKey="globalTabProperties">
+                                    Global Tab(s)
+                                    <span title="number of global tabs" className="badge badge-pill badge-primary ml-2">{global.options.propertiesGlobalTabs.length || 0}</span>
+                                </Nav.Link>
                             </Nav.Item>
                         </Nav>
                         <Tab.Content>
