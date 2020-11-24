@@ -41,6 +41,7 @@ your component.
 
 - `project-settings`: contains configuration options related to your AEM project
 - `project-settings.code-owner`: the name of the company/user this code belongs to - will replace `${CODEOWNER}` in the template files with this configured value
+- `project-settings.copyright-year`: the copyright year this code belongs to - will replace `${YEAR}` in the template files with this configured value. If one is not specified, will default to the current year.
 - `project-settings.bundle-path`: path to the java code of your main bundle
 - `project-settings.test-path`: path to the java code of your test cases
 - `project-settings.apps-path`: path to the `/apps` root
