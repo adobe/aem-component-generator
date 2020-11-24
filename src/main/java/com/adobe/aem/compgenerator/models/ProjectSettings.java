@@ -19,6 +19,8 @@
  */
 package com.adobe.aem.compgenerator.models;
 
+import java.util.Calendar;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
 
@@ -26,6 +28,9 @@ public class ProjectSettings implements BaseModel {
 
     @JsonProperty("code-owner")
     private String codeOwner;
+
+    @JsonProperty("copyright-year")
+    private String year = "" + Calendar.getInstance().get(Calendar.YEAR);
 
     @JsonProperty("model-interface-pkg")
     private String modelInterfacePackage;
@@ -51,6 +56,17 @@ public class ProjectSettings implements BaseModel {
 
     public void setCodeOwner(final String codeOwner) {
         this.codeOwner = codeOwner;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(final String year) {
+        this.year = year;
+        if (StringUtils.isBlank(this.year)) {
+            this.year = "" + Calendar.getInstance().get(Calendar.YEAR);
+        }
     }
 
     public String getModelInterfacePackage() {
