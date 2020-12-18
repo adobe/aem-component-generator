@@ -23,7 +23,7 @@ Generated code includes:
 The AEM Component Generator itself bundles all the dependencies it needs to execute.  However, the
 **generated code has dependencies on ACS AEM Commons version 4.2.0+** for the following sling model injector annotations.
 - `@ChildResourceFromRequest` for injecting child resources as model classes (e.g. image fields, composite multifields)
-- `@SharedValueMapValue` for injecting Shared Component Property field values
+- `@SharedValueMapValue` for injecting shared/global component property field values
 
 ## How To Use
 
