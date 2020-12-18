@@ -19,6 +19,12 @@ Generated code includes:
     - Includes the default WCM Core placeholder template for when the component is not yet configured
 - Stubbed clientlib (JS/CSS) following component client library patterns of WCM Core 
 
+## Dependencies
+The AEM Component Generator itself bundles all the dependencies it needs to execute.  However, the
+**generated code has dependencies on ACS AEM Commons version 4.2.0+** for the following sling model injector annotations.
+- `@ChildResourceFromRequest` for injecting child resources as model classes (e.g. image fields, composite multifields)
+- `@SharedValueMapValue` for injecting shared/global component property field values
+
 ## How To Use
 
 To see the AEM Component Generator in action,
