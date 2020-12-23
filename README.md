@@ -131,6 +131,37 @@ Successful component generation should result in output similar to the following
 [17:57:50.488 [INFO ] JavaCodeModel @103] - --------------* Sling Model successfully generated *--------------
 ```
 
+## Troubleshooting
+#### JSON Export Failing
+If you attempt to fetch your component's model json via a `.model.json` selector/extension and get the following error:
+```
+Invalid recursion selector value 'model'
+
+Cannot serve request to /content/<site>/<path-to-page>/jcr:content/<path-to-component>.model.json in org.apache.sling.servlets.get.DefaultGetServlet
+```
+The most likely cause is that your sling model is not actually deployed to AEM. To validate, first check the bundles
+console in AEM at `/system/console/bundles` to validate that your java bundle containing the generated sling model is
+indeed on the server and in `Active` state. Assuming it is, check the Sling Models console at `/system/console/status-slingmodels`
+to validate that your sling model is deployed and running. The default `demo-comp` component produced by the `data-config.json`
+provided with the project should generate a fully deployable and functioning sling model. If you are experiencing this
+error with the demo component, the most likely cause is that either your build failed to deploy the java bundle to the
+AEM server, or the bundle deployed to the server but is not running.
+
+#### Shared Property Injection Failing
+If your logs have an error that looks like this:
+```
+Caused by: java.lang.IllegalArgumentException: No Sling Models Injector registered for source 'shared-component-properties-valuemap'. 
+```
+This is because you do not have [Shared Component Properties](https://adobe-consulting-services.github.io/acs-aem-commons/features/shared-component-properties/)
+configured on your AEM instance.  This often happens to people experimenting with the demo `data-config.json` provided
+with the project, which creates a component with both a shared and a global property for testing.
+
+To resolve this issue, you can configure Shared Component Properties on your AEM instance if you plan to use that feature
+in your components. If you dont plan to use Shared Component Properties, however, empty out (or delete) the following
+values inside of the `data-config.json` file used to generate your component: `properties-shared-tabs`,
+`properties-shared`, `properties-global-tabs`, `properties-global`.  Once this is complete, regenerate your component,
+which will remove any fields in your sling model attempting to be injected by `@SharedValueMapValue`.
+
 ## Contributing
  
 Originally developed and contributed by [Bounteous](https://www.bounteous.com/insights/2019/07/31/aem-component-generator/).
