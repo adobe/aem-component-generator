@@ -132,7 +132,7 @@ Successful component generation should result in output similar to the following
 ```
 
 ## Troubleshooting
-#### JSON Export Failing
+### JSON Export Failing
 If you attempt to fetch your component's model json via a `.model.json` selector/extension and get the following error:
 ```
 Invalid recursion selector value 'model'
@@ -147,7 +147,7 @@ provided with the project should generate a fully deployable and functioning sli
 error with the demo component, the most likely cause is that either your build failed to deploy the java bundle to the
 AEM server, or the bundle deployed to the server but is not running.
 
-#### Shared Property Injection Failing
+### Shared Property Injection Failing
 If your logs have an error that looks like this:
 ```
 Caused by: java.lang.IllegalArgumentException: No Sling Models Injector registered for source 'shared-component-properties-valuemap'. 
