@@ -20,7 +20,10 @@
 package com.adobe.aem.compgenerator;
 
 import com.adobe.aem.compgenerator.exceptions.GeneratorException;
+import com.adobe.aem.compgenerator.javacodemodel.JavaCodeModel;
+import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.adobe.aem.compgenerator.utils.CommonUtils;
+import com.adobe.aem.compgenerator.utils.ComponentUtils;
 import com.adobe.aem.compgenerator.web.ChildPropBuilderServlet;
 import com.adobe.aem.compgenerator.web.ConfigurationReadWriteServlet;
 import com.adobe.aem.compgenerator.web.PropertyBuilderServlet;
@@ -71,12 +74,13 @@ public class AemCompGenerator {
     public static void main(String[] args) {
         // by default web app will run on port 8080
         int port = 8080;
-        // optional ability to override default http port
+
         if (args.length > 0) {
-            String portOption = args[0];
-            if (StringUtils.contains(portOption, "p") &&
-                    StringUtils.contains(portOption, "=")) {
-                String[] portArr = StringUtils.split(portOption, "=");
+            // optional ability to override default http port
+            String argument = args[0];
+            if (StringUtils.contains(argument, "p") &&
+                    StringUtils.contains(argument, "=")) {
+                String[] portArr = StringUtils.split(argument, "=");
                 try {
                     port = Integer.parseInt(portArr[1]);
                 } catch (NumberFormatException e) {
@@ -84,7 +88,44 @@ public class AemCompGenerator {
                     System.exit(1);
                 }
             } else {
-                System.out.println("Invalid arg usage, expected -p=8080");
+                // check if user wants to just run the component generator from an existing json config
+                if (StringUtils.contains(argument, ".json")) {
+                    File configFile = new File(argument);
+                    if (CommonUtils.isFileBlank(configFile)) {
+                        throw new GeneratorException("Config file missing / empty.");
+                    }
+                    GenerationConfig config = CommonUtils.getComponentData(configFile);
+                    if (config == null) {
+                        throw new GeneratorException("Config file is empty / null !!");
+                    }
+
+                    if (!config.isValid() || !CommonUtils.isModelValid(config.getProjectSettings())) {
+                        throw new GeneratorException("Mandatory fields missing in the data-config.json !");
+                    }
+
+                    String compDir = config.getProjectSettings().getAppsPath() + "/"
+                            + config.getProjectSettings().getComponentPath() + "/"
+                            + config.getType() + "/" + config.getName();
+                    config.setCompDir(compDir);
+
+                    //builds component folder and file structure.
+                    try {
+                        ComponentUtils generatorUtils = new ComponentUtils(config);
+                        generatorUtils.buildComponent();
+
+                        //builds sling model based on config.
+                        if (config.getOptions() != null && config.getOptions().isHasSlingModel()) {
+                            JavaCodeModel javaCodeModel = new JavaCodeModel();
+                            javaCodeModel.buildSlingModel(config);
+                        }
+                        System.out.println("Your component has been generated.");
+                        System.exit(0);
+                    } catch (Exception e) {
+                        LOG.error("Failed to generate aem component.", e);
+                    }
+                } else {
+                    System.out.println("Invalid arg usage, expected -p=8080, or pass a valid path to a config json file");
+                }
             }
         }
         // Ensure that an initial data configuration

@@ -30,6 +30,16 @@ The AEM Component Generator now has graphical user interface!
 $ java -jar <jarfile>
 ```
 - A new web browser tab will be launched containing the AEM component generator UI! Follow the instructions in the app to configure your new component. By default the app will bind to localhost:8080, you can override this by passing an argument `-p={port]`
+- If you would like to bypass the web user interface you can generate a component via command line only by passing the path to the config:
+```sh
+$ java -jar <jarfile> <configfile>
+```
+Ex:
+```sh
+$ java -jar scripts/compgen/component-generator-2.0.jar scripts/compgen/data-config.json
+```
+
+
 
 ### Development environment: getting started
 
