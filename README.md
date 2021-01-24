@@ -8,6 +8,8 @@ options.
 
 #Starting with version 2.0:
 
+[See video on usage example](https://youtu.be/QQmm9sxK56o)
+
 The AEM Component Generator now has graphical user interface!
 - Features a React based SPA web app, with a backend API that can dynamically build out the code and configurations for AEM components
 
