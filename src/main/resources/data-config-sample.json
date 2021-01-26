@@ -1,5 +1,6 @@
 {
     "project-settings": {
+        "year": "current",
         "code-owner": "NewCo Incorporated",
         "bundle-path": "core/src/main/java",
         "test-path": "core/src/test/java",
@@ -78,12 +79,14 @@
                 "type": "textfield",
                 "label": "Textfield Test",
                 "json-expose": true,
+                "id": "417671d1-8923-41eb-a315-cc5c2c05bf75",
                 "attributes": {}
             },
             {
                 "field": "checkTest",
                 "type": "checkbox",
                 "json-expose": true,
+                "id": "6e8e5781-f0eb-4dfe-973e-9172dbe8a0a2",
                 "attributes": {
                     "value": "{Boolean}true",
                     "text": "Checkbox Test"
@@ -93,6 +96,7 @@
                 "field": "pathfieldTest",
                 "type": "pathfield",
                 "label": "Pathfield Test",
+                "id": "e8173cb7-c2c9-471c-bc03-83ae2f531062",
                 "json-expose": true,
                 "attributes": {
                     "rootPath": "/content"
@@ -102,6 +106,7 @@
                 "field": "pagefieldTest",
                 "type": "pagefield",
                 "label": "Pagefield Test",
+                "id": "e8173cb7-c2c9-471c-bc03-83ae2f531025",
                 "json-expose": true,
                 "attributes": {
                     "rootPath": "/content"
@@ -111,6 +116,7 @@
                 "field": "tagfieldTest",
                 "type": "tagfield",
                 "label": "Tags Test",
+                "id": "e8173cb7-c2c9-471c-bc03-83ae2f531022",
                 "json-expose": true,
                 "attributes": {
                     "multiple": "{Boolean}true"
@@ -120,6 +126,7 @@
                 "field": "textareaTest",
                 "type": "textarea",
                 "label": "Textarea Test",
+                "id": "fae4a960-d7c6-411c-a073-5803ce8550a1",
                 "json-expose": true,
                 "attributes": {}
             },
@@ -128,6 +135,7 @@
                 "description": "Context tooltip for authors.",
                 "type": "datepicker",
                 "json-expose": true,
+                "id": "e9c992f2-85d2-497d-83db-7c0f9eea2e8d",
                 "label": "Select Date",
                 "attributes": {
                     "displayedFormat": "MM/DD/YYYY"
@@ -139,6 +147,7 @@
                 "label": "Select Test",
                 "json-property": "selection",
                 "json-expose": true,
+                "id": "e9c992f2-85d2-497d-83db-7c0f9eea2e8c",
                 "attributes": {
                     "defaultValue": "opt1",
                     "value": "opt1"
@@ -146,6 +155,7 @@
                 "items": [
                     {
                         "field": "option1",
+                        "id": "20144069-b72c-464a-b7bf-e3698d36f0f5",
                         "attributes": {
                             "selected": "true",
                             "text": "Option 1",
@@ -154,6 +164,7 @@
                     },
                     {
                         "field": "option2",
+                        "id": "30124069-b72c-464a-b7bf-e3698d36f0f5",
                         "attributes": {
                             "text": "Option 2",
                             "value": "opt2"
@@ -166,6 +177,7 @@
                 "type": "radiogroup",
                 "label": "Radio Test",
                 "json-expose": true,
+                "id": "e9c992f2-85d2-497d-83db-7c0f9eea2e83",
                 "attributes": {
                     "vertical": "{Boolean}false"
                 },
@@ -173,6 +185,7 @@
                     {
                         "field": "radio1",
                         "type": "radio",
+                        "id": "50144069-b72c-464a-b7bf-e3698d36f0f5",
                         "attributes": {
                             "checked": "{Boolean}true",
                             "name": "radioTest",
@@ -183,6 +196,7 @@
                     {
                         "field": "radio2",
                         "type": "radio",
+                        "id": "50144069-b72c-464a-b7bf-e3698d36f0f4",
                         "attributes": {
                             "checked": "{Boolean}true",
                             "name": "radioTest",
@@ -195,6 +209,7 @@
             {
                 "field": "hiddenTest",
                 "type": "hidden",
+                "id": "e9c992f2-85d3-497d-83db-7c0f9eea2e83",
                 "attributes": {
                     "value": "hidden value"
                 }
@@ -204,6 +219,7 @@
                 "type": "numberfield",
                 "label": "Numberfield Test",
                 "json-expose": true,
+                "id": "e9c992f2-85d3-497d-82db-7c0f9eea2e82",
                 "attributes": {
                     "max": "{Double}20",
                     "min": "{Double}0",
@@ -215,21 +231,25 @@
                 "field": "imageTest",
                 "type": "image",
                 "label": "Image Test",
+                "id": "e9c982f2-85d3-497d-82db-7c0f9eea2e83",
                 "json-expose": true
             },
             {
                 "field": "headingTest",
                 "type": "heading",
+                "id": "e8c982f2-85d3-497d-82db-7c0f9eea2e83",
                 "label": "Heading Test"
             },
             {
                 "field": "colors",
                 "type": "multifield",
                 "label": "Colors",
+                "id": "e8c992f2-85d3-497d-82db-7c0f9eea2e82",
                 "json-expose": true,
                 "items": [
                     {
                         "type": "textfield",
+                        "id": "70144069-b72c-464a-b7bf-e3698d36f0f5",
                         "label": "Color"
                     }
                 ]
@@ -241,18 +261,21 @@
                 "use-existing-model": false,
                 "label": "Links",
                 "json-expose": true,
+                "id": "e7c992f2-85d3-497d-82db-7c0f9eea2e82",
                 "items": [
                     {
                         "field": "path",
                         "type": "pathfield",
                         "label": "Path",
                         "description": "Path to the page",
+                        "id": "80245069-b72c-464a-b7bf-e3698d36f0f5",
                         "json-expose": true
                     },
                     {
                         "field": "label",
                         "type": "textfield",
                         "label": "Label",
+                        "id": "70245069-b72c-464a-b7bf-e3698d36f0f5",
                         "description": "Label to display on the link",
                         "json-expose": true
                     }
@@ -264,6 +287,7 @@
                 "field": "sharedTextfieldTest",
                 "type": "textfield",
                 "label": "Shared Textfield Test",
+                "id": "e7c992f2-85d3-497d-72db-7c0f9eea2e82",
                 "json-expose": true
             }
         ],
@@ -272,6 +296,7 @@
                 "field": "globalTextfieldTest",
                 "type": "textfield",
                 "label": "Global Textfield Test",
+                "id": "e6c992f2-85d3-497d-72db-7c0f9eea2e82",
                 "json-expose": true
             }
         ]

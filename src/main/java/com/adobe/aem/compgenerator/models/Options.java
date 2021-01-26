@@ -19,6 +19,7 @@
  */
 package com.adobe.aem.compgenerator.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -230,6 +231,7 @@ public class Options implements BaseModel {
     }
 
     @Override
+    @JsonIgnore
     public boolean isValid() {
         return true;
     }

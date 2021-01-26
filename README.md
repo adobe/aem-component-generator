@@ -6,6 +6,58 @@ AEM Component Generator is a java project that enables developers to generate th
 AEM component using a JSON configuration file specifying component and dialog properties and other configuration
 options.
 
+#Starting with version 2.0:
+
+[See video on usage example](https://youtu.be/QQmm9sxK56o)
+
+The AEM Component Generator now has graphical user interface!
+- Features a React based SPA web app, with a backend API that can dynamically build out the code and configurations for AEM components
+
+- The backend generates a component configuration JSON structure that the backend then utilizes to build out the code structure.
+
+- Executes the code / folder structure build-out on demand from the web ui.
+
+## Dependencies
+The AEM Component Generator itself bundles all the dependencies it needs to execute.  However, the
+**generated code has dependencies on ACS AEM Commons version 4.2.0+** for the following sling model injector annotations.
+- `@ChildResourceFromRequest` for injecting child resources as model classes (e.g. image fields, composite multifields)
+- `@SharedValueMapValue` for injecting shared/global component property field values
+
+### How to use
+
+-  Step 1: Clone the project from github.
+
+-  Step 2: Build the project by running `mvn clean install` from the main project folder.
+
+-  Step 3: Copy the generated `component-generator-N.N.jar` file (under the `target` folder) to a location
+           from which you wish to generate AEM component code.  Note that code will be generated at a relative path from which
+           the generator is executed, which can be different from where the jar file is located. If you are using this tool via command line only, you will need to copy a sample configuration JSON file from `/src/main/resources` and configure it as needed.
+- Step 4: To generate launch the component generator web user interface, navigate to the main folder of your AEM project and execute the following command.
+
+```sh
+$ java -jar <jarfile>
+```
+- A new web browser tab will be launched containing the AEM component generator UI. Follow the instructions in the app to configure your new component. By default the app will bind to localhost:8080, you can override this by passing an argument `-p={port]`
+- If you would like to bypass the web user interface you can generate a component via command line only by passing the path to the config:
+```sh
+$ java -jar <jarfile> <configfile>
+```
+Ex:
+```sh
+$ java -jar scripts/compgen/component-generator-2.0.jar scripts/compgen/data-config.json
+```
+
+
+### Development environment: getting started
+
+- pre-req install yarn and Node.js (version > 12), Java 8 SDK
+
+- in the *component-generator-ui* folder run `yarn install` and then `yarn bootstrap` to produce a production build of the react app ready for the static web server that runs from the java backend.
+
+- In your  Java IDE of choice setup and run the main java class found in **AemCompGenerator.java**, this will launch a web browser by default with localhost:8080/
+
+- to run the react app separately for front-end development, navigate to the *component-generator-ui* folder and run `yarn start`; This will launch a local dev version of the react based front end on port localhost:3000/
+ 
 Generated code includes:
 - `cq:dialog` for component properties
     - `dialogshared`/`dialogglobal` for shared/global component properties
@@ -19,35 +71,11 @@ Generated code includes:
     - Includes the default WCM Core placeholder template for when the component is not yet configured
 - Stubbed clientlib (JS/CSS) following component client library patterns of WCM Core 
 
-## Dependencies
-The AEM Component Generator itself bundles all the dependencies it needs to execute.  However, the
-**generated code has dependencies on ACS AEM Commons version 4.2.0+** for the following sling model injector annotations.
-- `@ChildResourceFromRequest` for injecting child resources as model classes (e.g. image fields, composite multifields)
-- `@SharedValueMapValue` for injecting shared/global component property field values
-
-## How To Use
-
-To see the AEM Component Generator in action,
-[watch this video](https://s3.amazonaws.com/HS2Presentations/AEMPublic/2019-Adobe-AEM-Component-Code-Generator-Demo-Bounteous.mp4).
-Detailed steps for using the generator are found below. 
-
-Step 1: Clone the project from github.
-
-Step 2: Update the demo config file (`data-config.json`) to your company defaults, removing references to `NewCo`/`newco`
-in the `project-settings` and `group` values.
-
-Step 3: Build the project by running `mvn clean install` from the main project folder.
-
-Step 4: Copy the generated `component-generator-N.N.jar` file (under the `target` folder) to a location
-from which you wish to generate AEM component code.  Note that code will be generated at a relative path from which
-the generator is executed, which can be different from where the jar file is located.
-
-Step 5: Copy the `data-config.json` file from this project to the same location and update with relevant configs for
-your component.
+## JSON config file properties
 
 - `project-settings`: contains configuration options related to your AEM project
 - `project-settings.code-owner`: the name of the company/user this code belongs to - will replace `${CODEOWNER}` in the template files with this configured value
-- `project-settings.copyright-year`: the copyright year this code belongs to - will replace `${YEAR}` in the template files with this configured value. If one is not specified, will default to the current year.
+- `project-settings.year`: the copyright year this code belongs to - will replace `${YEAR}` in the template files with this configured value. If one is not specified, will default to the current year.
 - `project-settings.bundle-path`: path to the java code of your main bundle
 - `project-settings.test-path`: path to the java code of your test cases
 - `project-settings.apps-path`: path to the `/apps` root
@@ -99,44 +127,13 @@ your component.
     - `options.properties[].json-property`: the json key for the property to be used when content export is configured
 - `options.properties-shared`: properties to create in shared dialog for this component. If empty, no shared dialog will be created
 - `options.properties-global`: properties to create in global dialog for this component. If empty, no global dialog will be created
-
-Step 6: To generate a component, navigate to the main folder of your AEM project and execute the following command.
-Note that paths specified in `project-settings` configs (above) will be relative to this location.
-
-```sh
-$ java -jar <jarfile> <configfile>
-```
-
-- `jarfile`: path to `component-generator-N.N.jar` file (replacing `N.N` with the applicable numbers)
-- `configfile`: path to `data-config.json` file
-
-Example:
-```sh
-$ java -jar scripts/compgen/component-generator-1.0.jar scripts/compgen/data-config.json
-```
-
-Successful component generation should result in output similar to the following:
-```
-[17:57:50.427 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/newco/components/content/demo-comp/.content.xml
-[17:57:50.441 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/newco/components/content/demo-comp/_cq_dialog/.content.xml
-[17:57:50.443 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/newco/components/content/demo-comp/dialogglobal/.content.xml
-[17:57:50.446 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/newco/components/content/demo-comp/dialogshared/.content.xml
-[17:57:50.447 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/newco/components/content/demo-comp/clientlibs/.content.xml
-[17:57:50.453 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/newco/components/content/demo-comp/clientlibs/site/css/demo-comp.less
-[17:57:50.454 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/newco/components/content/demo-comp/clientlibs/site/js/demo-comp.js
-[17:57:50.456 [INFO ] CommonUtils @93] - Created: ui.apps/src/main/content/jcr_root/apps/newco/components/content/demo-comp/demo-comp.html
-[17:57:50.456 [INFO ] ComponentUtils @85] - --------------* Component 'demo-comp' successfully generated *--------------
-[17:57:50.476 [INFO ] CommonUtils @93] - Created: core/src/main/java/com/newco/aem/base/core/models/DemoComp.java
-[17:57:50.488 [INFO ] CommonUtils @93] - Created: core/src/main/java/com/newco/aem/base/core/models/impl/DemoCompImpl.java
-[17:57:50.488 [INFO ] JavaCodeModel @103] - --------------* Sling Model successfully generated *--------------
-```
+ 
 
 ## Troubleshooting
 ### JSON Export Failing
 If you attempt to fetch your component's model json via a `.model.json` selector/extension and get the following error:
 ```
 Invalid recursion selector value 'model'
-
 Cannot serve request to /content/<site>/<path-to-page>/jcr:content/<path-to-component>.model.json in org.apache.sling.servlets.get.DefaultGetServlet
 ```
 The most likely cause is that your sling model is not actually deployed to AEM. To validate, first check the bundles

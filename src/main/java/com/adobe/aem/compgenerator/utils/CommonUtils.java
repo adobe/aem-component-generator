@@ -32,13 +32,29 @@ import org.apache.commons.text.StringSubstitutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.time.Year;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 public class CommonUtils {
@@ -241,7 +257,13 @@ public class CommonUtils {
             map.put("sightly", StringUtils.uncapitalize(generationConfig.getJavaFormatedName()));
             map.put("slingModel", generationConfig.getProjectSettings().getModelInterfacePackage() + "." + generationConfig.getJavaFormatedName());
             map.put("CODEOWNER", generationConfig.getProjectSettings().getCodeOwner());
-            map.put("YEAR", generationConfig.getProjectSettings().getYear());
+            String year = generationConfig.getProjectSettings().getYear();
+            if (StringUtils.isNotEmpty(year) && year.equals("current")) {
+                year = String.valueOf(Year.now().getValue());
+            } else if (StringUtils.isEmpty(year)) {
+                year = String.valueOf(Year.now().getValue());
+            }
+            map.put("YEAR", year);
             map.put("htmlOutput", generationConfig.getOptions().isHtmlContent() ? HTMLUtils.renderHtml(generationConfig) : "    <!-- Component HTML goes here -->");
             return map;
         }
@@ -270,5 +292,69 @@ public class CommonUtils {
             updatedPropertiesList = properties;
         }
         return updatedPropertiesList;
+    }
+
+    /**
+     * Returns the jar file used to load class clazz, or defaultJar if clazz was not loaded from a
+     * jar.
+     */
+    public static JarFile jarForClass(Class<?> clazz, JarFile defaultJar) {
+        String path = "/" + clazz.getName().replace('.', '/') + ".class";
+        URL jarUrl = clazz.getResource(path);
+        if (jarUrl == null) {
+            return defaultJar;
+        }
+
+        String url = jarUrl.toString();
+        int bang = url.indexOf("!");
+        String JAR_URI_PREFIX = "jar:file:";
+        if (url.startsWith(JAR_URI_PREFIX) && bang != -1) {
+            try {
+                return new JarFile(url.substring(JAR_URI_PREFIX.length(), bang));
+            } catch (IOException e) {
+                throw new IllegalStateException("Error loading jar file.", e);
+            }
+        } else {
+            return defaultJar;
+        }
+    }
+
+    /**
+     * Copies a directory from a jar file to an external directory.
+     */
+    public static void copyResourcesToDirectory(JarFile fromJar, String jarDir, String destDir)
+            throws IOException {
+        for (Enumeration<JarEntry> entries = fromJar.entries(); entries.hasMoreElements();) {
+            JarEntry entry = entries.nextElement();
+            if (entry.getName().startsWith(jarDir + "/") && !entry.isDirectory()) {
+                File dest = new File(destDir + "/" + entry.getName().substring(jarDir.length() + 1));
+                File parent = dest.getParentFile();
+                if (parent != null) {
+                    parent.mkdirs();
+                }
+
+                FileOutputStream out = new FileOutputStream(dest);
+                InputStream in = fromJar.getInputStream(entry);
+
+                try {
+                    byte[] buffer = new byte[8 * 1024];
+
+                    int s = 0;
+                    while ((s = in.read(buffer)) > 0) {
+                        out.write(buffer, 0, s);
+                    }
+                } catch (IOException e) {
+                    throw new IOException("Could not copy asset from jar file", e);
+                } finally {
+                    try {
+                        in.close();
+                    } catch (IOException ignored) {}
+                    try {
+                        out.close();
+                    } catch (IOException ignored) {}
+                }
+            }
+        }
+
     }
 }

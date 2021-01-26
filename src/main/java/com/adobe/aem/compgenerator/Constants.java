@@ -92,7 +92,17 @@ public class Constants {
     public static final String STRING_GET = "get";
     public static final String STRING_TEST = "test";
 
+    public static final String CONFIG_PATH = "data-config.json";
     public static final String RENAME_FILE_DATE_PATTERN = "yyyyMMddHHmmss";
+    public static final String UPDATED_MSG = "Configuration file was successfully updated";
+    public static final String NO_UPDATE_MSG = "No changes to the configuration file was made";
+    public static final String MISSING_CONFIG_MSG = "Configuration json file is missing: " + CONFIG_PATH +
+            ", create a new one before trying to save new values to it.";
+    public static final String PROP_TYPE = "propType";
+    public static final String TAB_TYPE = "tabType";
+    public static final String MAIN = "main";
+    public static final String SHARED = "shared";
+    public static final String GLOBAL = "global";
 
     public static final int JUNIT_VERSION_5 = 5;
     public static final int JUNIT_VERSION_4 = 4;

@@ -129,7 +129,7 @@ public class JavaCodeModel {
      * Generates the slingModel file based on values from the config and the current codeModel object.
      */
     private void generateCodeFiles() throws IOException {
-        // RenameFileCodeWritern to rename existing files
+        // RenameFileCodeWriter to rename existing files
         CodeWriter codeWriter = new RenameFileCodeWriter(new File(generationConfig.getProjectSettings().getBundlePath()));
 
         // PrologCodeWriter to prepend the copyright template in each file

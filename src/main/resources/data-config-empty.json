@@ -1,0 +1,41 @@
+{
+    "project-settings": {
+        "year": "current",
+        "code-owner": "",
+        "bundle-path": "core/src/main/java",
+        "test-path": "core/src/test/java",
+        "apps-path": "ui.apps/src/main/content/jcr_root/apps",
+        "component-path": "",
+        "model-interface-pkg": "",
+        "model-impl-pkg": ""
+    },
+    "name": "",
+    "title": "",
+    "group": "",
+    "type": "content",
+    "options": {
+        "js": true,
+        "jstxt": true,
+        "css": true,
+        "csstxt": true,
+        "html": true,
+        "html-content": false,
+        "slingmodel": true,
+        "testclass": false,
+        "junit-major-version": 5,
+        "content-exporter": false,
+        "model-adaptables": [
+            "request"
+        ],
+        "generic-javadoc": false,
+        "properties-tabs": [
+        ],
+        "properties-shared-tabs" : [
+        ],
+        "properties-global-tabs" : [
+        ],
+        "properties": [],
+        "properties-shared": [],
+        "properties-global": []
+    }
+}

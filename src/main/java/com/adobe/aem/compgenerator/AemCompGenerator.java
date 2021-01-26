@@ -24,10 +24,42 @@ import com.adobe.aem.compgenerator.javacodemodel.JavaCodeModel;
 import com.adobe.aem.compgenerator.models.GenerationConfig;
 import com.adobe.aem.compgenerator.utils.CommonUtils;
 import com.adobe.aem.compgenerator.utils.ComponentUtils;
+import com.adobe.aem.compgenerator.web.ChildPropBuilderServlet;
+import com.adobe.aem.compgenerator.web.ConfigurationReadWriteServlet;
+import com.adobe.aem.compgenerator.web.PropertyBuilderServlet;
+import com.adobe.aem.compgenerator.web.TabBuilderServlet;
+import io.undertow.Handlers;
+import io.undertow.Undertow;
+import io.undertow.UndertowOptions;
+import io.undertow.server.HttpHandler;
+import io.undertow.server.handlers.PathHandler;
+import io.undertow.server.handlers.resource.PathResourceManager;
+import io.undertow.server.handlers.resource.ResourceHandler;
+import io.undertow.servlet.Servlets;
+import io.undertow.servlet.api.DeploymentInfo;
+import io.undertow.servlet.api.DeploymentManager;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.servlet.ServletException;
+import java.awt.*;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
+import java.util.jar.JarFile;
+
+import static io.undertow.servlet.Servlets.defaultContainer;
+import static io.undertow.servlet.Servlets.deployment;
+import static io.undertow.servlet.Servlets.servlet;
 
 /**
  * Root of the AEM Component generator.
@@ -40,44 +72,151 @@ public class AemCompGenerator {
     private static final Logger LOG = LogManager.getLogger(AemCompGenerator.class);
 
     public static void main(String[] args) {
+        // by default web app will run on port 8080
+        int port = 8080;
+
+        if (args.length > 0) {
+            // optional ability to override default http port
+            String argument = args[0];
+            if (StringUtils.contains(argument, "p") &&
+                    StringUtils.contains(argument, "=")) {
+                String[] portArr = StringUtils.split(argument, "=");
+                try {
+                    port = Integer.parseInt(portArr[1]);
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid arg usage, expected -p=8080");
+                    System.exit(1);
+                }
+            } else {
+                // check if user wants to just run the component generator from an existing json config
+                if (StringUtils.contains(argument, ".json")) {
+                    File configFile = new File(argument);
+                    if (CommonUtils.isFileBlank(configFile)) {
+                        throw new GeneratorException("Config file missing / empty.");
+                    }
+                    GenerationConfig config = CommonUtils.getComponentData(configFile);
+                    if (config == null) {
+                        throw new GeneratorException("Config file is empty / null !!");
+                    }
+
+                    if (!config.isValid() || !CommonUtils.isModelValid(config.getProjectSettings())) {
+                        throw new GeneratorException("Mandatory fields missing in the data-config.json !");
+                    }
+
+                    String compDir = config.getProjectSettings().getAppsPath() + "/"
+                            + config.getProjectSettings().getComponentPath() + "/"
+                            + config.getType() + "/" + config.getName();
+                    config.setCompDir(compDir);
+
+                    //builds component folder and file structure.
+                    try {
+                        ComponentUtils generatorUtils = new ComponentUtils(config);
+                        generatorUtils.buildComponent();
+
+                        //builds sling model based on config.
+                        if (config.getOptions() != null && config.getOptions().isHasSlingModel()) {
+                            JavaCodeModel javaCodeModel = new JavaCodeModel();
+                            javaCodeModel.buildSlingModel(config);
+                        }
+                        System.out.println("Your component has been generated.");
+                        System.exit(0);
+                    } catch (Exception e) {
+                        LOG.error("Failed to generate aem component.", e);
+                    }
+                } else {
+                    System.out.println("Invalid arg usage, expected -p=8080, or pass a valid path to a config json file");
+                }
+            }
+        }
+        // Ensure that an initial data configuration
+        // JSON file exists for loading / saving data to
+        String configPath = "data-config.json";
+        String configSamplePath = "data-config-empty.json";
+
+        File configFile = new File(configPath);
+
+        if (!configFile.exists()) {
+            // if the config does not exist, copy a sample one to the root directory
+            LOG.info(configPath + " file does not exist.. creating new empty one from sample file");
+            try {
+                InputStream input = AemCompGenerator.class.getResourceAsStream("/resources/" + configSamplePath);
+                if (input == null) {
+                    input = AemCompGenerator.class.getClassLoader().getResourceAsStream(configSamplePath);
+                }
+                byte[] buffer = new byte[input.available()];
+                input.read(buffer);
+
+                OutputStream outStream = new FileOutputStream(configPath);
+                outStream.write(buffer);
+            } catch (IOException e) {
+                LOG.error(e);
+                throw new GeneratorException("Could not initialize data config file");
+            }
+        }
+
+        DeploymentInfo servletBuilder = deployment()
+                .setClassLoader(AemCompGenerator.class.getClassLoader())
+                .setContextPath("/api")
+                .setDefaultEncoding("UTF-8")
+                .setDeploymentName("componentgen.war")
+                .addServlet((Servlets.servlet("global", ConfigurationReadWriteServlet.class)
+                        .addMapping("/global")))
+                .addServlet((Servlets.servlet("properties", PropertyBuilderServlet.class)
+                        .addMapping("/properties")))
+                .addServlet((Servlets.servlet("child-properties", ChildPropBuilderServlet.class)
+                        .addMapping("/child-properties")))
+                .addServlet((Servlets.servlet("tabs", TabBuilderServlet.class)
+                        .addMapping("/tabs")));
+
+        DeploymentManager manager = defaultContainer().addDeployment(servletBuilder);
+        manager.deploy();
         try {
-            String configPath = "data-config.json";
-            if (args.length > 0) {
-                configPath = args[0];
+            //HttpHandler servletHandler = manager.start();
+            PathHandler servletHandler = Handlers.path(Handlers.redirect("/api"))
+                    .addPrefixPath("/api", manager.start());
+            Path staticPath = Paths.get("src/main/resources/static/build");
+
+            String protocol = AemCompGenerator.class.getResource("").getProtocol();
+            // if we are running the app from a Jar file... extract the static web dir
+            if (Objects.equals(protocol, "jar")) {
+                try {
+                    Path tempDirWithPrefix = Files.createTempDirectory("comp_gen_web");
+                    tempDirWithPrefix.toFile().deleteOnExit(); // cleanup temp folder when exiting app
+                    JarFile jarFile = CommonUtils.jarForClass(AemCompGenerator.class, null);
+                    CommonUtils.copyResourcesToDirectory(jarFile, "static/build", tempDirWithPrefix.toAbsolutePath().toString());
+                    staticPath = Paths.get(tempDirWithPrefix.toAbsolutePath().toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                LOG.info("running in IDE / copying static files from Jar is not needed");
             }
 
-            File configFile = new File(configPath);
-
-            if (CommonUtils.isFileBlank(configFile)) {
-                throw new GeneratorException("Config file missing / empty.");
+            ResourceHandler pathResourceManager = new ResourceHandler(
+                    new PathResourceManager(staticPath, 100))
+                    .setWelcomeFiles("index.html");
+            Undertow server = Undertow.builder()
+                    .setServerOption(UndertowOptions.URL_CHARSET, "UTF8")
+                    .addHttpListener(port, "localhost")
+                    .setHandler(
+                            Handlers.path()
+                                    .addPrefixPath("/servlet", servletHandler)
+                                    .addPrefixPath("/", pathResourceManager)
+                                    .addPrefixPath("/help", pathResourceManager)
+                                    .addPrefixPath("/about", pathResourceManager)
+                                    .addPrefixPath("/config", pathResourceManager)
+                                    .addPrefixPath("/comp-config", pathResourceManager)
+                                    .addPrefixPath("/dialog-properties", pathResourceManager)
+                                    .addPrefixPath("/dialog-tabs", pathResourceManager)
+                    ).build();
+            server.start();
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                System.out.println("Launching new browser window with Component Builder UI");
+                Desktop.getDesktop().browse(new URI("http://localhost:" + port));
             }
-
-            GenerationConfig config = CommonUtils.getComponentData(configFile);
-
-            if (config == null) {
-                throw new GeneratorException("Config file is empty / null !!");
-            }
-
-            if (!config.isValid() || !CommonUtils.isModelValid(config.getProjectSettings())) {
-                throw new GeneratorException("Mandatory fields missing in the data-config.json !");
-            }
-
-            String compDir = config.getProjectSettings().getAppsPath() + "/"
-                    + config.getProjectSettings().getComponentPath() + "/"
-                    + config.getType() + "/" + config.getName();
-            config.setCompDir(compDir);
-
-            //builds component folder and file structure.
-            ComponentUtils generatorUtils = new ComponentUtils(config);
-            generatorUtils.buildComponent();
-
-            //builds sling model based on config.
-            if (config.getOptions() != null && config.getOptions().isHasSlingModel()) {
-                JavaCodeModel javaCodeModel = new JavaCodeModel();
-                javaCodeModel.buildSlingModel(config);
-            }
-        } catch (Exception e) {
-            LOG.error("Failed to generate aem component.", e);
+        } catch (ServletException | URISyntaxException | IOException e) {
+            e.printStackTrace();
         }
     }
+
 }
