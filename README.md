@@ -31,13 +31,13 @@ The AEM Component Generator itself bundles all the dependencies it needs to exec
 
 -  Step 3: Copy the generated `component-generator-N.N.jar` file (under the `target` folder) to a location
            from which you wish to generate AEM component code.  Note that code will be generated at a relative path from which
-           the generator is executed, which can be different from where the jar file is located.
-- Step 4: To generate launch the component generator user interface, navigate to the main folder of your AEM project and execute the following command.
+           the generator is executed, which can be different from where the jar file is located. If you are using this tool via command line only, you will need to copy a sample configuration JSON file from `/src/main/resources` and configure it as needed.
+- Step 4: To generate launch the component generator web user interface, navigate to the main folder of your AEM project and execute the following command.
 
 ```sh
 $ java -jar <jarfile>
 ```
-- A new web browser tab will be launched containing the AEM component generator UI! Follow the instructions in the app to configure your new component. By default the app will bind to localhost:8080, you can override this by passing an argument `-p={port]`
+- A new web browser tab will be launched containing the AEM component generator UI. Follow the instructions in the app to configure your new component. By default the app will bind to localhost:8080, you can override this by passing an argument `-p={port]`
 - If you would like to bypass the web user interface you can generate a component via command line only by passing the path to the config:
 ```sh
 $ java -jar <jarfile> <configfile>
