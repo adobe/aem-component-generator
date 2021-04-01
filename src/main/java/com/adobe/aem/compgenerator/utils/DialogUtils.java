@@ -22,6 +22,7 @@ package com.adobe.aem.compgenerator.utils;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -114,8 +115,7 @@ public class DialogUtils {
      */
     private static void createNodeStructure(Document doc, List<Property> properties, Node currentNode) {
         properties.stream().filter(Objects::nonNull)
-                .map(property -> createPropertyNode(doc, currentNode, property)).filter(Objects::nonNull)
-                .forEach(propertyNode -> currentNode.appendChild(propertyNode));
+                .forEach(property -> createPropertyNode(doc, currentNode, property));
     }
 
     /**
@@ -154,7 +154,7 @@ public class DialogUtils {
      * @param property The {@link Property} object contains attributes
      * @return Element
      */
-    private static Element createPropertyNode(Document document, Node currentNode, Property property) {
+    private static void createPropertyNode(Document document, final Node currentNode, Property property) {
         Element propertyNode = document.createElement(property.getField());
 
         propertyNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
@@ -163,25 +163,34 @@ public class DialogUtils {
         // Some of the properties are optional based on the different types available.
         addBasicProperties(propertyNode, property);
 
-        if (StringUtils.isNotEmpty(property.getField())
-                && !property.getType().equalsIgnoreCase("image")
-                && !property.getType().equalsIgnoreCase("multifield")
-                && !property.getType().equalsIgnoreCase(Constants.TYPE_HEADING)) {
-            propertyNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
-            propertyNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
+        getPrimaryFieldName(property).ifPresent(name -> {
+            propertyNode.setAttribute(Constants.PROPERTY_NAME, name);
+            propertyNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, name);
+        });
+
+        if ("image".equalsIgnoreCase(property.getType())) {
+            Element hiddenImageNode = document.createElement(property.getField() + "ResType");
+            addImageHiddenProperyValues(hiddenImageNode, property);
+            // add this hidden field to the parent
+            currentNode.appendChild(hiddenImageNode);
+            // add these default image attributes BEFORE generic attribute handling, to allow for
+            // individual overrides
+            addImagePropertyValues(propertyNode, property);
         }
 
         processAttributes(propertyNode, property);
 
         if (property.getItems() != null && !property.getItems().isEmpty()) {
-            if (!property.getType().equalsIgnoreCase("multifield")) {
+            if (!"multifield".equalsIgnoreCase(property.getType())) {
                 Node items = propertyNode.appendChild(createUnStructuredNode(document, "items"));
                 processItems(document, items, property);
             } else {
                 Element field = document.createElement("field");
                 field.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
+
                 field.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
                 field.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
+
                 field.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_FIELDSET);
 
                 if (property.getItems().size() == 1) {
@@ -219,16 +228,8 @@ public class DialogUtils {
             }
         }
 
-        if (property.getType().equalsIgnoreCase("image")) {
-            addImagePropertyValues(propertyNode, property);
-            currentNode.appendChild(propertyNode);
-
-            Element hiddenImageNode = document.createElement(property.getField() + "ResType");
-            addImageHiddenProperyValues(hiddenImageNode, property);
-            return hiddenImageNode;
-        }
-
-        return propertyNode;
+        // only append the primary property field after successfully constructing its members
+        currentNode.appendChild(propertyNode);
     }
 
     /**
@@ -264,7 +265,19 @@ public class DialogUtils {
             }
 
             if (StringUtils.equalsIgnoreCase("multifield", property.getType())) {
-                optionNode.setAttribute(Constants.PROPERTY_NAME, "./" + item.getField());
+                getPrimaryFieldName(item).ifPresent(name -> {
+                    optionNode.setAttribute(Constants.PROPERTY_NAME, name);
+                });
+
+                if ("image".equalsIgnoreCase(item.getType())) {
+                    Element hiddenImageNode = document.createElement(item.getField() + "ResType");
+                    addImageHiddenProperyValues(hiddenImageNode, item);
+                    // add this hidden field to the parent
+                    itemsNode.appendChild(hiddenImageNode);
+                    // add these default image attributes BEFORE generic attribute handling, to allow for
+                    // individual overrides
+                    addImagePropertyValues(optionNode, item);
+                }
             }
 
             processAttributes(optionNode, item);
@@ -300,11 +313,10 @@ public class DialogUtils {
      * @param property The {@link Property} object contains attributes
      */
     private static void addImagePropertyValues(Element imageNode, Property property) {
-        imageNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField() + "/file");
-        imageNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField() + "/file");
         imageNode.setAttribute("allowUpload", "{Boolean}false");
         imageNode.setAttribute("autoStart", "{Boolean}false");
         imageNode.setAttribute("class", "cq-droptarget");
+        imageNode.setAttribute("fileNameParameter", "./" + property.getField() + "/fileName");
         imageNode.setAttribute("fileReferenceParameter", "./" + property.getField() + "/fileReference");
         imageNode.setAttribute("mimeTypes", "[image/gif,image/jpeg,image/png,image/webp,image/tiff,image/svg+xml]");
         imageNode.setAttribute("multiple", "{Boolean}false");
@@ -420,6 +432,28 @@ public class DialogUtils {
         containerElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         containerElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, resourceType);
         return containerElement;
+    }
+
+    /**
+     * Return the submittable, lockable, primary field name for the given property. Fields that
+     * aren't defined or directly submittable will return empty. Image type wraps a fileupload field,
+     * which is expected to post to a "file" subresource relative to Image base resource.
+     *
+     * @param property the current property
+     * @return the appropriate field relative path name or empty
+     */
+    private static Optional<String> getPrimaryFieldName(Property property) {
+        final String type = property.getType();
+        if (StringUtils.isBlank(type)
+                || Constants.TYPE_HEADING.equalsIgnoreCase(type)
+                || "multifield".equalsIgnoreCase(type)) {
+            return Optional.empty();
+        }
+        if ("image".equalsIgnoreCase(type)) {
+            return Optional.of("./" + property.getField() + "/file");
+        } else {
+            return Optional.of("./" + property.getField());
+        }
     }
 
     /**

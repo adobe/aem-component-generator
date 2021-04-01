@@ -255,6 +255,12 @@
                         "label": "Label",
                         "description": "Label to display on the link",
                         "json-expose": true
+                    },
+                    {
+                        "field": "linkIcon",
+                        "type": "image",
+                        "label": "Link Icon",
+                        "json-expose": true
                     }
                 ]
             }
