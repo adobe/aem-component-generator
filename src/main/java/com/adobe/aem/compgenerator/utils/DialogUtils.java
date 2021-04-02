@@ -87,19 +87,19 @@ public class DialogUtils {
 
         if (null != properties && !properties.isEmpty()) {
             if (null != tabs && !tabs.isEmpty()) {
-                Node currentNode = createTabsParentNodeStructure(doc, rootElement);
+                Element currentNode = createTabsParentNodeStructure(doc, rootElement);
 
                 Map<String, Property> propertiesMap = properties.stream()
                         .collect(Collectors.toMap(Property::getField, Function.identity()));
 
                 for (Tab tab : tabs) {
-                    Node tabNode = createTabStructure(doc, tab, currentNode);
+                    Element tabNode = createTabStructure(doc, tab, currentNode);
                     List<Property> sortedProperties = tab.getFields().stream().map(propertiesMap::get)
                             .collect(Collectors.toList());
                     createNodeStructure(doc, sortedProperties, tabNode);
                 }
             } else {
-                Node currentNode = updateDefaultNodeStructure(doc, rootElement);
+                Element currentNode = updateDefaultNodeStructure(doc, rootElement);
                 createNodeStructure(doc, properties, currentNode);
             }
         }
@@ -113,7 +113,7 @@ public class DialogUtils {
      * @param properties {@link Property}
      * @param currentNode the current node
      */
-    private static void createNodeStructure(Document doc, List<Property> properties, Node currentNode) {
+    private static void createNodeStructure(Document doc, List<Property> properties, Element currentNode) {
         properties.stream().filter(Objects::nonNull)
                 .forEach(property -> createPropertyNode(doc, currentNode, property));
     }
@@ -151,10 +151,11 @@ public class DialogUtils {
      * Adds a dialog property xml node with all input attr under the document.
      *
      * @param document The {@link Document} object
+     * @param currentNode the current {@link Element} object
      * @param property The {@link Property} object contains attributes
      * @return Element
      */
-    private static void createPropertyNode(Document document, final Node currentNode, Property property) {
+    private static void createPropertyNode(Document document, final Element currentNode, Property property) {
         Element propertyNode = document.createElement(property.getField());
 
         propertyNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
@@ -169,10 +170,7 @@ public class DialogUtils {
         });
 
         if ("image".equalsIgnoreCase(property.getType())) {
-            Element hiddenImageNode = document.createElement(property.getField() + "ResType");
-            addImageHiddenProperyValues(hiddenImageNode, property);
-            // add this hidden field to the parent
-            currentNode.appendChild(hiddenImageNode);
+            addImageHiddenProperyValues(document, currentNode, property);
             // add these default image attributes BEFORE generic attribute handling, to allow for
             // individual overrides
             addImagePropertyValues(propertyNode, property);
@@ -182,7 +180,8 @@ public class DialogUtils {
 
         if (property.getItems() != null && !property.getItems().isEmpty()) {
             if (!"multifield".equalsIgnoreCase(property.getType())) {
-                Node items = propertyNode.appendChild(createUnStructuredNode(document, "items"));
+                Element items = createUnStructuredNode(document, "items");
+                propertyNode.appendChild(items);
                 processItems(document, items, property);
             } else {
                 Element field = document.createElement("field");
@@ -220,7 +219,8 @@ public class DialogUtils {
                     items.appendChild(actualField);
                 } else {
                     propertyNode.setAttribute(Constants.PROPERTY_COMPOSITE, "{Boolean}true");
-                    Node items = field.appendChild(createUnStructuredNode(document, "items"));
+                    Element items = createUnStructuredNode(document, "items");
+                    field.appendChild(items);
                     processItems(document, items, property);
                 }
 
@@ -249,10 +249,10 @@ public class DialogUtils {
      * Process the dialog node item by setting property attributes on it.
      *
      * @param document The {@link Document} object
-     * @param itemsNode The {@link Node} object
+     * @param itemsNode The parent {@link Element} object
      * @param property The {@link Property} object contains attributes
      */
-    private static void processItems(Document document, Node itemsNode, Property property) {
+    private static void processItems(Document document, Element itemsNode, Property property) {
         for (Property item : property.getItems()) {
             Element optionNode = document.createElement(item.getField());
             optionNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
@@ -270,10 +270,8 @@ public class DialogUtils {
                 });
 
                 if ("image".equalsIgnoreCase(item.getType())) {
-                    Element hiddenImageNode = document.createElement(item.getField() + "ResType");
-                    addImageHiddenProperyValues(hiddenImageNode, item);
-                    // add this hidden field to the parent
-                    itemsNode.appendChild(hiddenImageNode);
+                    addImageHiddenProperyValues(document, itemsNode, item);
+
                     // add these default image attributes BEFORE generic attribute handling, to allow for
                     // individual overrides
                     addImagePropertyValues(optionNode, item);
@@ -329,15 +327,19 @@ public class DialogUtils {
      * Adds the properties specific to the hidden image node that allows the image
      * dropzone to operate properly on dialogs.
      *
-     * @param hiddenImageNode An {@link Element} object representing an image's
-     *            hidden node
+     * @param document the host document
+     * @param parentElement An {@link Element} object that an image's
+     *            hidden node should be added as a child to
      * @param property The {@link Property} object contains attributes
      */
-    private static void addImageHiddenProperyValues(Element hiddenImageNode, Property property) {
+    private static void addImageHiddenProperyValues(Document document, Element parentElement, Property property) {
+        Element hiddenImageNode = document.createElement(property.getField() + "ResType");
         hiddenImageNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         hiddenImageNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_HIDDEN);
         hiddenImageNode.setAttribute("name", "./" + property.getField() + "/" + Constants.PROPERTY_SLING_RESOURCETYPE);
         hiddenImageNode.setAttribute("value", Constants.RESOURCE_TYPE_IMAGE_HIDDEN_TYPE);
+        // add this hidden field to the parent
+        parentElement.appendChild(hiddenImageNode);
     }
 
     /**
@@ -348,7 +350,7 @@ public class DialogUtils {
      * @param root The root node to append children nodes to
      * @return Node
      */
-    private static Node updateDefaultNodeStructure(Document document, Element root) {
+    private static Element updateDefaultNodeStructure(Document document, Element root) {
         Element containerElement = createNode(document, "content", Constants.RESOURCE_TYPE_CONTAINER);
 
         Element layoutElement = createNode(document, "layout", Constants.RESOURCE_TYPE_FIXEDCOLUMNS);
@@ -356,11 +358,13 @@ public class DialogUtils {
 
         Element columnElement = createNode(document, "column", Constants.RESOURCE_TYPE_CONTAINER);
 
-        Node containerNode = root.appendChild(containerElement);
+        root.appendChild(containerElement);
 
-        containerNode.appendChild(layoutElement);
-        return containerNode.appendChild(createUnStructuredNode(document, "items")).appendChild(columnElement)
-                .appendChild(createUnStructuredNode(document, "items"));
+        containerElement.appendChild(layoutElement);
+        Element topItemsElement = createUnStructuredNode(document, "items");
+        Element bottomItemsElement = createUnStructuredNode(document, "items");
+        containerElement.appendChild(topItemsElement).appendChild(columnElement).appendChild(bottomItemsElement);
+        return bottomItemsElement;
     }
 
     /**
@@ -370,13 +374,15 @@ public class DialogUtils {
      * @param root The {@link Element} object
      * @return the node
      */
-    private static Node createTabsParentNodeStructure(Document document, Element root) {
+    private static Element createTabsParentNodeStructure(Document document, Element root) {
         Element containerElement = createNode(document, "content", Constants.RESOURCE_TYPE_CONTAINER);
-        Node containerNode = root.appendChild(containerElement);
+        root.appendChild(containerElement);
+        Element topItemsElement = createUnStructuredNode(document, "items");
         Element tabsElement = createNode(document, "tabs", Constants.RESOURCE_TYPE_TABS);
+        Element bottomItemsElement = createUnStructuredNode(document, "items");
+        containerElement.appendChild(topItemsElement).appendChild(tabsElement).appendChild(bottomItemsElement);
 
-        return containerNode.appendChild(createUnStructuredNode(document, "items")).appendChild(tabsElement)
-                .appendChild(createUnStructuredNode(document, "items"));
+        return bottomItemsElement;
     }
 
     /**
@@ -384,10 +390,10 @@ public class DialogUtils {
      *
      * @param document The {@link Document} object
      * @param tab the tab
-     * @param node The {@link Node} object
+     * @param parentElement The parent {@link Element} object
      * @return the node {@link Node} object
      */
-    private static Node createTabStructure(Document document, Tab tab, Node node) {
+    private static Element createTabStructure(Document document, Tab tab, Element parentElement) {
         Element tabElement = createNode(document, tab.getId(), Constants.RESOURCE_TYPE_CONTAINER);
         String label = tab.getLabel();
         if (StringUtils.isBlank(label)) {
@@ -402,8 +408,11 @@ public class DialogUtils {
 
         tabElement.appendChild(layoutElement);
 
-        return node.appendChild(tabElement).appendChild(createUnStructuredNode(document, "items"))
-                .appendChild(columnElement).appendChild(createUnStructuredNode(document, "items"));
+        Element topItemsElement = createUnStructuredNode(document, "items");
+        Element bottomItemsElement = createUnStructuredNode(document, "items");
+        parentElement.appendChild(tabElement).appendChild(topItemsElement)
+                .appendChild(columnElement).appendChild(bottomItemsElement);
+        return bottomItemsElement;
     }
 
     /**
@@ -413,7 +422,7 @@ public class DialogUtils {
      * @param nodeName The name of the node being created
      * @return Node
      */
-    protected static Node createUnStructuredNode(Document document, String nodeName) {
+    protected static Element createUnStructuredNode(Document document, String nodeName) {
         Element element = document.createElement(nodeName);
         element.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         return element;
