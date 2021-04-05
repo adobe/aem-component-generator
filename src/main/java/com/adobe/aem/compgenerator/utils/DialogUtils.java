@@ -159,7 +159,9 @@ public class DialogUtils {
         Element propertyNode = document.createElement(property.getField());
 
         propertyNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
-        propertyNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, getSlingResourceType(property.getType()));
+        Optional.ofNullable(getSlingResourceType(property.getType())).ifPresent(resType -> {
+            propertyNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, resType);
+        });
 
         // Some of the properties are optional based on the different types available.
         addBasicProperties(propertyNode, property);
@@ -213,7 +215,9 @@ public class DialogUtils {
                     actualField.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
 
                     Property prop = property.getItems().get(0);
-                    actualField.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, getSlingResourceType(prop.getType()));
+                    Optional.ofNullable(getSlingResourceType(prop.getType())).ifPresent(resType -> {
+                        actualField.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, resType);
+                    });
                     addBasicProperties(actualField, prop);
                     processAttributes(actualField, prop);
                     items.appendChild(actualField);
@@ -493,8 +497,6 @@ public class DialogUtils {
                 return Constants.RESOURCE_TYPE_SELECT;
             } else if (StringUtils.equalsIgnoreCase("radiogroup", type)) {
                 return Constants.RESOURCE_TYPE_RADIOGROUP;
-            } else if (StringUtils.equalsIgnoreCase("radio", type)) {
-                return Constants.RESOURCE_TYPE_RADIO;
             } else if (StringUtils.equalsIgnoreCase("image", type)) {
                 return Constants.RESOURCE_TYPE_IMAGE;
             } else if (StringUtils.equalsIgnoreCase("multifield", type)) {

@@ -36,7 +36,6 @@ public class Constants {
     public static final String RESOURCE_TYPE_NUMBER = "granite/ui/components/coral/foundation/form/numberfield";
     public static final String RESOURCE_TYPE_PAGEFIELD = "cq/gui/components/coral/common/form/pagefield";
     public static final String RESOURCE_TYPE_PATHFIELD = "granite/ui/components/coral/foundation/form/pathfield";
-    public static final String RESOURCE_TYPE_RADIO = "granite/ui/components/coral/foundation/form/radio";
     public static final String RESOURCE_TYPE_RADIOGROUP = "granite/ui/components/coral/foundation/form/radiogroup";
     public static final String RESOURCE_TYPE_SECTION = "granite/ui/components/foundation/section";
     public static final String RESOURCE_TYPE_SELECT = "granite/ui/components/coral/foundation/form/select";
