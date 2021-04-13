@@ -130,7 +130,11 @@ public class JavaCodeModel {
      */
     private void generateCodeFiles() throws IOException {
         // RenameFileCodeWritern to rename existing files
-        CodeWriter codeWriter = new RenameFileCodeWriter(new File(generationConfig.getProjectSettings().getBundlePath()));
+        File bundlePath = new File(generationConfig.getProjectSettings().getBundlePath());
+        if (!bundlePath.exists()) {
+            bundlePath.mkdirs();
+        }
+        CodeWriter codeWriter = new RenameFileCodeWriter(bundlePath);
 
         // PrologCodeWriter to prepend the copyright template in each file
         String templateString = CommonUtils.getTemplateFileAsString(Constants.TEMPLATE_COPYRIGHT_JAVA, generationConfig);
@@ -138,7 +142,11 @@ public class JavaCodeModel {
 
         codeModel.build(prologCodeWriter);
         if (generationConfig.getOptions().isHasTestClass()) {
-            CodeWriter codeWriterTest = new RenameFileCodeWriter(new File(generationConfig.getProjectSettings().getTestPath()));
+            File testPath = new File(generationConfig.getProjectSettings().getTestPath());
+            if (!testPath.exists()) {
+                testPath.mkdirs();
+            }
+            CodeWriter codeWriterTest = new RenameFileCodeWriter(testPath);
             PrologCodeWriter prologCodeWriterTest = new PrologCodeWriter(codeWriterTest, templateString);
             codeModelTest.build(prologCodeWriterTest);
         }

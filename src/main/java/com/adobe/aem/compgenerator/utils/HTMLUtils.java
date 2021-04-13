@@ -87,10 +87,17 @@ public class HTMLUtils {
             StringBuilder items = new StringBuilder(initialListHtml);
             int index = 1;
             for (Property property : prop.getItems()) {
-                items.append(property.getLabel())
-                        .append(": ${item.")
-                        .append(property.getField())
-                        .append(prop.getItems().size() == index ? "}" : "} | ");
+                if ("image".equalsIgnoreCase(property.getType())) {
+                    items.append(property.getLabel())
+                            .append(": ${item.")
+                            .append(property.getField()).append(".src")
+                            .append(prop.getItems().size() == index ? "}" : "} | ");
+                } else {
+                    items.append(property.getLabel())
+                            .append(": ${item.")
+                            .append(property.getField())
+                            .append(prop.getItems().size() == index ? "}" : "} | ");
+                }
                 index++;
             }
             return items + "</p>\n    </div>\n";

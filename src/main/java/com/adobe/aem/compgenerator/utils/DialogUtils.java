@@ -22,6 +22,7 @@ package com.adobe.aem.compgenerator.utils;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -86,19 +87,19 @@ public class DialogUtils {
 
         if (null != properties && !properties.isEmpty()) {
             if (null != tabs && !tabs.isEmpty()) {
-                Node currentNode = createTabsParentNodeStructure(doc, rootElement);
+                Element currentNode = createTabsParentNodeStructure(doc, rootElement);
 
                 Map<String, Property> propertiesMap = properties.stream()
                         .collect(Collectors.toMap(Property::getField, Function.identity()));
 
                 for (Tab tab : tabs) {
-                    Node tabNode = createTabStructure(doc, tab, currentNode);
+                    Element tabNode = createTabStructure(doc, tab, currentNode);
                     List<Property> sortedProperties = tab.getFields().stream().map(propertiesMap::get)
                             .collect(Collectors.toList());
                     createNodeStructure(doc, sortedProperties, tabNode);
                 }
             } else {
-                Node currentNode = updateDefaultNodeStructure(doc, rootElement);
+                Element currentNode = updateDefaultNodeStructure(doc, rootElement);
                 createNodeStructure(doc, properties, currentNode);
             }
         }
@@ -112,10 +113,9 @@ public class DialogUtils {
      * @param properties {@link Property}
      * @param currentNode the current node
      */
-    private static void createNodeStructure(Document doc, List<Property> properties, Node currentNode) {
+    private static void createNodeStructure(Document doc, List<Property> properties, Element currentNode) {
         properties.stream().filter(Objects::nonNull)
-                .map(property -> createPropertyNode(doc, currentNode, property)).filter(Objects::nonNull)
-                .forEach(propertyNode -> currentNode.appendChild(propertyNode));
+                .forEach(property -> createPropertyNode(doc, currentNode, property));
     }
 
     /**
@@ -151,37 +151,47 @@ public class DialogUtils {
      * Adds a dialog property xml node with all input attr under the document.
      *
      * @param document The {@link Document} object
+     * @param currentNode the current {@link Element} object
      * @param property The {@link Property} object contains attributes
      * @return Element
      */
-    private static Element createPropertyNode(Document document, Node currentNode, Property property) {
+    private static void createPropertyNode(Document document, final Element currentNode, Property property) {
         Element propertyNode = document.createElement(property.getField());
 
         propertyNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
-        propertyNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, getSlingResourceType(property.getType()));
+        Optional.ofNullable(getSlingResourceType(property.getType())).ifPresent(resType -> {
+            propertyNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, resType);
+        });
 
         // Some of the properties are optional based on the different types available.
         addBasicProperties(propertyNode, property);
 
-        if (StringUtils.isNotEmpty(property.getField())
-                && !property.getType().equalsIgnoreCase("image")
-                && !property.getType().equalsIgnoreCase("multifield")
-                && !property.getType().equalsIgnoreCase(Constants.TYPE_HEADING)) {
-            propertyNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
-            propertyNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
+        getPrimaryFieldName(property).ifPresent(name -> {
+            propertyNode.setAttribute(Constants.PROPERTY_NAME, name);
+            propertyNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, name);
+        });
+
+        if ("image".equalsIgnoreCase(property.getType())) {
+            addImageHiddenProperyValues(document, currentNode, property);
+            // add these default image attributes BEFORE generic attribute handling, to allow for
+            // individual overrides
+            addImagePropertyValues(propertyNode, property);
         }
 
         processAttributes(propertyNode, property);
 
         if (property.getItems() != null && !property.getItems().isEmpty()) {
-            if (!property.getType().equalsIgnoreCase("multifield")) {
-                Node items = propertyNode.appendChild(createUnStructuredNode(document, "items"));
+            if (!"multifield".equalsIgnoreCase(property.getType())) {
+                Element items = createUnStructuredNode(document, "items");
+                propertyNode.appendChild(items);
                 processItems(document, items, property);
             } else {
                 Element field = document.createElement("field");
                 field.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
+
                 field.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField());
                 field.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
+
                 field.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_FIELDSET);
 
                 if (property.getItems().size() == 1) {
@@ -205,13 +215,16 @@ public class DialogUtils {
                     actualField.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField());
 
                     Property prop = property.getItems().get(0);
-                    actualField.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, getSlingResourceType(prop.getType()));
+                    Optional.ofNullable(getSlingResourceType(prop.getType())).ifPresent(resType -> {
+                        actualField.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, resType);
+                    });
                     addBasicProperties(actualField, prop);
                     processAttributes(actualField, prop);
                     items.appendChild(actualField);
                 } else {
                     propertyNode.setAttribute(Constants.PROPERTY_COMPOSITE, "{Boolean}true");
-                    Node items = field.appendChild(createUnStructuredNode(document, "items"));
+                    Element items = createUnStructuredNode(document, "items");
+                    field.appendChild(items);
                     processItems(document, items, property);
                 }
 
@@ -219,16 +232,8 @@ public class DialogUtils {
             }
         }
 
-        if (property.getType().equalsIgnoreCase("image")) {
-            addImagePropertyValues(propertyNode, property);
-            currentNode.appendChild(propertyNode);
-
-            Element hiddenImageNode = document.createElement(property.getField() + "ResType");
-            addImageHiddenProperyValues(hiddenImageNode, property);
-            return hiddenImageNode;
-        }
-
-        return propertyNode;
+        // only append the primary property field after successfully constructing its members
+        currentNode.appendChild(propertyNode);
     }
 
     /**
@@ -248,10 +253,10 @@ public class DialogUtils {
      * Process the dialog node item by setting property attributes on it.
      *
      * @param document The {@link Document} object
-     * @param itemsNode The {@link Node} object
+     * @param itemsNode The parent {@link Element} object
      * @param property The {@link Property} object contains attributes
      */
-    private static void processItems(Document document, Node itemsNode, Property property) {
+    private static void processItems(Document document, Element itemsNode, Property property) {
         for (Property item : property.getItems()) {
             Element optionNode = document.createElement(item.getField());
             optionNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
@@ -264,7 +269,17 @@ public class DialogUtils {
             }
 
             if (StringUtils.equalsIgnoreCase("multifield", property.getType())) {
-                optionNode.setAttribute(Constants.PROPERTY_NAME, "./" + item.getField());
+                getPrimaryFieldName(item).ifPresent(name -> {
+                    optionNode.setAttribute(Constants.PROPERTY_NAME, name);
+                });
+
+                if ("image".equalsIgnoreCase(item.getType())) {
+                    addImageHiddenProperyValues(document, itemsNode, item);
+
+                    // add these default image attributes BEFORE generic attribute handling, to allow for
+                    // individual overrides
+                    addImagePropertyValues(optionNode, item);
+                }
             }
 
             processAttributes(optionNode, item);
@@ -300,11 +315,10 @@ public class DialogUtils {
      * @param property The {@link Property} object contains attributes
      */
     private static void addImagePropertyValues(Element imageNode, Property property) {
-        imageNode.setAttribute(Constants.PROPERTY_NAME, "./" + property.getField() + "/file");
-        imageNode.setAttribute(Constants.PROPERTY_CQ_MSM_LOCKABLE, "./" + property.getField() + "/file");
         imageNode.setAttribute("allowUpload", "{Boolean}false");
         imageNode.setAttribute("autoStart", "{Boolean}false");
         imageNode.setAttribute("class", "cq-droptarget");
+        imageNode.setAttribute("fileNameParameter", "./" + property.getField() + "/fileName");
         imageNode.setAttribute("fileReferenceParameter", "./" + property.getField() + "/fileReference");
         imageNode.setAttribute("mimeTypes", "[image/gif,image/jpeg,image/png,image/webp,image/tiff,image/svg+xml]");
         imageNode.setAttribute("multiple", "{Boolean}false");
@@ -317,15 +331,19 @@ public class DialogUtils {
      * Adds the properties specific to the hidden image node that allows the image
      * dropzone to operate properly on dialogs.
      *
-     * @param hiddenImageNode An {@link Element} object representing an image's
-     *            hidden node
+     * @param document the host document
+     * @param parentElement An {@link Element} object that an image's
+     *            hidden node should be added as a child to
      * @param property The {@link Property} object contains attributes
      */
-    private static void addImageHiddenProperyValues(Element hiddenImageNode, Property property) {
+    private static void addImageHiddenProperyValues(Document document, Element parentElement, Property property) {
+        Element hiddenImageNode = document.createElement(property.getField() + "ResType");
         hiddenImageNode.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         hiddenImageNode.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, Constants.RESOURCE_TYPE_HIDDEN);
         hiddenImageNode.setAttribute("name", "./" + property.getField() + "/" + Constants.PROPERTY_SLING_RESOURCETYPE);
         hiddenImageNode.setAttribute("value", Constants.RESOURCE_TYPE_IMAGE_HIDDEN_TYPE);
+        // add this hidden field to the parent
+        parentElement.appendChild(hiddenImageNode);
     }
 
     /**
@@ -336,7 +354,7 @@ public class DialogUtils {
      * @param root The root node to append children nodes to
      * @return Node
      */
-    private static Node updateDefaultNodeStructure(Document document, Element root) {
+    private static Element updateDefaultNodeStructure(Document document, Element root) {
         Element containerElement = createNode(document, "content", Constants.RESOURCE_TYPE_CONTAINER);
 
         Element layoutElement = createNode(document, "layout", Constants.RESOURCE_TYPE_FIXEDCOLUMNS);
@@ -344,11 +362,13 @@ public class DialogUtils {
 
         Element columnElement = createNode(document, "column", Constants.RESOURCE_TYPE_CONTAINER);
 
-        Node containerNode = root.appendChild(containerElement);
+        root.appendChild(containerElement);
 
-        containerNode.appendChild(layoutElement);
-        return containerNode.appendChild(createUnStructuredNode(document, "items")).appendChild(columnElement)
-                .appendChild(createUnStructuredNode(document, "items"));
+        containerElement.appendChild(layoutElement);
+        Element topItemsElement = createUnStructuredNode(document, "items");
+        Element bottomItemsElement = createUnStructuredNode(document, "items");
+        containerElement.appendChild(topItemsElement).appendChild(columnElement).appendChild(bottomItemsElement);
+        return bottomItemsElement;
     }
 
     /**
@@ -358,13 +378,15 @@ public class DialogUtils {
      * @param root The {@link Element} object
      * @return the node
      */
-    private static Node createTabsParentNodeStructure(Document document, Element root) {
+    private static Element createTabsParentNodeStructure(Document document, Element root) {
         Element containerElement = createNode(document, "content", Constants.RESOURCE_TYPE_CONTAINER);
-        Node containerNode = root.appendChild(containerElement);
+        root.appendChild(containerElement);
+        Element topItemsElement = createUnStructuredNode(document, "items");
         Element tabsElement = createNode(document, "tabs", Constants.RESOURCE_TYPE_TABS);
+        Element bottomItemsElement = createUnStructuredNode(document, "items");
+        containerElement.appendChild(topItemsElement).appendChild(tabsElement).appendChild(bottomItemsElement);
 
-        return containerNode.appendChild(createUnStructuredNode(document, "items")).appendChild(tabsElement)
-                .appendChild(createUnStructuredNode(document, "items"));
+        return bottomItemsElement;
     }
 
     /**
@@ -372,10 +394,10 @@ public class DialogUtils {
      *
      * @param document The {@link Document} object
      * @param tab the tab
-     * @param node The {@link Node} object
+     * @param parentElement The parent {@link Element} object
      * @return the node {@link Node} object
      */
-    private static Node createTabStructure(Document document, Tab tab, Node node) {
+    private static Element createTabStructure(Document document, Tab tab, Element parentElement) {
         Element tabElement = createNode(document, tab.getId(), Constants.RESOURCE_TYPE_CONTAINER);
         String label = tab.getLabel();
         if (StringUtils.isBlank(label)) {
@@ -390,8 +412,11 @@ public class DialogUtils {
 
         tabElement.appendChild(layoutElement);
 
-        return node.appendChild(tabElement).appendChild(createUnStructuredNode(document, "items"))
-                .appendChild(columnElement).appendChild(createUnStructuredNode(document, "items"));
+        Element topItemsElement = createUnStructuredNode(document, "items");
+        Element bottomItemsElement = createUnStructuredNode(document, "items");
+        parentElement.appendChild(tabElement).appendChild(topItemsElement)
+                .appendChild(columnElement).appendChild(bottomItemsElement);
+        return bottomItemsElement;
     }
 
     /**
@@ -401,7 +426,7 @@ public class DialogUtils {
      * @param nodeName The name of the node being created
      * @return Node
      */
-    protected static Node createUnStructuredNode(Document document, String nodeName) {
+    protected static Element createUnStructuredNode(Document document, String nodeName) {
         Element element = document.createElement(nodeName);
         element.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         return element;
@@ -420,6 +445,28 @@ public class DialogUtils {
         containerElement.setAttribute(Constants.JCR_PRIMARY_TYPE, Constants.NT_UNSTRUCTURED);
         containerElement.setAttribute(Constants.PROPERTY_SLING_RESOURCETYPE, resourceType);
         return containerElement;
+    }
+
+    /**
+     * Return the submittable, lockable, primary field name for the given property. Fields that
+     * aren't defined or directly submittable will return empty. Image type wraps a fileupload field,
+     * which is expected to post to a "file" subresource relative to Image base resource.
+     *
+     * @param property the current property
+     * @return the appropriate field relative path name or empty
+     */
+    private static Optional<String> getPrimaryFieldName(Property property) {
+        final String type = property.getType();
+        if (StringUtils.isBlank(type)
+                || Constants.TYPE_HEADING.equalsIgnoreCase(type)
+                || "multifield".equalsIgnoreCase(type)) {
+            return Optional.empty();
+        }
+        if ("image".equalsIgnoreCase(type)) {
+            return Optional.of("./" + property.getField() + "/file");
+        } else {
+            return Optional.of("./" + property.getField());
+        }
     }
 
     /**
@@ -450,8 +497,6 @@ public class DialogUtils {
                 return Constants.RESOURCE_TYPE_SELECT;
             } else if (StringUtils.equalsIgnoreCase("radiogroup", type)) {
                 return Constants.RESOURCE_TYPE_RADIOGROUP;
-            } else if (StringUtils.equalsIgnoreCase("radio", type)) {
-                return Constants.RESOURCE_TYPE_RADIO;
             } else if (StringUtils.equalsIgnoreCase("image", type)) {
                 return Constants.RESOURCE_TYPE_IMAGE;
             } else if (StringUtils.equalsIgnoreCase("multifield", type)) {
